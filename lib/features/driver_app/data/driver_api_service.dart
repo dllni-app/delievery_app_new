@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../common/helper/helper.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/unified_api/dio/api_client.dart';
 import 'driver_models.dart';
 
@@ -9,8 +10,7 @@ class DriverApiService {
 
   final ApiClient _apiClient;
 
-  // Keep the base URL centralized so it can later move to flavors/env.
-  static const String baseUrl = 'https://alnadha.net/api/v1/delivery/driver';
+  String get baseUrl => AppConfig.driverApiBaseUrl;
 
   Future<LoginResult> login({required String phone, required String password, String? fcmToken}) async {
     final response = await _apiClient.post(
@@ -25,8 +25,8 @@ class DriverApiService {
     final body = _asMap(response.data);
     final data = _asMap(body['data']);
     return LoginResult(
-      token: body['token']?.toString() ?? '',
-      driver: DriverModel.fromJson(_asMap(data['driver'])),
+      token: (body['token'] ?? data['token'])?.toString() ?? '',
+      driver: DriverModel.fromJson(_asMap(data['driver'] ?? body['driver'])),
     );
   }
 
