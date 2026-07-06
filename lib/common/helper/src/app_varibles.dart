@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../core/di/injection.dart';
 import '../../../core/unified_api/dio/api_client.dart';
 import '../../models/user_model.dart';
@@ -10,25 +14,43 @@ class AppVariables {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   static final SharedPreferences _pref = getIt<SharedPreferences>();
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   static String? _tokenCache;
 
   static Future<void> initializeSession() async {
-    _tokenCache = _pref.getString(PrefsKeys.token);
+    final secureToken = await _secureStorage.read(key: PrefsKeys.token);
+    if (secureToken != null && secureToken.isNotEmpty) {
+      _tokenCache = secureToken;
+      return;
+    }
+
+    final legacyToken = _pref.getString(PrefsKeys.token);
+    if (legacyToken == null || legacyToken.isEmpty) {
+      _tokenCache = null;
+      return;
+    }
+
+    await _secureStorage.write(key: PrefsKeys.token, value: legacyToken);
+    await _pref.remove(PrefsKeys.token);
+    _tokenCache = legacyToken;
   }
 
-  static String? get token => _pref.getString(PrefsKeys.token);
+  static String? get token => _tokenCache;
 
   static set token(String? token) {
     _tokenCache = token;
     if (token == null || token.isEmpty) {
-      _pref.remove(PrefsKeys.token);
+      unawaited(_secureStorage.delete(key: PrefsKeys.token));
+      unawaited(_pref.remove(PrefsKeys.token));
       return;
     }
-    _pref.setString(PrefsKeys.token, token);
+    unawaited(_secureStorage.write(key: PrefsKeys.token, value: token));
+    unawaited(_pref.remove(PrefsKeys.token));
   }
 
   static Future<void> clearSession() async {
     _tokenCache = null;
+    await _secureStorage.delete(key: PrefsKeys.token);
     await _pref.remove(PrefsKeys.token);
     await _pref.remove(PrefsKeys.userInfo);
     getIt<ApiClient>().resetHeader();
