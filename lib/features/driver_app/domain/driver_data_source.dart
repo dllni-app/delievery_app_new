@@ -18,4 +18,5 @@ abstract class DriverDataSource {
   Future<void> markNotificationRead(String id);
   Future<List<DeliveryDisputeModel>> getDisputes({int perPage = 20});
   String userFacingError(Object error);
+  bool isUnauthorized(Object error);
 }
