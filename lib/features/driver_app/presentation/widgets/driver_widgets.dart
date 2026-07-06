@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../data/driver_dashboard_models.dart';
 import '../../data/driver_models.dart';
+import '../cubit/driver_app_cubit.dart';
 
 const Color kDriverPrimary = Color(0xFF021064);
 const Color kDriverPrimaryContainer = Color(0xFF1E2A78);
@@ -118,8 +121,20 @@ class DriverMetricCard extends StatelessWidget {
   final String label;
   final Color color;
 
+  bool get _canUseDashboardSummary => label == 'طلبات نشطة' || label == 'الرصيد';
+
   @override
   Widget build(BuildContext context) {
+    var displayValue = value;
+    if (_canUseDashboardSummary) {
+      final summary = context.select<DriverAppCubit, DeliveryDashboardSummaryModel?>((cubit) => cubit.state.dashboardSummary);
+      displayValue = switch (label) {
+        'طلبات نشطة' when summary != null => summary.activeOrdersCount.toString(),
+        'الرصيد' when summary != null => formatMoney(summary.currentBalance, summary.currency),
+        _ => value,
+      };
+    }
+
     return DriverCard(
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -128,7 +143,7 @@ class DriverMetricCard extends StatelessWidget {
         children: [
           Icon(icon, color: color),
           const SizedBox(height: 16),
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kDriverText)),
+          Text(displayValue, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kDriverText)),
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(fontSize: 13, color: kDriverMuted)),
         ],
