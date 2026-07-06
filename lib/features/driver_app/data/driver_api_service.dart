@@ -131,6 +131,10 @@ class DriverApiService {
     return unwrapDataList(response.data).map(DeliveryDisputeModel.fromJson).toList();
   }
 
+  bool isUnauthorized(Object error) {
+    return error is DioException && error.response?.statusCode == 401;
+  }
+
   String userFacingError(Object error) {
     if (error is DioException) {
       final responseData = error.response?.data;

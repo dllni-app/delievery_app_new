@@ -9,7 +9,7 @@ class NotificationNavigator {
   static void navigateFromData(Map<String, dynamic> data) {
     final payload = _normalizePayload(data);
     if (payload == null) {
-      _goToDriverHome();
+      _goToDriverEntry();
       return;
     }
 
@@ -26,11 +26,11 @@ class NotificationNavigator {
         payload.containsKey('orderId');
 
     if (isDeliveryPayload) {
-      _goToDriverHome();
+      _goToDriverEntry();
       return;
     }
 
-    _goToDriverHome();
+    _goToDriverEntry();
   }
 
   static void navigateFromScreen(Map<String, dynamic> data) {
@@ -55,9 +55,9 @@ class NotificationNavigator {
     return data.map((key, value) => MapEntry(key.toString(), value));
   }
 
-  static void _goToDriverHome() {
+  static void _goToDriverEntry() {
     final navigator = AppVariables.navigatorKey.currentState;
     if (navigator == null) return;
-    navigator.pushNamedAndRemoveUntil(RouteName.homeNav, (_) => false);
+    navigator.pushNamedAndRemoveUntil(RouteName.splash, (_) => false);
   }
 }

@@ -63,4 +63,7 @@ class DriverDataSourceImpl implements DriverDataSource {
 
   @override
   String userFacingError(Object error) => _service.userFacingError(error);
+
+  @override
+  bool isUnauthorized(Object error) => _service.isUnauthorized(error);
 }

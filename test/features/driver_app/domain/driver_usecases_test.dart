@@ -126,6 +126,9 @@ class _FakeDriverDataSource implements DriverDataSource {
 
   @override
   String userFacingError(Object error) => error.toString();
+
+  @override
+  bool isUnauthorized(Object error) => false;
 }
 
 DeliveryOrderModel _order({required String status}) {
