@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/location.dart' as loc;
 
-import '../../../../router/app_router.dart';
+import '../../../../router/route_names.dart';
 import '../../data/driver_models.dart';
 import '../cubit/driver_app_cubit.dart';
 import '../widgets/driver_widgets.dart';
@@ -87,13 +87,13 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 28),
-                          const CircleAvatar(radius: 44, backgroundColor: kDriverPrimaryContainer, child: Icon(Icons.delivery_dining, color: Colors.white, size: 44)),
+                          const SizedBox(height: 40),
+                          const CircleAvatar(radius: 46, backgroundColor: kDriverPrimaryContainer, child: Icon(Icons.delivery_dining, color: Colors.white, size: 46)),
                           const SizedBox(height: 18),
                           const Text('تسجيل الدخول', textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: kDriverPrimary)),
                           const SizedBox(height: 8),
                           const Text('أدخل بيانات حساب المندوب للمتابعة', textAlign: TextAlign.center, style: TextStyle(color: kDriverMuted)),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 28),
                           DriverCard(
                             child: Column(
                               children: [
@@ -151,18 +151,17 @@ class DriverShellScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => DriverAppCubit()..loadDashboard(),
       child: BlocConsumer<DriverAppCubit, DriverAppState>(
-        listenWhen: (previous, current) => previous.errorMessage != current.errorMessage || previous.isAuthenticated != current.isAuthenticated,
+        listenWhen: (previous, current) => previous.errorMessage != current.errorMessage,
         listener: (context, state) {
           if (state.errorMessage != null) _showSnack(context, state.errorMessage!);
-          if (!state.isAuthenticated && state.driver == null) Navigator.of(context).pushNamedAndRemoveUntil(RouteName.login, (_) => false);
         },
         builder: (context, state) {
-          final pages = <Widget>[
-            const DriverDashboardPage(),
-            const DriverOrdersPage(),
-            const DriverNotificationsPage(),
-            const DriverDisputesPage(),
-            const DriverMorePage(),
+          final pages = const [
+            DriverDashboardPage(),
+            DriverOrdersPage(),
+            DriverNotificationsPage(),
+            DriverDisputesPage(),
+            DriverMorePage(),
           ];
           return Directionality(
             textDirection: TextDirection.rtl,
@@ -174,9 +173,7 @@ class DriverShellScreen extends StatelessWidget {
                   backgroundColor: kDriverBackground,
                   elevation: 0,
                   title: Text(_titleForTab(state.currentTab), style: const TextStyle(color: kDriverPrimary, fontWeight: FontWeight.w800)),
-                  actions: [
-                    IconButton(onPressed: () => context.read<DriverAppCubit>().changeTab(2), icon: const Icon(Icons.notifications_none, color: kDriverPrimary)),
-                  ],
+                  actions: [IconButton(onPressed: () => context.read<DriverAppCubit>().changeTab(2), icon: const Icon(Icons.notifications_none, color: kDriverPrimary))],
                 ),
                 body: SafeArea(child: pages[state.currentTab]),
                 bottomNavigationBar: NavigationBar(
@@ -222,14 +219,11 @@ class DriverDashboardPage extends StatelessWidget {
                     const CircleAvatar(radius: 24, backgroundColor: kDriverPrimaryContainer, child: Icon(Icons.person, color: Colors.white)),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(driver?.firstName.isNotEmpty == true ? driver!.firstName : 'مندوب التوصيل', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                          const SizedBox(height: 4),
-                          Text(driver?.phone ?? '', style: const TextStyle(color: kDriverMuted)),
-                        ],
-                      ),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(driver?.firstName.isNotEmpty == true ? driver!.firstName : 'مندوب التوصيل', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 4),
+                        Text(driver?.phone ?? '', style: const TextStyle(color: kDriverMuted)),
+                      ]),
                     ),
                     DriverStatusBadge(status: driver?.availabilityStatus ?? 'offline'),
                   ],
@@ -240,51 +234,15 @@ class DriverDashboardPage extends StatelessWidget {
               const SizedBox(height: 14),
               _GpsCard(),
               const SizedBox(height: 18),
-              const Text('ملخص اليوم', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 10),
-              GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  DriverMetricCard(icon: Icons.task_alt, value: order?.status == 'completed' ? '1' : '0', label: 'طلبات مكتملة', color: kDriverSuccess),
-                  DriverMetricCard(icon: Icons.pending_actions, value: order == null ? '0' : '1', label: 'طلبات نشطة', color: kDriverAccent),
-                ],
-              ),
-              const SizedBox(height: 12),
-              DriverCard(
-                color: kDriverPrimaryContainer,
-                child: Row(
-                  children: [
-                    const Icon(Icons.account_balance_wallet, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(formatMoney(state.financialSummary?.currentBalance ?? 0, state.financialSummary?.currency ?? 'SYP'), style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
-                          const SizedBox(height: 4),
-                          const Text('الرصيد المستحق', style: TextStyle(color: Colors.white70)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              Row(children: [
+                Expanded(child: DriverMetricCard(icon: Icons.pending_actions, value: order == null ? '0' : '1', label: 'طلبات نشطة', color: kDriverAccent)),
+                const SizedBox(width: 12),
+                Expanded(child: DriverMetricCard(icon: Icons.account_balance_wallet, value: formatMoney(state.financialSummary?.currentBalance ?? 0, state.financialSummary?.currency ?? 'SYP'), label: 'الرصيد', color: kDriverPrimary)),
+              ]),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  const Expanded(child: Text('طلبات قريبة منك', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
-                  TextButton(onPressed: context.read<DriverAppCubit>().loadDashboard, child: const Text('تحديث')),
-                ],
-              ),
-              if (offer != null)
-                _OfferCard(offer: offer)
-              else
-                const DriverEmptyState(title: 'لا توجد عروض حالياً', message: 'عندما يصل طلب توصيل جديد سيظهر هنا مباشرة.', icon: Icons.radar),
+              const Text('طلبات قريبة منك', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 10),
+              if (offer != null) _OfferCard(offer: offer) else const DriverEmptyState(title: 'لا توجد عروض حالياً', message: 'عندما يصل طلب توصيل جديد سيظهر هنا مباشرة.', icon: Icons.radar),
               if (order != null) ...[
                 const SizedBox(height: 18),
                 const Text('الطلب النشط', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
@@ -318,7 +276,7 @@ class DriverOrdersPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               if (order == null)
-                const SizedBox(height: 120, child: DriverEmptyState(title: 'لا يوجد طلب نشط', message: 'سجل الطلبات الكامل يحتاج Endpoint منفصل من الباكند. حالياً يتم عرض الطلب النشط فقط.', icon: Icons.list_alt))
+                const SizedBox(height: 160, child: DriverEmptyState(title: 'لا يوجد طلب نشط', message: 'سجل الطلبات الكامل يحتاج Endpoint منفصل من الباكند. حالياً يتم عرض الطلب النشط فقط.', icon: Icons.list_alt))
               else
                 DriverOrderCard(
                   order: order,
@@ -346,41 +304,24 @@ class DriverNotificationsPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Row(
-                children: [
-                  FilterChip(label: const Text('الكل'), selected: !state.unreadOnly, onSelected: (_) => context.read<DriverAppCubit>().loadNotifications(unreadOnly: false)),
-                  const SizedBox(width: 8),
-                  FilterChip(label: const Text('غير المقروء'), selected: state.unreadOnly, onSelected: (_) => context.read<DriverAppCubit>().loadNotifications(unreadOnly: true)),
-                ],
+              SwitchListTile(
+                value: state.unreadOnly,
+                title: const Text('غير المقروءة فقط'),
+                onChanged: (value) => context.read<DriverAppCubit>().loadNotifications(unreadOnly: value),
               ),
-              const SizedBox(height: 12),
               if (state.notifications.isEmpty)
-                const SizedBox(height: 180, child: DriverEmptyState(title: 'لا توجد إشعارات', message: 'سيتم عرض إشعارات الطلبات والتنبيهات هنا.', icon: Icons.notifications_none))
+                const SizedBox(height: 160, child: DriverEmptyState(title: 'لا توجد إشعارات', message: 'ستظهر إشعارات الطلبات والتحديثات هنا.', icon: Icons.notifications_none))
               else
-                ...state.notifications.map((item) => Padding(
+                ...state.notifications.map((notification) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: DriverCard(
-                        onTap: item.isRead ? null : () => context.read<DriverAppCubit>().markNotificationRead(item),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(backgroundColor: item.isRead ? const Color(0xFFE1E3E4) : const Color(0xFFE3DFFF), child: Icon(item.isRead ? Icons.notifications_none : Icons.notifications_active, color: kDriverPrimary)),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(item.title, style: const TextStyle(fontWeight: FontWeight.w800)),
-                                  const SizedBox(height: 4),
-                                  Text(item.body, style: const TextStyle(color: kDriverMuted)),
-                                  if (item.createdAt != null) ...[
-                                    const SizedBox(height: 6),
-                                    Text(formatDate(item.createdAt), style: const TextStyle(fontSize: 12, color: kDriverMuted)),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
+                        onTap: () => context.read<DriverAppCubit>().markNotificationRead(notification),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(notification.isRead ? Icons.notifications_none : Icons.notifications_active, color: kDriverPrimary),
+                          title: Text(notification.title, style: const TextStyle(fontWeight: FontWeight.w800)),
+                          subtitle: Text(notification.body),
+                          trailing: notification.createdAt == null ? null : Text(formatDate(notification.createdAt), style: const TextStyle(fontSize: 11, color: kDriverMuted)),
                         ),
                       ),
                     )),
@@ -405,25 +346,18 @@ class DriverDisputesPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               if (state.disputes.isEmpty)
-                const SizedBox(height: 180, child: DriverEmptyState(title: 'لا توجد بلاغات', message: 'أي بلاغ مرتبط بطلباتك سيظهر هنا.', icon: Icons.report_gmailerrorred))
+                const SizedBox(height: 160, child: DriverEmptyState(title: 'لا توجد بلاغات', message: 'أي بلاغات مرتبطة بالطلبات ستظهر هنا.', icon: Icons.report_gmailerrorred_outlined))
               else
                 ...state.disputes.map((dispute) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: DriverCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(children: [Expanded(child: Text(dispute.ticketNumber.isEmpty ? 'بلاغ #${dispute.id}' : dispute.ticketNumber, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17))), DriverStatusBadge(status: dispute.status)]),
-                            const SizedBox(height: 10),
-                            Text(dispute.category, style: const TextStyle(color: kDriverPrimary, fontWeight: FontWeight.w700)),
-                            const SizedBox(height: 6),
-                            Text(dispute.description, style: const TextStyle(color: kDriverMuted)),
-                            if (dispute.resolution != null) ...[
-                              const Divider(height: 22),
-                              Text('الحل: ${dispute.resolution}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                            ],
-                          ],
-                        ),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Row(children: [Expanded(child: Text(dispute.ticketNumber, style: const TextStyle(fontWeight: FontWeight.w900))), DriverStatusBadge(status: dispute.status)]),
+                          const SizedBox(height: 8),
+                          Text(dispute.category, style: const TextStyle(color: kDriverMuted)),
+                          const SizedBox(height: 8),
+                          Text(dispute.description),
+                        ]),
                       ),
                     )),
             ],
@@ -442,51 +376,21 @@ class DriverMorePage extends StatelessWidget {
     return BlocBuilder<DriverAppCubit, DriverAppState>(
       builder: (context, state) {
         final driver = state.driver;
-        final financial = state.financialSummary;
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
             DriverCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(radius: 28, backgroundColor: kDriverPrimaryContainer, child: Icon(Icons.person, color: Colors.white, size: 32)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(driver?.firstName ?? 'مندوب التوصيل', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)), Text(driver?.phone ?? '', style: const TextStyle(color: kDriverMuted))]),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 28),
-                  _ProfileLine(label: 'نوع المركبة', value: driver?.vehicleType ?? '-'),
-                  _ProfileLine(label: 'رقم اللوحة', value: driver?.plateNumber ?? '-'),
-                  _ProfileLine(label: 'نقاط الثقة', value: '${driver?.trustScore ?? 0}'),
-                  _ProfileLine(label: 'البلاغات المفتوحة', value: '${driver?.openDisputesCount ?? 0}'),
-                  if (financial?.isSuspended == true) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: kDriverError.withOpacity(.1), borderRadius: BorderRadius.circular(16)),
-                      child: Row(children: [const Icon(Icons.warning_amber, color: kDriverError), const SizedBox(width: 8), Expanded(child: Text(financial?.suspensionReason ?? 'الحساب موقوف مالياً', style: const TextStyle(color: kDriverError, fontWeight: FontWeight.w700)))]),
-                    ),
-                  ],
-                ],
-              ),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('حساب المندوب', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                const SizedBox(height: 12),
+                _ProfileLine(label: 'الاسم', value: driver?.firstName ?? '-'),
+                _ProfileLine(label: 'الهاتف', value: driver?.phone ?? '-'),
+                _ProfileLine(label: 'المركبة', value: driver?.vehicleType ?? '-'),
+                _ProfileLine(label: 'اللوحة', value: driver?.plateNumber ?? '-'),
+              ]),
             ),
-            const SizedBox(height: 14),
-            DriverCard(
-              child: Column(
-                children: [
-                  _MenuTile(icon: Icons.account_balance_wallet, title: 'المستحقات', onTap: () => context.read<DriverAppCubit>().changeTab(0)),
-                  _MenuTile(icon: Icons.notifications, title: 'الإشعارات', onTap: () => context.read<DriverAppCubit>().changeTab(2)),
-                  _MenuTile(icon: Icons.report, title: 'البلاغات', onTap: () => context.read<DriverAppCubit>().changeTab(3)),
-                  const Divider(height: 8),
-                  _MenuTile(icon: Icons.logout, title: 'تسجيل الخروج', color: kDriverError, onTap: () => _confirmLogout(context)),
-                ],
-              ),
-            ),
+            const SizedBox(height: 16),
+            DriverPrimaryButton(label: 'تسجيل الخروج', icon: Icons.logout, isDanger: true, onPressed: context.read<DriverAppCubit>().logout),
           ],
         );
       },
@@ -496,7 +400,6 @@ class DriverMorePage extends StatelessWidget {
 
 class DriverOrderDetailsPage extends StatelessWidget {
   const DriverOrderDetailsPage({super.key, required this.order});
-
   final DeliveryOrderModel order;
 
   @override
@@ -505,48 +408,31 @@ class DriverOrderDetailsPage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: kDriverBackground,
-        appBar: AppBar(backgroundColor: kDriverBackground, elevation: 0, title: const Text('تفاصيل الطلب', style: TextStyle(color: kDriverPrimary, fontWeight: FontWeight.w800))),
+        appBar: AppBar(title: Text('طلب ${order.orderNumber}'), backgroundColor: kDriverBackground),
         body: BlocBuilder<DriverAppCubit, DriverAppState>(
           builder: (context, state) {
             final current = state.currentOrder?.id == order.id ? state.currentOrder! : order;
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                DriverCard(
-                  child: Row(children: [Expanded(child: Text('طلب ${current.orderNumber}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900))), DriverStatusBadge(status: current.status)]),
-                ),
+                DriverCard(child: Row(children: [Expanded(child: Text(current.orderNumber, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900))), DriverStatusBadge(status: current.status)])),
                 const SizedBox(height: 14),
-                DriverCard(
-                  child: Column(children: [
-                    _StepLine(label: 'قبول الطلب', isDone: current.acceptedAt != null, isActive: current.status == 'accepted' || current.status == 'offered'),
-                    _StepLine(label: 'الذهاب للاستلام', isDone: current.startedAt != null, isActive: current.status == 'in_progress'),
-                    _StepLine(label: 'تأكيد الاستلام', isDone: current.pickedUpAt != null, isActive: current.status == 'picked_up'),
-                    _StepLine(label: 'تأكيد التسليم', isDone: current.deliveredAt != null || current.completedAt != null, isActive: current.status == 'delivered'),
-                  ]),
-                ),
+                DriverCard(child: Column(children: [
+                  DriverRoutePoint(icon: Icons.storefront, label: 'نقطة الاستلام', value: current.pickupAddress, trailing: IconButton(icon: const Icon(Icons.near_me, color: kDriverPrimary), onPressed: () => launchMap(current.pickupLatitude, current.pickupLongitude))),
+                  const SizedBox(height: 12),
+                  DriverRoutePoint(icon: Icons.location_on, label: 'نقطة التسليم', value: current.dropoffAddress, trailing: IconButton(icon: const Icon(Icons.near_me, color: kDriverPrimary), onPressed: () => launchMap(current.dropoffLatitude, current.dropoffLongitude))),
+                ])),
                 const SizedBox(height: 14),
-                DriverCard(
-                  child: Column(children: [
-                    DriverRoutePoint(icon: Icons.storefront, label: 'نقطة الاستلام', value: current.pickupAddress, trailing: IconButton(icon: const Icon(Icons.near_me, color: kDriverPrimary), onPressed: () => launchMap(current.pickupLatitude, current.pickupLongitude))),
-                    const SizedBox(height: 12),
-                    DriverRoutePoint(icon: Icons.location_on, label: 'نقطة التسليم', value: current.dropoffAddress, trailing: IconButton(icon: const Icon(Icons.near_me, color: kDriverPrimary), onPressed: () => launchMap(current.dropoffLatitude, current.dropoffLongitude))),
-                  ]),
-                ),
+                DriverCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('بيانات العميل', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 12),
+                  _ProfileLine(label: 'الاسم', value: current.customerName),
+                  _ProfileLine(label: 'الهاتف', value: current.customerPhone),
+                  const SizedBox(height: 10),
+                  DriverPrimaryButton(label: 'اتصال بالعميل', icon: Icons.call, onPressed: current.customerPhone.isEmpty ? null : () => launchPhoneCall(current.customerPhone)),
+                ])),
                 const SizedBox(height: 14),
-                DriverCard(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('بيانات العميل', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 12),
-                    _ProfileLine(label: 'الاسم', value: current.customerName),
-                    _ProfileLine(label: 'الهاتف', value: current.customerPhone),
-                    const SizedBox(height: 10),
-                    DriverPrimaryButton(label: 'اتصال بالعميل', icon: Icons.call, onPressed: current.customerPhone.isEmpty ? null : () => launchPhoneCall(current.customerPhone)),
-                  ]),
-                ),
-                const SizedBox(height: 14),
-                DriverCard(
-                  child: Row(children: [Expanded(child: _ProfileLine(label: 'المسافة', value: '${current.distanceKm} كم')), Expanded(child: _ProfileLine(label: 'الأجرة', value: formatMoney(current.deliveryFee, current.currency)))]),
-                ),
+                DriverCard(child: Row(children: [Expanded(child: _ProfileLine(label: 'المسافة', value: '${current.distanceKm} كم')), Expanded(child: _ProfileLine(label: 'الأجرة', value: formatMoney(current.deliveryFee, current.currency)))])),
                 if (current.hasLifecycleAction) ...[
                   const SizedBox(height: 20),
                   DriverPrimaryButton(label: current.nextActionLabel, icon: Icons.arrow_back, isLoading: state.isActionLoading, onPressed: () => context.read<DriverAppCubit>().performOrderAction(current)),
@@ -568,32 +454,25 @@ class _OfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final order = offer.order;
     return DriverCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [const Expanded(child: Text('طلب توصيل جديد', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900))), DriverStatusBadge(status: offer.isExpired ? 'expired' : offer.status)]),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(child: DriverMetricCard(icon: Icons.route, value: '${offer.distanceToPickupKm}', label: 'كم للاستلام', color: kDriverSecondary)),
-              const SizedBox(width: 10),
-              Expanded(child: DriverMetricCard(icon: Icons.payments, value: formatMoney(order?.deliveryFee ?? 0, order?.currency ?? 'SYP'), label: 'الأجرة', color: kDriverPrimary)),
-            ],
-          ),
-          const SizedBox(height: 14),
-          DriverRoutePoint(icon: Icons.storefront, label: 'نقطة الاستلام', value: order?.pickupAddress ?? 'غير محدد'),
-          const SizedBox(height: 10),
-          DriverRoutePoint(icon: Icons.location_on, label: 'نقطة التسليم', value: order?.dropoffAddress ?? 'غير محدد'),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: DriverPrimaryButton(label: 'رفض', icon: Icons.close, isDanger: true, isOutlined: true, onPressed: () => _showRejectSheet(context, offer))),
-              const SizedBox(width: 12),
-              Expanded(child: DriverPrimaryButton(label: 'قبول', icon: Icons.check, onPressed: offer.isExpired ? null : () => _showAcceptSheet(context, offer))),
-            ],
-          ),
-        ],
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [const Expanded(child: Text('طلب توصيل جديد', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900))), DriverStatusBadge(status: offer.isExpired ? 'expired' : offer.status)]),
+        const SizedBox(height: 14),
+        Row(children: [
+          Expanded(child: DriverMetricCard(icon: Icons.route, value: '${offer.distanceToPickupKm}', label: 'كم للاستلام', color: kDriverSecondary)),
+          const SizedBox(width: 10),
+          Expanded(child: DriverMetricCard(icon: Icons.payments, value: formatMoney(order?.deliveryFee ?? 0, order?.currency ?? 'SYP'), label: 'الأجرة', color: kDriverPrimary)),
+        ]),
+        const SizedBox(height: 14),
+        DriverRoutePoint(icon: Icons.storefront, label: 'نقطة الاستلام', value: order?.pickupAddress ?? 'غير محدد'),
+        const SizedBox(height: 10),
+        DriverRoutePoint(icon: Icons.location_on, label: 'نقطة التسليم', value: order?.dropoffAddress ?? 'غير محدد'),
+        const SizedBox(height: 16),
+        Row(children: [
+          Expanded(child: DriverPrimaryButton(label: 'رفض', icon: Icons.close, isDanger: true, isOutlined: true, onPressed: () => _showRejectSheet(context, offer))),
+          const SizedBox(width: 12),
+          Expanded(child: DriverPrimaryButton(label: 'قبول', icon: Icons.check, onPressed: offer.isExpired ? null : () => _showAcceptSheet(context, offer))),
+        ]),
+      ]),
     );
   }
 }
@@ -608,15 +487,11 @@ class _AvailabilityCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('حالة التوفر', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _StatusChoice(label: 'متاح', value: 'available', current: currentStatus),
-            _StatusChoice(label: 'مشغول', value: 'busy', current: currentStatus),
-            _StatusChoice(label: 'غير متصل', value: 'offline', current: currentStatus),
-          ],
-        ),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          _StatusChoice(label: 'متاح', value: 'available', current: currentStatus),
+          _StatusChoice(label: 'مشغول', value: 'busy', current: currentStatus),
+          _StatusChoice(label: 'غير متصل', value: 'offline', current: currentStatus),
+        ]),
       ]),
     );
   }
@@ -638,14 +513,12 @@ class _GpsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DriverCard(
-      child: Row(
-        children: [
-          const Icon(Icons.my_location, color: kDriverSuccess),
-          const SizedBox(width: 12),
-          const Expanded(child: Text('تحديث موقعك الحالي', style: TextStyle(fontWeight: FontWeight.w700))),
-          TextButton(onPressed: () => _postCurrentLocation(context), child: const Text('تحديث')),
-        ],
-      ),
+      child: Row(children: [
+        const Icon(Icons.my_location, color: kDriverSuccess),
+        const SizedBox(width: 12),
+        const Expanded(child: Text('تحديث موقعك الحالي', style: TextStyle(fontWeight: FontWeight.w700))),
+        TextButton(onPressed: () => _postCurrentLocation(context), child: const Text('تحديث')),
+      ]),
     );
   }
 }
@@ -660,35 +533,6 @@ class _ProfileLine extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(children: [Text(label, style: const TextStyle(color: kDriverMuted)), const Spacer(), Flexible(child: Text(value.isEmpty ? '-' : value, textAlign: TextAlign.end, style: const TextStyle(fontWeight: FontWeight.w700)))]),
-    );
-  }
-}
-
-class _MenuTile extends StatelessWidget {
-  const _MenuTile({required this.icon, required this.title, required this.onTap, this.color = kDriverPrimary});
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(leading: Icon(icon, color: color), title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w700)), trailing: const Icon(Icons.arrow_back_ios_new, size: 16), onTap: onTap);
-  }
-}
-
-class _StepLine extends StatelessWidget {
-  const _StepLine({required this.label, required this.isDone, required this.isActive});
-  final String label;
-  final bool isDone;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isDone ? kDriverSuccess : isActive ? kDriverAccent : kDriverMuted;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(children: [CircleAvatar(radius: 13, backgroundColor: color.withOpacity(.16), child: Icon(isDone ? Icons.check : Icons.circle, size: 13, color: color)), const SizedBox(width: 12), Text(label, style: TextStyle(color: color, fontWeight: isActive || isDone ? FontWeight.w800 : FontWeight.w500))]),
     );
   }
 }
@@ -735,12 +579,14 @@ Future<void> _postCurrentLocation(BuildContext context) async {
     if (context.mounted) _showSnack(context, 'فعّل خدمة الموقع أولاً');
     return;
   }
+
   var permission = await location.hasPermission();
   if (permission == loc.PermissionStatus.denied) permission = await location.requestPermission();
-  if (permission != loc.PermissionStatus.granted && permission != loc.PermissionStatus.grantedLimited) {
+  if (permission != loc.PermissionStatus.granted) {
     if (context.mounted) _showSnack(context, 'إذن الموقع مطلوب لتحديث موقعك');
     return;
   }
+
   final data = await location.getLocation();
   if (!context.mounted || data.latitude == null || data.longitude == null) return;
   await context.read<DriverAppCubit>().postLocation(latitude: data.latitude!, longitude: data.longitude!, accuracy: data.accuracy, speed: data.speed, heading: data.heading);
@@ -758,9 +604,12 @@ void _showAcceptSheet(BuildContext context, DeliveryAssignmentAttemptModel offer
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const Text('قبول طلب التوصيل؟', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
-          const Text('بعد القبول سيصبح الطلب نشطاً لديك ولا يمكنك قبول طلب آخر حتى إنهائه.', style: TextStyle(color: kDriverMuted)),
+          const Text('سيتم تعيين الطلب لك وتبدأ رحلة التوصيل.'),
           const SizedBox(height: 20),
-          DriverPrimaryButton(label: 'تأكيد القبول', icon: Icons.check, onPressed: () { Navigator.of(context).pop(); context.read<DriverAppCubit>().acceptOffer(offer); }),
+          DriverPrimaryButton(label: 'تأكيد القبول', icon: Icons.check, onPressed: () {
+            Navigator.pop(context);
+            context.read<DriverAppCubit>().acceptOffer(offer);
+          }),
         ]),
       ),
     ),
@@ -776,34 +625,18 @@ void _showRejectSheet(BuildContext context, DeliveryAssignmentAttemptModel offer
     builder: (_) => Directionality(
       textDirection: TextDirection.rtl,
       child: Padding(
-        padding: EdgeInsets.only(left: 20, right: 20, top: 12, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20 + MediaQuery.of(context).viewInsets.bottom),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Text('رفض الطلب', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 8),
-          const Text('اكتب سبب الرفض حتى تتمكن العمليات من تحسين توزيع الطلبات.', style: TextStyle(color: kDriverMuted)),
-          const SizedBox(height: 14),
-          TextField(controller: controller, minLines: 2, maxLines: 4, decoration: _inputDecoration('سبب الرفض', Icons.edit_note)),
-          const SizedBox(height: 18),
-          DriverPrimaryButton(label: 'تأكيد الرفض', isDanger: true, icon: Icons.close, onPressed: () { Navigator.of(context).pop(); context.read<DriverAppCubit>().rejectOffer(offer, controller.text); }),
+          const Text('سبب رفض الطلب', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 12),
+          TextField(controller: controller, maxLines: 3, decoration: _inputDecoration('اكتب السبب', Icons.edit_note)),
+          const SizedBox(height: 20),
+          DriverPrimaryButton(label: 'إرسال الرفض', icon: Icons.close, isDanger: true, onPressed: () {
+            Navigator.pop(context);
+            context.read<DriverAppCubit>().rejectOffer(offer, controller.text);
+          }),
         ]),
       ),
     ),
-  );
-}
-
-void _confirmLogout(BuildContext context) {
-  showDialog<void>(
-    context: context,
-    builder: (_) => Directionality(
-      textDirection: TextDirection.rtl,
-      child: AlertDialog(
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل تريد تسجيل الخروج من حساب المندوب؟'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('إلغاء')),
-          FilledButton(onPressed: () { Navigator.of(context).pop(); context.read<DriverAppCubit>().logout(); }, child: const Text('خروج')),
-        ],
-      ),
-    ),
-  );
+  ).whenComplete(controller.dispose);
 }
