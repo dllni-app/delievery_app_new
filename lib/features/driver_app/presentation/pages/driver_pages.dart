@@ -6,6 +6,7 @@ import '../../../../router/route_names.dart';
 import '../../data/driver_models.dart';
 import '../cubit/driver_app_cubit.dart';
 import '../widgets/driver_widgets.dart';
+import 'driver_order_history_page.dart';
 
 class DriverSplashScreen extends StatelessWidget {
   const DriverSplashScreen({super.key});
@@ -269,23 +270,9 @@ class DriverOrdersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DriverAppCubit, DriverAppState>(
       builder: (context, state) {
-        final order = state.currentOrder;
-        return RefreshIndicator(
-          onRefresh: context.read<DriverAppCubit>().loadDashboard,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (order == null)
-                const SizedBox(height: 160, child: DriverEmptyState(title: 'لا يوجد طلب نشط', message: 'سجل الطلبات الكامل يحتاج Endpoint منفصل من الباكند. حالياً يتم عرض الطلب النشط فقط.', icon: Icons.list_alt))
-              else
-                DriverOrderCard(
-                  order: order,
-                  isActionLoading: state.isActionLoading,
-                  onAction: () => context.read<DriverAppCubit>().performOrderAction(order),
-                  onTap: () => _openOrderDetails(context, order),
-                ),
-            ],
-          ),
+        return DriverOrderHistoryPage(
+          activeOrder: state.currentOrder,
+          onOpenOrder: (order) => _openOrderDetails(context, order),
         );
       },
     );
