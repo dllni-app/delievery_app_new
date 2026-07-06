@@ -8,6 +8,6 @@ class AppConfig {
 
   static const String driverApiBaseUrl = String.fromEnvironment(
     'DRIVER_API_BASE_URL',
-    defaultValue: '$apiBaseUrl/delivery/driver',
+    defaultValue: 'https://alnadha.net/api/v1/delivery/driver',
   );
 }
