@@ -215,12 +215,16 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     if (!order.hasLifecycleAction) return;
     emit(state.copyWith(isActionLoading: true, clearError: true));
     try {
-      final updatedOrder = switch (order.status) {
-        'accepted' || 'offered' => await _service.startOrder(order.id),
-        'in_progress' => await _service.pickupOrder(order.id),
-        'picked_up' => await _service.deliverOrder(order.id),
-        _ => order,
-      };
+      late final DeliveryOrderModel updatedOrder;
+      if (order.status == 'accepted' || order.status == 'offered') {
+        updatedOrder = await _service.startOrder(order.id);
+      } else if (order.status == 'in_progress') {
+        updatedOrder = await _service.pickupOrder(order.id);
+      } else if (order.status == 'picked_up') {
+        updatedOrder = await _service.deliverOrder(order.id);
+      } else {
+        updatedOrder = order;
+      }
       emit(state.copyWith(isActionLoading: false, currentOrder: updatedOrder));
     } catch (error) {
       emit(state.copyWith(isActionLoading: false, errorMessage: _service.userFacingError(error)));
