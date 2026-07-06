@@ -120,9 +120,11 @@ class NotificationUtils {
   /// ---------------- TERMINATED CHECK ----------------
   Future<void> _checkTerminatedNotification() async {
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMessage != null) {
+    if (initialMessage == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationNavigator.navigateFromData(initialMessage.data);
-    }
+    });
   }
 
   /// ---------------- CLEAR BADGE ----------------
