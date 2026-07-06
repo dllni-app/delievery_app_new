@@ -6,9 +6,12 @@ import '../../../../common/helper/helper.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/unified_api/dio/api_client.dart';
 import '../../data/driver_api_service.dart';
+import '../../data/driver_dashboard_models.dart';
 import '../../data/driver_data_source_impl.dart';
 import '../../data/driver_models.dart';
+import '../../data/driver_optional_api_service.dart';
 import '../../domain/driver_data_source.dart';
+import '../../domain/usecases/driver_optional_usecases.dart';
 import '../../domain/usecases/driver_usecases.dart';
 
 class DriverAppState extends Equatable {
@@ -22,6 +25,7 @@ class DriverAppState extends Equatable {
     this.currentOffer,
     this.currentOrder,
     this.financialSummary,
+    this.dashboardSummary,
     this.notifications = const [],
     this.disputes = const [],
     this.unreadOnly = false,
@@ -37,6 +41,7 @@ class DriverAppState extends Equatable {
   final DeliveryAssignmentAttemptModel? currentOffer;
   final DeliveryOrderModel? currentOrder;
   final DeliveryFinancialSummaryModel? financialSummary;
+  final DeliveryDashboardSummaryModel? dashboardSummary;
   final List<UserNotificationModel> notifications;
   final List<DeliveryDisputeModel> disputes;
   final bool unreadOnly;
@@ -56,6 +61,8 @@ class DriverAppState extends Equatable {
     DeliveryOrderModel? currentOrder,
     bool clearOrder = false,
     DeliveryFinancialSummaryModel? financialSummary,
+    DeliveryDashboardSummaryModel? dashboardSummary,
+    bool clearDashboardSummary = false,
     List<UserNotificationModel>? notifications,
     List<DeliveryDisputeModel>? disputes,
     bool? unreadOnly,
@@ -71,6 +78,7 @@ class DriverAppState extends Equatable {
       currentOffer: clearOffer ? null : currentOffer ?? this.currentOffer,
       currentOrder: clearOrder ? null : currentOrder ?? this.currentOrder,
       financialSummary: financialSummary ?? this.financialSummary,
+      dashboardSummary: clearDashboardSummary ? null : dashboardSummary ?? this.dashboardSummary,
       notifications: notifications ?? this.notifications,
       disputes: disputes ?? this.disputes,
       unreadOnly: unreadOnly ?? this.unreadOnly,
@@ -89,6 +97,7 @@ class DriverAppState extends Equatable {
         currentOffer,
         currentOrder,
         financialSummary,
+        dashboardSummary,
         notifications,
         disputes,
         unreadOnly,
@@ -105,6 +114,7 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     _updateAvailabilityUseCase = UpdateDriverAvailabilityUseCase(_dataSource);
     _respondToOfferUseCase = RespondToOfferUseCase(_dataSource);
     _orderLifecycleUseCase = PerformOrderLifecycleActionUseCase(_dataSource);
+    _dashboardSummaryUseCase = LoadDriverDashboardSummaryUseCase(DriverOptionalApiService(getIt<ApiClient>()));
   }
 
   final DriverDataSource _dataSource;
@@ -113,6 +123,7 @@ class DriverAppCubit extends Cubit<DriverAppState> {
   late final UpdateDriverAvailabilityUseCase _updateAvailabilityUseCase;
   late final RespondToOfferUseCase _respondToOfferUseCase;
   late final PerformOrderLifecycleActionUseCase _orderLifecycleUseCase;
+  late final LoadDriverDashboardSummaryUseCase _dashboardSummaryUseCase;
 
   Future<void> bootstrap() async {
     emit(state.copyWith(isBootstrapping: true, clearError: true));
@@ -156,6 +167,7 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     emit(state.copyWith(isLoading: true, clearError: true));
     try {
       final snapshot = await _loadDashboardUseCase();
+      final dashboardSummary = await _loadOptionalDashboardSummary();
       emit(state.copyWith(
         isLoading: false,
         isAuthenticated: true,
@@ -165,6 +177,8 @@ class DriverAppCubit extends Cubit<DriverAppState> {
         currentOrder: snapshot.currentOrder,
         clearOrder: snapshot.currentOrder == null,
         financialSummary: snapshot.financialSummary,
+        dashboardSummary: dashboardSummary,
+        clearDashboardSummary: dashboardSummary == null,
       ));
     } catch (error) {
       emit(state.copyWith(isLoading: false, errorMessage: _dataSource.userFacingError(error)));
@@ -226,6 +240,7 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     try {
       final updatedOrder = await _orderLifecycleUseCase(order);
       emit(state.copyWith(isActionLoading: false, currentOrder: updatedOrder));
+      await loadDashboard();
     } catch (error) {
       emit(state.copyWith(isActionLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
@@ -267,6 +282,15 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     if (index == 0) loadDashboard();
     if (index == 2) loadNotifications();
     if (index == 3) loadDisputes();
+  }
+
+  Future<DeliveryDashboardSummaryModel?> _loadOptionalDashboardSummary() async {
+    try {
+      return await _dashboardSummaryUseCase();
+    } catch (error) {
+      if (_dataSource.isUnauthorized(error)) await _clearSession();
+      return null;
+    }
   }
 
   Future<void> _clearSession() async {
