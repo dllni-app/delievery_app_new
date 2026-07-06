@@ -6,7 +6,10 @@ import '../../../../common/helper/helper.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/unified_api/dio/api_client.dart';
 import '../../data/driver_api_service.dart';
+import '../../data/driver_data_source_impl.dart';
 import '../../data/driver_models.dart';
+import '../../domain/driver_data_source.dart';
+import '../../domain/usecases/driver_usecases.dart';
 
 class DriverAppState extends Equatable {
   const DriverAppState({
@@ -94,11 +97,22 @@ class DriverAppState extends Equatable {
 }
 
 class DriverAppCubit extends Cubit<DriverAppState> {
-  DriverAppCubit({DriverApiService? service})
-      : _service = service ?? DriverApiService(getIt<ApiClient>()),
-        super(const DriverAppState());
+  DriverAppCubit({DriverDataSource? dataSource})
+      : _dataSource = dataSource ?? DriverDataSourceImpl(DriverApiService(getIt<ApiClient>())),
+        super(const DriverAppState()) {
+    _loginUseCase = DriverLoginUseCase(_dataSource);
+    _loadDashboardUseCase = LoadDriverDashboardUseCase(_dataSource);
+    _updateAvailabilityUseCase = UpdateDriverAvailabilityUseCase(_dataSource);
+    _respondToOfferUseCase = RespondToOfferUseCase(_dataSource);
+    _orderLifecycleUseCase = PerformOrderLifecycleActionUseCase(_dataSource);
+  }
 
-  final DriverApiService _service;
+  final DriverDataSource _dataSource;
+  late final DriverLoginUseCase _loginUseCase;
+  late final LoadDriverDashboardUseCase _loadDashboardUseCase;
+  late final UpdateDriverAvailabilityUseCase _updateAvailabilityUseCase;
+  late final RespondToOfferUseCase _respondToOfferUseCase;
+  late final PerformOrderLifecycleActionUseCase _orderLifecycleUseCase;
 
   Future<void> bootstrap() async {
     emit(state.copyWith(isBootstrapping: true, clearError: true));
@@ -107,30 +121,30 @@ class DriverAppCubit extends Cubit<DriverAppState> {
       return;
     }
     try {
-      final driver = await _service.getMe();
+      final driver = await _dataSource.getMe();
       emit(state.copyWith(isBootstrapping: false, isAuthenticated: true, driver: driver));
     } catch (error) {
       await _clearSession();
-      emit(state.copyWith(isBootstrapping: false, isAuthenticated: false, errorMessage: _service.userFacingError(error), clearDriver: true));
+      emit(state.copyWith(isBootstrapping: false, isAuthenticated: false, errorMessage: _dataSource.userFacingError(error), clearDriver: true));
     }
   }
 
   Future<void> login({required String phone, required String password}) async {
     emit(state.copyWith(isLoading: true, clearError: true));
     try {
-      final result = await _service.login(phone: phone, password: password, fcmToken: AppVariables.fcmToken);
+      final result = await _loginUseCase(phone: phone, password: password, fcmToken: AppVariables.fcmToken);
       AppVariables.token = result.token;
       getIt<ApiClient>().resetHeader();
       emit(state.copyWith(isLoading: false, isAuthenticated: true, driver: result.driver));
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
   Future<void> logout() async {
     emit(state.copyWith(isActionLoading: true, clearError: true));
     try {
-      await _service.logout();
+      await _dataSource.logout();
     } catch (_) {
       // Logout should clear the local session even if the network request fails.
     }
@@ -141,42 +155,37 @@ class DriverAppCubit extends Cubit<DriverAppState> {
   Future<void> loadDashboard() async {
     emit(state.copyWith(isLoading: true, clearError: true));
     try {
-      final results = await Future.wait<Object?>([
-        _service.getMe(),
-        _service.getCurrentOffer(),
-        _service.getCurrentOrder(),
-        _service.getFinancialSummary(),
-      ]);
+      final snapshot = await _loadDashboardUseCase();
       emit(state.copyWith(
         isLoading: false,
         isAuthenticated: true,
-        driver: results[0] as DriverModel,
-        currentOffer: results[1] as DeliveryAssignmentAttemptModel?,
-        clearOffer: results[1] == null,
-        currentOrder: results[2] as DeliveryOrderModel?,
-        clearOrder: results[2] == null,
-        financialSummary: results[3] as DeliveryFinancialSummaryModel,
+        driver: snapshot.driver,
+        currentOffer: snapshot.currentOffer,
+        clearOffer: snapshot.currentOffer == null,
+        currentOrder: snapshot.currentOrder,
+        clearOrder: snapshot.currentOrder == null,
+        financialSummary: snapshot.financialSummary,
       ));
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
   Future<void> updateAvailability(String availabilityStatus) async {
     emit(state.copyWith(isActionLoading: true, clearError: true));
     try {
-      final driver = await _service.updateAvailability(availabilityStatus);
+      final driver = await _updateAvailabilityUseCase(availabilityStatus);
       emit(state.copyWith(isActionLoading: false, driver: driver));
     } catch (error) {
-      emit(state.copyWith(isActionLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isActionLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
   Future<void> postLocation({required double latitude, required double longitude, double? accuracy, double? speed, double? heading}) async {
     try {
-      await _service.postLocation(latitude: latitude, longitude: longitude, accuracy: accuracy, speed: speed, heading: heading);
+      await _dataSource.postLocation(latitude: latitude, longitude: longitude, accuracy: accuracy, speed: speed, heading: heading);
     } catch (error) {
-      emit(state.copyWith(errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
@@ -188,10 +197,10 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     }
     emit(state.copyWith(isActionLoading: true, clearError: true));
     try {
-      final order = await _service.acceptOffer(offer.id);
+      final order = await _respondToOfferUseCase.accept(offer.id);
       emit(state.copyWith(isActionLoading: false, currentOrder: order, clearOffer: true));
     } catch (error) {
-      emit(state.copyWith(isActionLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isActionLoading: false, errorMessage: _dataSource.userFacingError(error)));
       await loadDashboard();
     }
   }
@@ -203,10 +212,10 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     }
     emit(state.copyWith(isActionLoading: true, clearError: true));
     try {
-      await _service.rejectOffer(offer.id, reason.trim());
+      await _respondToOfferUseCase.reject(offer.id, reason.trim());
       emit(state.copyWith(isActionLoading: false, clearOffer: true));
     } catch (error) {
-      emit(state.copyWith(isActionLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isActionLoading: false, errorMessage: _dataSource.userFacingError(error)));
       await loadDashboard();
     }
   }
@@ -215,19 +224,10 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     if (!order.hasLifecycleAction) return;
     emit(state.copyWith(isActionLoading: true, clearError: true));
     try {
-      late final DeliveryOrderModel updatedOrder;
-      if (order.status == 'accepted' || order.status == 'offered') {
-        updatedOrder = await _service.startOrder(order.id);
-      } else if (order.status == 'in_progress') {
-        updatedOrder = await _service.pickupOrder(order.id);
-      } else if (order.status == 'picked_up') {
-        updatedOrder = await _service.deliverOrder(order.id);
-      } else {
-        updatedOrder = order;
-      }
+      final updatedOrder = await _orderLifecycleUseCase(order);
       emit(state.copyWith(isActionLoading: false, currentOrder: updatedOrder));
     } catch (error) {
-      emit(state.copyWith(isActionLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isActionLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
@@ -235,19 +235,19 @@ class DriverAppCubit extends Cubit<DriverAppState> {
     final filter = unreadOnly ?? state.unreadOnly;
     emit(state.copyWith(isLoading: true, unreadOnly: filter, clearError: true));
     try {
-      final notifications = await _service.getNotifications(unreadOnly: filter);
+      final notifications = await _dataSource.getNotifications(unreadOnly: filter);
       emit(state.copyWith(isLoading: false, notifications: notifications));
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
   Future<void> markNotificationRead(UserNotificationModel notification) async {
     emit(state.copyWith(notifications: state.notifications.map((item) => item.id == notification.id ? item.markRead() : item).toList()));
     try {
-      await _service.markNotificationRead(notification.id);
+      await _dataSource.markNotificationRead(notification.id);
     } catch (error) {
-      emit(state.copyWith(errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(errorMessage: _dataSource.userFacingError(error)));
       await loadNotifications();
     }
   }
@@ -255,10 +255,10 @@ class DriverAppCubit extends Cubit<DriverAppState> {
   Future<void> loadDisputes() async {
     emit(state.copyWith(isLoading: true, clearError: true));
     try {
-      final disputes = await _service.getDisputes();
+      final disputes = await _dataSource.getDisputes();
       emit(state.copyWith(isLoading: false, disputes: disputes));
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _service.userFacingError(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _dataSource.userFacingError(error)));
     }
   }
 
