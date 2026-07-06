@@ -1,6 +1,8 @@
 export 'data/driver_api_service.dart';
+export 'data/driver_dashboard_models.dart';
 export 'data/driver_data_source_impl.dart';
 export 'data/driver_models.dart';
+export 'data/driver_optional_api_service.dart';
 export 'domain/driver_data_source.dart';
 export 'domain/usecases/driver_usecases.dart';
 export 'presentation/cubit/driver_app_cubit.dart';
