@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/di/injection.dart';
-import '../../../../core/unified_api/dio/api_client.dart';
-import '../../data/driver_dashboard_models.dart';
 import '../../data/driver_models.dart';
-import '../../data/driver_optional_api_service.dart';
 
 const Color kDriverPrimary = Color(0xFF021064);
 const Color kDriverPrimaryContainer = Color(0xFF1E2A78);
@@ -114,7 +110,7 @@ class DriverStatusBadge extends StatelessWidget {
   }
 }
 
-class DriverMetricCard extends StatefulWidget {
+class DriverMetricCard extends StatelessWidget {
   const DriverMetricCard({super.key, required this.icon, required this.value, required this.label, this.color = kDriverPrimary});
 
   final IconData icon;
@@ -123,61 +119,18 @@ class DriverMetricCard extends StatefulWidget {
   final Color color;
 
   @override
-  State<DriverMetricCard> createState() => _DriverMetricCardState();
-}
-
-class _DriverMetricCardState extends State<DriverMetricCard> {
-  Future<DeliveryDashboardSummaryModel?>? _summaryFuture;
-
-  bool get _canUseDashboardSummary => widget.label == 'طلبات نشطة' || widget.label == 'الرصيد';
-
-  @override
-  void initState() {
-    super.initState();
-    if (_canUseDashboardSummary) {
-      _summaryFuture = DriverOptionalApiService(getIt<ApiClient>()).getDashboardSummary();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant DriverMetricCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.label != widget.label && _canUseDashboardSummary) {
-      _summaryFuture = DriverOptionalApiService(getIt<ApiClient>()).getDashboardSummary();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final future = _summaryFuture;
-    if (future == null) return _buildCard(widget.value);
-
-    return FutureBuilder<DeliveryDashboardSummaryModel?>(
-      future: future,
-      builder: (context, snapshot) {
-        final summary = snapshot.data;
-        final summaryValue = switch (widget.label) {
-          'طلبات نشطة' when summary != null => summary.activeOrdersCount.toString(),
-          'الرصيد' when summary != null => formatMoney(summary.currentBalance, summary.currency),
-          _ => widget.value,
-        };
-        return _buildCard(summaryValue);
-      },
-    );
-  }
-
-  Widget _buildCard(String displayValue) {
     return DriverCard(
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(widget.icon, color: widget.color),
+          Icon(icon, color: color),
           const SizedBox(height: 16),
-          Text(displayValue, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kDriverText)),
+          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kDriverText)),
           const SizedBox(height: 4),
-          Text(widget.label, style: const TextStyle(fontSize: 13, color: kDriverMuted)),
+          Text(label, style: const TextStyle(fontSize: 13, color: kDriverMuted)),
         ],
       ),
     );
