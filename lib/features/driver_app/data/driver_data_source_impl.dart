@@ -1,8 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../common/helper/helper.dart';
-import '../../../core/di/injection.dart';
-import '../../../core/unified_api/dio/api_client.dart';
 import '../domain/driver_data_source.dart';
 import 'driver_api_service.dart';
 import 'driver_models.dart';
@@ -83,10 +79,5 @@ class DriverDataSourceImpl implements DriverDataSource {
     }
   }
 
-  Future<void> _clearLocalSession() async {
-    final preferences = getIt<SharedPreferences>();
-    await preferences.remove(PrefsKeys.token);
-    await preferences.remove(PrefsKeys.userInfo);
-    getIt<ApiClient>().resetHeader();
-  }
+  Future<void> _clearLocalSession() => AppVariables.clearSession();
 }
