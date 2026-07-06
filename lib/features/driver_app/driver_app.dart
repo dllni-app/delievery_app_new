@@ -7,5 +7,6 @@ export 'domain/driver_data_source.dart';
 export 'domain/usecases/driver_optional_usecases.dart';
 export 'domain/usecases/driver_usecases.dart';
 export 'presentation/cubit/driver_app_cubit.dart';
+export 'presentation/pages/driver_order_history_page.dart';
 export 'presentation/pages/driver_pages.dart';
 export 'presentation/widgets/driver_widgets.dart';
