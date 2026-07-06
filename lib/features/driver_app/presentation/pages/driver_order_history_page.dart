@@ -5,12 +5,12 @@ import '../../../../core/unified_api/dio/api_client.dart';
 import '../../data/driver_models.dart';
 import '../../data/driver_optional_api_service.dart';
 import '../widgets/driver_widgets.dart';
-import 'driver_pages.dart';
 
 class DriverOrderHistoryPage extends StatefulWidget {
-  const DriverOrderHistoryPage({super.key, this.activeOrder});
+  const DriverOrderHistoryPage({super.key, this.activeOrder, this.onOpenOrder});
 
   final DeliveryOrderModel? activeOrder;
+  final ValueChanged<DeliveryOrderModel>? onOpenOrder;
 
   @override
   State<DriverOrderHistoryPage> createState() => _DriverOrderHistoryPageState();
@@ -80,9 +80,7 @@ class _DriverOrderHistoryPageState extends State<DriverOrderHistoryPage> {
                     child: DriverOrderCard(
                       order: order,
                       isActionLoading: false,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => DriverOrderDetailsPage(order: order)),
-                      ),
+                      onTap: widget.onOpenOrder == null ? null : () => widget.onOpenOrder!(order),
                     ),
                   ),
                 ),
