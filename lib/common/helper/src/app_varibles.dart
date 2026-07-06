@@ -10,23 +10,37 @@ class AppVariables {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   static final SharedPreferences _pref = getIt<SharedPreferences>();
+  static String? _tokenCache;
 
-  static String? get token => _pref.getString(PrefsKeys.token);
+  static Future<void> initializeSession() async {
+    _tokenCache = _pref.getString(PrefsKeys.token);
+  }
 
-  static set token(String? token) =>
-      token == null ? null : _pref.setString(PrefsKeys.token, token);
+  static String? get token => _tokenCache ?? _pref.getString(PrefsKeys.token);
+
+  static set token(String? token) {
+    _tokenCache = token;
+    if (token == null || token.isEmpty) {
+      _pref.remove(PrefsKeys.token);
+      return;
+    }
+    _pref.setString(PrefsKeys.token, token);
+  }
+
+  static Future<void> clearSession() async {
+    _tokenCache = null;
+    await _pref.remove(PrefsKeys.token);
+    await _pref.remove(PrefsKeys.userInfo);
+    getIt<ApiClient>().resetHeader();
+  }
 
   static String? get fcmToken => _pref.getString(PrefsKeys.fcmToken);
 
-  static set fcmToken(String? fcmToken) =>
-      fcmToken == null ? null : _pref.setString(PrefsKeys.fcmToken, fcmToken);
-
-
+  static set fcmToken(String? fcmToken) => fcmToken == null ? null : _pref.setString(PrefsKeys.fcmToken, fcmToken);
 
   static UserModel get user => UserModel.fromJson(
-    jsonDecode(_pref.getString(PrefsKeys.userInfo)??''),
-
-  );
+        jsonDecode(_pref.getString(PrefsKeys.userInfo) ?? ''),
+      );
 
   static set user(UserModel user) {
     _pref.setString(
@@ -35,9 +49,8 @@ class AppVariables {
     );
   }
 
-
   static void setCurrentLang(BuildContext context) {
-    String val=context.locale.languageCode;
+    String val = context.locale.languageCode;
     _pref.setString(PrefsKeys.lang, val);
     getIt<ApiClient>().resetHeader();
   }
@@ -46,67 +59,22 @@ class AppVariables {
     return _pref.getString(PrefsKeys.lang) ??
         EasyLocalization.of(
           AppVariables.navigatorKey.currentContext!,
-        )!.locale.languageCode; // أو قيمة افتراضية
+        )!.locale.languageCode;
   }
 
-
- static String checkLanguage(BuildContext context) {
+  static String checkLanguage(BuildContext context) {
     final currentLocale = context.locale;
 
     if (currentLocale.languageCode == 'en') {
       return 'en';
-      // إذا كانت اللغة إنجليزية
-     // print('The current language is English');
-    } else
-      if (currentLocale.languageCode == 'ar') {
-      // إذا كانت اللغة عربية
-    //  print('اللغة الحالية هي العربية');
-        return 'ar';
-
+    } else if (currentLocale.languageCode == 'ar') {
+      return 'ar';
     } else {
-        return 'en';
-    //  print('Language: ${currentLocale.languageCode}');
+      return 'en';
     }
   }
 
+  static String get savedTheme => _pref.getString(PrefsKeys.appTheme) ?? 'light';
 
-
-  // getter لقراءة الثيم المحفوظ
-  static String get savedTheme =>
-      _pref.getString(PrefsKeys.appTheme) ?? 'light';
-
-  // setter لحفظ الثيم
-  static set savedTheme(String theme) =>
-      _pref.setString(PrefsKeys.appTheme, theme);
-
-
-
-
-
-
-
+  static set savedTheme(String theme) => _pref.setString(PrefsKeys.appTheme, theme);
 }
-
-
-
-// static List<Chat?> get chats {
-//   final val = _pref.getString(PrefsKeys.chats);
-//
-//   if (val != null) {
-//     List value = json.decode(val);
-//
-//     final list = List<Chat>.from(value.map((e) => Chat.fromJson(e))).toList();
-//
-//     return list;
-//   } else {
-//     return [];
-//   }
-//
-//
-//
-// }
-//
-// static set chats(List<Chat?> chats) =>
-//     chats == [] ? null :
-//     _pref.setString(
-//         PrefsKeys.chats, jsonEncode(chats.map((e) => e!.toJson()).toList()));
