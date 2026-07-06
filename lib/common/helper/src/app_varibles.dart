@@ -16,7 +16,7 @@ class AppVariables {
     _tokenCache = _pref.getString(PrefsKeys.token);
   }
 
-  static String? get token => _tokenCache ?? _pref.getString(PrefsKeys.token);
+  static String? get token => _pref.getString(PrefsKeys.token);
 
   static set token(String? token) {
     _tokenCache = token;
