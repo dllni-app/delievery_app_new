@@ -136,7 +136,7 @@ class NotificationUtils {
         body: message.notification?.body ?? message.data['body'] ?? '',
         payload: payload,
         badge: _unreadCount, // ✅ إرسال العدد الحقيقي
-        largeIcon: 'asset://assets/images/png/notification_logo.png',
+        largeIcon: 'resource://mipmap/launcher_icon',
       ),
     );
   }
