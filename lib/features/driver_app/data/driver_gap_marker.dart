@@ -1,2 +1,2 @@
-// Driver gap implementation marker.
+// Driver gap implementation marker updated.
 const bool driverGapImplementationMarker = true;
