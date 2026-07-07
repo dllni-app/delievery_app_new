@@ -3,7 +3,6 @@ import 'package:dllne_deliver_app/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
 import 'common/design/src/theme/theme/theme_notifier.dart';
 import 'common/helper/helper.dart';
 import 'core/di/injection.dart';
@@ -13,7 +12,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await configureInjection();
-  await AppVariables.initializeSession();
   await NotificationUtils().initAllNotifications();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

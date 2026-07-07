@@ -53,6 +53,8 @@ dependencies:
   timelines_plus: ^2.0.0
   extended_image:
   rename: ^3.1.0
+  intl_phone_field: ^3.2.0
+  intl_phone_number_input: ^0.7.5
 
 dev_dependencies:
   flutter_test:
@@ -83,9 +85,6 @@ flutter:
     - assets/animations/
     - assets/images/png/native_splash/
     - assets/images/png/error/
-    - assets/images/png/product/
-    - assets/images/png/on_board/
-    - assets/images/png/services/
     - assets/images/svg/services/
     - assets/images/svg/
     - assets/images/svg/product/

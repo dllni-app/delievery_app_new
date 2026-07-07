@@ -83,7 +83,7 @@ extension ThemeContextExtensions on BuildContext {
   Color get notificationDelete => themeExt.palette.notificationDelete;
   Color get notificationSchuled => themeExt.palette.notificationSchuled;
   Color get notificationRequest => themeExt.palette.notificationRequest;
-  Color get primarySwatch => themeExt.palette.primarySwatch;
+  MaterialColor get primarySwatch => themeExt.palette.primarySwatch;
   Color get borderGradientStartColor => themeExt.palette.borderGradientStartColor;
   Color get borderGradientEndColor => themeExt.palette.borderGradientEndColor;
   Color get carProfileColor => themeExt.palette.carProfileColor;

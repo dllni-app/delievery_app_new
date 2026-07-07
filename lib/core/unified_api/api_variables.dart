@@ -6,7 +6,7 @@ class ApiVariables {
   ApiVariables._();
 
   static const scheme = 'https';
-  static const host = "admin.gtexpress-co.com";
+  static const host = "alnadha.net";
 
   static Uri _mainUri({
     required String path,
@@ -15,7 +15,7 @@ class ApiVariables {
     final uri = Uri(
       scheme: scheme,
       host: host,
-      path: 'api/$path',
+      path: 'api/v1/delivery/driver/$path',
       queryParameters: queryParameters,
     );
     log(uri.toString().logMagenta);
@@ -30,16 +30,6 @@ class ApiVariables {
   static Uri _auth({required String path}) => _mainUri(path: 'auth/$path');
 
   static Uri login() => _auth(path: "login");
-
-  static Uri signup() => _auth(path: "register");
-
-  static Uri confirm() => _auth(path: "verify-email");
-
-  static Uri forget() => _auth(path: "password/request-code");
-
-  static Uri forgetVerify() => _auth(path: "password/verify-code");
-
-  static Uri forgetReset() => _auth(path: "password/reset");
 
   static Uri logOut() => _auth(path: "logout");
 

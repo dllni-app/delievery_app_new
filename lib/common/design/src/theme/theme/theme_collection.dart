@@ -97,7 +97,7 @@ class ThemeCollection {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           backgroundColor: palette.primary,
           foregroundColor: palette.onPrimary,
           elevation: 1,
@@ -148,7 +148,7 @@ class ThemeCollection {
         hintStyle: TextStyle(color: palette.textFieldHintColor),
         labelStyle: TextStyle(
           color: palette.fieldLabelColor,
-          fontSize: 11,
+          fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
         floatingLabelStyle: TextStyle(

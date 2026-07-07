@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   animated_rating_stars
   awesome_notifications
+  flutter_secure_storage_linux
   url_launcher_linux
 )
 

@@ -26,34 +26,34 @@ class LightPalette implements AppColorPalette {
 
   @override
   MaterialColor get primarySwatch => const MaterialColor(
-    0xFF2F4F46,
+    0xFF1E2A78,
     {
-      50: Color(0xFFE6ECEA),
-      100: Color(0xFFC1D0CB),
-      200: Color(0xFF98B2AA),
-      300: Color(0xFF6F9488),
-      400: Color(0xFF4F7C70),
-      500: Color(0xFF2F4F46), // PRIMARY
-      600: Color(0xFF2A4740),
-      700: Color(0xFF233D37),
-      800: Color(0xFF1D332E),
-      900: Color(0xFF12221F),
+      50: Color(0xFFE8EAF4),
+      100: Color(0xFFC5CAE4),
+      200: Color(0xFF9EA7D2),
+      300: Color(0xFF7684C0),
+      400: Color(0xFF5869B1),
+      500: Color(0xFF1E2A78), // PRIMARY
+      600: Color(0xFF1B266E),
+      700: Color(0xFF172163),
+      800: Color(0xFF131B59),
+      900: Color(0xFF0C1246),
     },
   );
   @override
-  Color get secondarySwatch => Colors.black;
+  Color get secondarySwatch => Color(0xFF6C63FF);
 
 
   @override
   // TODO: implement scaffoldBackground
-  Color get scaffoldBackground => const Color(0xFFF9F9F9);
+  Color get scaffoldBackground => const Color(0xFFF8F9FA);
 
 
   @override
   Brightness get brightness => Brightness.light;
 
   @override
-  Color get primary => const Color(0xFF2F4F46);
+  Color get primary => const Color(0xFF1E2A78);
 
   @override
   Color get onPrimary => Colors.white;
@@ -74,7 +74,7 @@ class LightPalette implements AppColorPalette {
   Color get secondaryContainer => const Color(0xFFE6F0F4);
 
   @override
-  Color get onSecondaryContainer => const Color(0xFF559BB4);
+  Color get onSecondaryContainer => const Color(0xFFFF7A00);
 
   @override
   Color get tertiary => const Color(0xFFD3601F);
@@ -89,10 +89,10 @@ class LightPalette implements AppColorPalette {
   Color get onTertiaryContainer => const Color(0xFFD3601F);
 
   @override
-  Color get error => const Color(0xFF8B1E2D);
+  Color get error => const Color(0xFFBA1A1A);
 
   @override
-  Color get onError => const Color(0xFF8B1E2D);
+  Color get onError => const Color(0xFFFFDAD6);
 
   @override
   Color get errorContainer => const Color(0xFF8B1E2D);
@@ -146,11 +146,11 @@ class LightPalette implements AppColorPalette {
   Color get divider => const Color(0xFFE7E5E4);
 
   @override
-  Color get textFieldBorder => const Color(0xFFC1C8C4);
+  Color get textFieldBorder => const Color(0xFFC6C5D3);
 
   //717171
   @override
-  Color get textFieldBackground => const Color(0xFFF4F3F3);
+  Color get textFieldBackground => const Color(0xFFF8F9FA);
 
   @override
   Color get success => const Color(0xFF2E7D32);
@@ -171,11 +171,11 @@ class LightPalette implements AppColorPalette {
 
   @override
   // TODO: implement textColor
-  Color get textColor => const Color(0xFF2F4F46);
+  Color get textColor => const Color(0xFF191C1D);
 
   @override
   // TODO: implement textFieldHintColor
-  Color get textFieldHintColor => const Color.fromRGBO(107, 114, 128, 1);
+  Color get textFieldHintColor => const Color(0xFF767682);
 
 
   @override
@@ -260,19 +260,15 @@ class LightPalette implements AppColorPalette {
   Color get hintColor => Color(0xFF6B7280);
 
   @override
-  // TODO: implement textSubColor
-  Color get textSubColor => Color(0xFF414845);
+  Color get textSubColor => Color(0xFF454651);
 
   @override
-  // TODO: implement textSubColor
   Color get anotherTextColor => Color(0xFF44655B);
 
   @override
-  // TODO: implement navBarColor
   Color get navBarColor => const Color(0xFFA8A29E);
 
   @override
-  // TODO: implement navBarColor
   Color get navBarSelectedColor => const Color(0xFF065F46);
 
   @override

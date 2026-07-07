@@ -1,12 +1,11 @@
-import 'package:dllne_deliver_app/common/design/src/widgets/svg_asset.dart';
 import 'package:flutter/material.dart';
-
 import 'package:timelines_plus/timelines_plus.dart';
 
 import '../../../extensions/src/context_extensions.dart';
 import '../theme/assets.gen.dart';
 import '../theme/const.dart';
 import 'cach_network_image.dart';
+import 'svg_asset.dart';
 
 class DeliveryTimeline extends StatelessWidget {
   final List<TimelineItem> items;

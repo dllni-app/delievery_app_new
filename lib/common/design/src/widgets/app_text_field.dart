@@ -233,40 +233,30 @@ class MyAppTextField extends StatelessWidget {
             obscureText: isPassword ? !showPassowrdValue : false,
             style: context.bodySmall(
               color: context.themeExt.palette.black,
-              fontSize: 16,
+              fontSize: 14,
             ),
             decoration: baseDecoration.copyWith(
 
               suffix: suffix,
-              errorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: context.errorColor),
-                borderRadius: BorderRadius.circular(16),
-              ),
               errorStyle: context.headlineSmall(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
                 color: context.errorColor,
               ),
-
               contentPadding: const EdgeInsets.all(PPadding.mainPadding * 1.5),
               fillColor: context.textFieldBackgroundColor,
               filled: true,
               hintText: hintText,
-
               hintStyle: context.bodySmall(
                 color: context.textFieldHintColor,
-                fontSize: 16,
-
+                fontSize: 14,
               ),
-
               labelText: labelText,
               labelStyle: context.bodySmall(fontSize: 16, color: context.textFieldHintColor,),
               floatingLabelStyle: context.bodySmall(
                 color: context.primarySwatch  ,
                 fontSize: 11,
               ),
-
-
               prefixIcon: prefixIcon == null
                   ? null
                   : SizedBox(

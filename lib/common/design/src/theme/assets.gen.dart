@@ -67,19 +67,9 @@ class $AssetsImagesPngGen {
   AssetGenImage get notificationLogo =>
       const AssetGenImage('assets/images/png/notification_logo.png');
 
-  /// Directory path: assets/images/png/on_board
-  $AssetsImagesPngOnBoardGen get onBoard => const $AssetsImagesPngOnBoardGen();
-
   /// File path: assets/images/png/playstore-icon.png
   AssetGenImage get playstoreIcon =>
       const AssetGenImage('assets/images/png/playstore-icon.png');
-
-  /// Directory path: assets/images/png/product
-  $AssetsImagesPngProductGen get product => const $AssetsImagesPngProductGen();
-
-  /// Directory path: assets/images/png/services
-  $AssetsImagesPngServicesGen get services =>
-      const $AssetsImagesPngServicesGen();
 
   /// List of all assets
   List<AssetGenImage> get values => [
@@ -147,6 +137,9 @@ class $AssetsImagesSvgGen {
   /// Directory path: assets/images/svg/status
   $AssetsImagesSvgStatusGen get status => const $AssetsImagesSvgStatusGen();
 
+  /// File path: assets/images/svg/syria_flag_icon.svg
+  String get syriaFlagIcon => 'assets/images/svg/syria_flag_icon.svg';
+
   /// File path: assets/images/svg/unvisibale_eye_icon.svg
   String get unvisibaleEyeIcon => 'assets/images/svg/unvisibale_eye_icon.svg';
 
@@ -158,6 +151,7 @@ class $AssetsImagesSvgGen {
     doubleNextIcon,
     nextArrowIcon,
     passwordIcon,
+    syriaFlagIcon,
     unvisibaleEyeIcon,
     visibaleEyeIcon,
   ];
@@ -191,95 +185,6 @@ class $AssetsImagesPngNativeSplashGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [nativeLogo, nativeLogo12];
-}
-
-class $AssetsImagesPngOnBoardGen {
-  const $AssetsImagesPngOnBoardGen();
-
-  /// File path: assets/images/png/on_board/on_board_image1.png
-  AssetGenImage get onBoardImage1 =>
-      const AssetGenImage('assets/images/png/on_board/on_board_image1.png');
-
-  /// File path: assets/images/png/on_board/on_board_image2.png
-  AssetGenImage get onBoardImage2 =>
-      const AssetGenImage('assets/images/png/on_board/on_board_image2.png');
-
-  /// File path: assets/images/png/on_board/on_board_image3.png
-  AssetGenImage get onBoardImage3 =>
-      const AssetGenImage('assets/images/png/on_board/on_board_image3.png');
-
-  /// List of all assets
-  List<AssetGenImage> get values => [
-    onBoardImage1,
-    onBoardImage2,
-    onBoardImage3,
-  ];
-}
-
-class $AssetsImagesPngProductGen {
-  const $AssetsImagesPngProductGen();
-
-  /// File path: assets/images/png/product/air_image.png
-  AssetGenImage get airImage =>
-      const AssetGenImage('assets/images/png/product/air_image.png');
-
-  /// File path: assets/images/png/product/error.png
-  AssetGenImage get error =>
-      const AssetGenImage('assets/images/png/product/error.png');
-
-  /// File path: assets/images/png/product/product_details.png
-  AssetGenImage get productDetails =>
-      const AssetGenImage('assets/images/png/product/product_details.png');
-
-  /// File path: assets/images/png/product/sea_image.png
-  AssetGenImage get seaImage =>
-      const AssetGenImage('assets/images/png/product/sea_image.png');
-
-  /// File path: assets/images/png/product/success.png
-  AssetGenImage get success =>
-      const AssetGenImage('assets/images/png/product/success.png');
-
-  /// List of all assets
-  List<AssetGenImage> get values => [
-    airImage,
-    error,
-    productDetails,
-    seaImage,
-    success,
-  ];
-}
-
-class $AssetsImagesPngServicesGen {
-  const $AssetsImagesPngServicesGen();
-
-  /// File path: assets/images/png/services/Air Freight.png
-  AssetGenImage get airFreight =>
-      const AssetGenImage('assets/images/png/services/Air Freight.png');
-
-  /// File path: assets/images/png/services/Express Delivery.png
-  AssetGenImage get expressDelivery =>
-      const AssetGenImage('assets/images/png/services/Express Delivery.png');
-
-  /// File path: assets/images/png/services/Land Transport.png
-  AssetGenImage get landTransport =>
-      const AssetGenImage('assets/images/png/services/Land Transport.png');
-
-  /// File path: assets/images/png/services/Sea Freight.png
-  AssetGenImage get seaFreight =>
-      const AssetGenImage('assets/images/png/services/Sea Freight.png');
-
-  /// File path: assets/images/png/services/Warehousing.png
-  AssetGenImage get warehousing =>
-      const AssetGenImage('assets/images/png/services/Warehousing.png');
-
-  /// List of all assets
-  List<AssetGenImage> get values => [
-    airFreight,
-    expressDelivery,
-    landTransport,
-    seaFreight,
-    warehousing,
-  ];
 }
 
 class $AssetsImagesSvgCarGen {
@@ -428,8 +333,14 @@ class $AssetsImagesSvgLogInGen {
   /// File path: assets/images/svg/log_in/person.svg
   String get person => 'assets/images/svg/log_in/person.svg';
 
+  /// File path: assets/images/svg/log_in/phone.svg
+  String get phone => 'assets/images/svg/log_in/phone.svg';
+
   /// File path: assets/images/svg/log_in/pin.svg
   String get pin => 'assets/images/svg/log_in/pin.svg';
+
+  /// File path: assets/images/svg/log_in/track.svg
+  String get track => 'assets/images/svg/log_in/track.svg';
 
   /// List of all assets
   List<String> get values => [
@@ -439,7 +350,9 @@ class $AssetsImagesSvgLogInGen {
     logOut,
     password,
     person,
+    phone,
     pin,
+    track,
   ];
 }
 
