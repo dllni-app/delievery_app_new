@@ -1,3 +1,2 @@
-int driverGapFunction() {
-  return 1;
-}
+// Driver gap implementation marker.
+const bool driverGapImplementationMarkerFunction = true;
