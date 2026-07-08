@@ -11,6 +11,8 @@ FinancialSummaryModel financialSummaryModelFromJson(dynamic json) {
   return const FinancialSummaryModel(
     currentBalance: 0,
     financialLimit: 0,
+    thresholdRatio: 0,
+    warningLevel: 'NORMAL',
     isSuspended: false,
     currency: 'SYP',
   );
@@ -20,6 +22,8 @@ class FinancialSummaryModel extends Equatable {
   const FinancialSummaryModel({
     required this.currentBalance,
     required this.financialLimit,
+    required this.thresholdRatio,
+    required this.warningLevel,
     required this.isSuspended,
     required this.currency,
     this.suspensionReason,
@@ -27,19 +31,41 @@ class FinancialSummaryModel extends Equatable {
 
   final num currentBalance;
   final num financialLimit;
+  final num thresholdRatio;
+  final String warningLevel;
   final bool isSuspended;
   final String currency;
   final String? suspensionReason;
 
+  int get thresholdPercent {
+    final rawPercent = thresholdRatio <= 1 ? thresholdRatio * 100 : thresholdRatio;
+    return rawPercent.clamp(0, 100).round();
+  }
+
+  bool get shouldShowWarning =>
+      isSuspended || warningLevel == 'NEAR_STOP' || warningLevel == 'STOP';
+
   factory FinancialSummaryModel.fromJson(Map<String, dynamic> json) {
+    final balance = _asNum(
+      json['currentBalance'] ?? json['current_balance'],
+      fallback: 0,
+    );
+    final limit = _asNum(
+      json['financialLimit'] ?? json['financial_limit'],
+      fallback: 0,
+    );
+    final providedRatio = json['thresholdRatio'] ?? json['threshold_ratio'];
+    final calculatedRatio = limit > 0 ? balance / limit : 0;
+
     return FinancialSummaryModel(
-      currentBalance: _asNum(
-        json['currentBalance'] ?? json['current_balance'],
-        fallback: 0,
-      ),
-      financialLimit: _asNum(
-        json['financialLimit'] ?? json['financial_limit'],
-        fallback: 0,
+      currentBalance: balance,
+      financialLimit: limit,
+      thresholdRatio: _asNum(providedRatio, fallback: calculatedRatio),
+      warningLevel: _asString(
+        json['warningLevel'] ?? json['warning_level'],
+        fallback: limit > 0 && balance >= limit
+            ? 'STOP'
+            : (limit > 0 && balance / limit >= .8 ? 'NEAR_STOP' : 'NORMAL'),
       ),
       isSuspended: _asBool(json['isSuspended'] ?? json['is_suspended']),
       suspensionReason: _nullableString(
@@ -53,9 +79,11 @@ class FinancialSummaryModel extends Equatable {
   List<Object?> get props => [
         currentBalance,
         financialLimit,
+        thresholdRatio,
+        warningLevel,
         isSuspended,
-        currency,
         suspensionReason,
+        currency,
       ];
 }
 
