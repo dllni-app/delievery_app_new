@@ -7,12 +7,14 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/notification/notification_navigator.dart';
 import '../../../delivery/presentation/cubit/delivery_cubit.dart';
+import '../../../financial/presentation/cubit/financial_cubit.dart';
 
 part 'home_state.dart';
 
 @lazySingleton
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeState());
+
   void changeIndex(int index) {
     if (index == state.selectedIndex) return;
     emit(state.copyWith(selectedIndex: index));
@@ -27,8 +29,8 @@ class HomeCubit extends Cubit<HomeState> {
       case 1:
         getIt<DeliveryCubit>().loadDashboard();
         break;
-      case 3:
-        getIt<DeliveryCubit>().loadDisputes();
+      case 2:
+        getIt<FinancialCubit>().loadWalletPage();
         break;
       default:
         break;
