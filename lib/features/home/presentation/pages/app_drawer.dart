@@ -96,7 +96,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     title: LocaleKeys.navBarNotifications.tr(),
                     onTap: () {
                       context.pop();
-                      widget.homeCubit.changeIndex(1);
+                      widget.homeCubit.changeIndex(3);
                     },
                   ),
                   _DrawerNavItem(
@@ -104,7 +104,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     title: LocaleKeys.profile.tr(),
                     onTap: () {
                       context.pop();
-                      widget.homeCubit.changeIndex(2);
+                      widget.homeCubit.changeIndex(4);
                     },
                   ),
                   _DrawerNavItem(
