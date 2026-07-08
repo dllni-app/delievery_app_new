@@ -33,31 +33,36 @@ class ShellBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _BottomNavItem(
-              icon: Icons.home,
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home,
               label: 'الرئيسية',
               selected: selectedIndex == 0,
               onTap: () => onTap(0),
             ),
             _BottomNavItem(
               icon: Icons.inventory_2_outlined,
+              selectedIcon: Icons.inventory_2,
               label: 'الطلبات',
               selected: selectedIndex == 1,
               onTap: () => onTap(1),
             ),
             _BottomNavItem(
               icon: Icons.payments_outlined,
-              label: 'الإشعارات',
+              selectedIcon: Icons.payments,
+              label: 'المالية',
               selected: selectedIndex == 2,
               onTap: () => onTap(2),
             ),
             _BottomNavItem(
-              icon: Icons.report_gmailerrorred_outlined,
-              label: 'البلاغات',
+              icon: Icons.notifications_none,
+              selectedIcon: Icons.notifications,
+              label: 'الإشعارات',
               selected: selectedIndex == 3,
               onTap: () => onTap(3),
             ),
             _BottomNavItem(
               icon: Icons.menu,
+              selectedIcon: Icons.menu,
               label: 'المزيد',
               selected: selectedIndex == 4,
               onTap: () => onTap(4),
@@ -71,12 +76,14 @@ class ShellBottomNavBar extends StatelessWidget {
 
 class _BottomNavItem extends StatelessWidget {
   final IconData icon;
+  final IconData selectedIcon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
   const _BottomNavItem({
     required this.icon,
+    required this.selectedIcon,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -84,10 +91,10 @@ class _BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = selected ? AppColors.primary : const Color(0xFF767682);
+    final foreground = selected ? AppColors.primary : const Color(0xFF454651);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       child: SizedBox(
         width: 68,
         child: AnimatedContainer(
@@ -96,15 +103,9 @@ class _BottomNavItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
           decoration: BoxDecoration(
             color: selected
-                ? AppColors.primary.withValues(alpha: 0.12)
+                ? AppColors.secondary.withValues(alpha: 0.92)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            border: selected
-                ? Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.22),
-                    width: 0.8,
-                  )
-                : null,
+            borderRadius: BorderRadius.circular(18),
           ),
           child: AnimatedScale(
             duration: const Duration(milliseconds: 220),
@@ -113,15 +114,10 @@ class _BottomNavItem extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  padding: const EdgeInsets.all(2),
-                  child: Icon(
-                    icon,
-                    color: foreground,
-                    size: selected ? 24 : 22,
-                  ),
+                Icon(
+                  selected ? selectedIcon : icon,
+                  color: selected ? Colors.white : foreground,
+                  size: selected ? 24 : 22,
                 ),
                 const SizedBox(height: 2),
                 AnimatedDefaultTextStyle(
@@ -130,8 +126,8 @@ class _BottomNavItem extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Cairo',
                     fontSize: 11,
-                    color: foreground,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                    color: selected ? Colors.white : foreground,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     height: 1.15,
                   ),
                   child: Text(
@@ -149,4 +145,3 @@ class _BottomNavItem extends StatelessWidget {
     );
   }
 }
-
