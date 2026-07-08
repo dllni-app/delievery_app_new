@@ -5,7 +5,7 @@ import 'package:logger/logger.dart';
 @lazySingleton
 class LoggerInterceptor extends Interceptor {
   final _logger =
-      Logger(printer: PrettyPrinter(methodCount: 0, errorMethodCount: 5, lineLength: 75, colors: true, printEmojis: true, printTime: false,));
+  Logger(printer: PrettyPrinter(methodCount: 0, errorMethodCount: 5, lineLength: 75, colors: true, printEmojis: true, printTime: false,));
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {

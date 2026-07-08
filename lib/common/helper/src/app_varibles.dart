@@ -23,18 +23,31 @@ class AppVariables {
 
 
 
-  static UserModel get user => UserModel.fromJson(
-    jsonDecode(_pref.getString(PrefsKeys.userInfo)??''),
+  static UserModel? get user {
+    final userJson = _pref.getString(PrefsKeys.userInfo);
 
-  );
+    if (userJson == null || userJson.isEmpty) {
+      return null;
+    }
 
-  static set user(UserModel user) {
+    try {
+      return UserModel.fromJson(jsonDecode(userJson));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static set user(UserModel? user) {
+    if (user == null) {
+      _pref.remove(PrefsKeys.userInfo);
+      return;
+    }
+
     _pref.setString(
       PrefsKeys.userInfo,
       jsonEncode(user.toJson()),
     );
   }
-
 
   static void setCurrentLang(BuildContext context) {
     String val=context.locale.languageCode;

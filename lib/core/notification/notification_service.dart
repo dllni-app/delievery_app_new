@@ -12,6 +12,8 @@ import '../di/injection.dart';
 import 'notification_navigator.dart';
 
 
+const String _notificationIcon = 'resource://drawable/notification_icon';
+const String _notificationLargeIcon = 'resource://mipmap/launcher_icon';
 /// ---------------- BACKGROUND HANDLER ----------------
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -73,14 +75,14 @@ class NotificationUtils {
   Future<void> _initAwesomeNotifications() async {
     await _awesome.initialize(
       // null,
-        Platform.isAndroid ? 'resource://drawable/ic_stat_notify' : null,
+        Platform.isAndroid ? _notificationIcon : null,
         [
       NotificationChannel(
         channelKey: 'basic_channel',
         channelName: 'Basic Notifications',
         channelDescription: 'Basic Instant Notification',
         importance: NotificationImportance.High,
-        defaultColor: const Color(0xFF2F4F46),
+        defaultColor: const  Color(0xFF1E2A78),
         onlyAlertOnce: true,
         channelShowBadge: true,
       ),
@@ -136,7 +138,7 @@ class NotificationUtils {
         body: message.notification?.body ?? message.data['body'] ?? '',
         payload: payload,
         badge: _unreadCount, // ✅ إرسال العدد الحقيقي
-        largeIcon: 'resource://mipmap/launcher_icon',
+        largeIcon:_notificationLargeIcon,
       ),
     );
   }

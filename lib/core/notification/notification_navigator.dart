@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+
 import '../../common/helper/src/app_varibles.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../router/app_router.dart';
@@ -8,69 +11,80 @@ class NotificationNavigator {
   NotificationNavigator._();
 
   static void navigateFromData(Map<String, dynamic> data) {
-    print('enter fun');
-
-    if (data['args'] == null) {
+    final payload = _normalizePayload(data);
+    if (payload == null) {
+      _goToNotification();
       return;
-    } else {
-      if (data['args'] == null) {
-        print('args is null or empty');
-        _goToNotification();
-        return;
-      }
+    }
 
-      final val = json.decode(data['args']);
+    final route = payload['route']?.toString();
+    final type = payload['type']?.toString();
+    final module = payload['module']?.toString();
 
-      print(val);
-      print(val);
-      print(val);
+    final isDeliveryPayload = module == 'delivery' ||
+        type == 'delivery_order' ||
+        type == 'driver_order' ||
+        route == 'deliveryOrder' ||
+        route == 'driverOrder' ||
+        payload.containsKey('order_id') ||
+        payload.containsKey('orderId');
 
-      if ((val['route'] == 'productDetails')) {
-        if (val['tracking_number'] != null) {
-          // AppVariables.navigatorKey.currentState!.pushNamed(
-          //   RouteName.productDetails,
-          //   arguments: ProductDetailsScreenParams(id: val["tracking_number"]),
-          // );
-        } else {
-          print('order_id service_name null');
-          _goToNotification();
-        }
+    if (isDeliveryPayload) {
+      _goToNotification();
+      return;
+    }
+
+    if (route == 'productDetails') {
+      if (payload['tracking_number'] != null) {
+        // AppVariables.navigatorKey.currentState!.pushNamed(
+        //   RouteName.productDetails,
+        //   arguments: ProductDetailsScreenParams(id: payload["tracking_number"]),
+        // );
       } else {
-        print('enter else nav');
         _goToNotification();
       }
+    } else {
+      _goToNotification();
     }
   }
 
+  static void navigateFromScreen(Map<String, dynamic> data) {
+    navigateFromData(data);
+  }
 
-
-  static void navigateFromScreen(Map<String, dynamic> val) {
-
-
-      if ((val['route'] == 'productDetails')) {
-        if (val['tracking_number'] != null) {
-          // AppVariables.navigatorKey.currentState!.pushNamed(
-          //   RouteName.productDetails,
-          //   arguments: ProductDetailsScreenParams(id: val["tracking_number"]),
-          // );
-        } else {
-          print('order_id service_name null');
-          _goToNotification();
+  static Map<String, dynamic>? _normalizePayload(Map<String, dynamic> data) {
+    final args = data['args'];
+    if (args is String && args.trim().isNotEmpty) {
+      try {
+        final decoded = json.decode(args);
+        if (decoded is Map<String, dynamic>) return decoded;
+        if (decoded is Map) {
+          return decoded.map((key, value) => MapEntry(key.toString(), value));
         }
-      } else {
-        print('enter else nav');
-        _goToNotification();
+      } catch (_) {
+        return data.map((key, value) => MapEntry(key.toString(), value));
       }
     }
 
+    if (args is Map<String, dynamic>) return args;
+    if (args is Map) {
+      return args.map((key, value) => MapEntry(key.toString(), value));
+    }
+    if (data.isEmpty) return null;
+    return data.map((key, value) => MapEntry(key.toString(), value));
+  }
 
   static void _goToNotification() {
     final navigator = AppVariables.navigatorKey.currentState;
-
     if (navigator == null) return;
 
-    // رجع للصفحة الأولى ثم غير التاب
-    navigator.popUntil((route) => route.isFirst);
+    final currentRoute = ModalRoute.of(AppVariables.navigatorKey.currentContext!);
+    if (currentRoute?.settings.name != RouteName.homeNav) {
+      navigator.pushNamedAndRemoveUntil(RouteName.homeNav, (_) => false);
+    } else {
+      navigator.popUntil((route) => route.isFirst);
+    }
+
     getIt<HomeCubit>().changeIndex(2);
   }
 }

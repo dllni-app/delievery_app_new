@@ -269,10 +269,10 @@ class LightPalette implements AppColorPalette {
   Color get navBarColor => const Color(0xFFA8A29E);
 
   @override
-  Color get navBarSelectedColor => const Color(0xFF065F46);
+  Color get navBarSelectedColor =>Color(0xFF6C63FF);
 
   @override
-  Color get appBarColor => const Color(0xFF064E3B);
+  Color get appBarColor => const Color(0xFF6C63FF);
 
   @override
   Color get iconBackGround => const Color(0xFFC3E7DB);

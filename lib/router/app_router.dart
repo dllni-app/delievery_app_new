@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../features/auth/presentation/pages/login_screen.dart';
 import '../features/home/presentation/pages/nav_bar_screen.dart';
+import '../features/notification/presentation/pages/notification_screen.dart';
 import '../features/splash/page/splash_screen.dart';
+import '../features/user/presentation/pages/personal_information_screen.dart';
 
 class RouteName {
   RouteName._();
@@ -30,13 +32,20 @@ class RouteManager {
       case RouteName.splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
-
       case RouteName.login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       case RouteName.homeNav:
         return MaterialPageRoute(builder: (_) => NavBarScreen());
 
+      case RouteName.notification:
+        return MaterialPageRoute(builder: (_) => const NotificationScreen());
+
+      case RouteName.personalInformation:
+        final args = routeSettings.arguments as PersonalInformationParams;
+        return MaterialPageRoute(
+          builder: (_) => PersonalInformationScreen(arg: args),
+        );
 
       default:
         return MaterialPageRoute(builder: (_) => Container());

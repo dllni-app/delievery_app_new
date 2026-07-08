@@ -97,7 +97,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
                             BlocBuilder<NotificationBloc,NotificationState>(
                                 bloc: notificationBloc,
                                 builder: (context, state) {
-                                  return (i == 2 &&
+                                  return (i == 1 &&
                                       state.isNew) ?
                                   PositionedDirectional(
                                     start: -1,

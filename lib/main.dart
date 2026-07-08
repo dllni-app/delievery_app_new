@@ -15,11 +15,14 @@ void main() async {
   await NotificationUtils().initAllNotifications();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
+  print(AppVariables.token);
+  print(AppVariables.user?.toJson());
+
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('ar'), Locale('en')],
+      supportedLocales: const [Locale('ar')],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
+      fallbackLocale: const Locale('ar'),
       // startLocale: const Locale('ar'),
       child: ChangeNotifierProvider<AppThemeNotifier>(
         create: (_) => getIt<AppThemeNotifier>(),

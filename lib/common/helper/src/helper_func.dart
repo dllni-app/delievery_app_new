@@ -13,6 +13,7 @@ class HelperFunc {
   static bool isAuth() => _pref.containsKey(PrefsKeys.userInfo);
 
   static void logout() {
+    print('logOut');
     _pref.remove(PrefsKeys.userInfo);
     _pref.remove(PrefsKeys.token);
     _pref.remove(PrefsKeys.currentCountry);

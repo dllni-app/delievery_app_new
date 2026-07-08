@@ -46,6 +46,12 @@ class ApiVariables {
 
   static Uri getMe() => _user(path: "profile");
 
+  static Uri driverGetMe() => _mainUri(path: 'me');
+
+  static Uri updateAvailability() => _mainUri(path: 'availability');
+
+  static Uri postLocation() => _mainUri(path: 'location');
+
   static Uri updateMe() => _user(path: "profile");
 
   static Uri deleteMe() => _mainUri(path: "me");
@@ -170,6 +176,12 @@ class ApiVariables {
   static Uri getAllNotification(QueryParams queryParams) =>
       _mainUri(path: 'notifications', queryParameters: queryParams);
 
+  static Uri getDriverNotifications(QueryParams queryParams) =>
+      _mainUri(path: 'notifications', queryParameters: queryParams);
+
+  static Uri markDriverNotificationRead(String id) =>
+      _mainUri(path: 'notifications/$id/read');
+
   static Uri postMarkAllNotification() =>
       _mainUri(path: 'notifications/read-all');
 
@@ -181,4 +193,35 @@ class ApiVariables {
 
   static Uri rejectExtra(int id) =>
       _mainUri(path: 'orders/$id/reject-instant-service');
+
+  /// Financial
+
+  static Uri getFinancialSummary() => _mainUri(path: 'financial/summary');
+
+  /// Delivery offers
+
+  static Uri getCurrentOffer() => _mainUri(path: 'offers/current');
+
+  static Uri acceptOffer(int attemptId) =>
+      _mainUri(path: 'offers/$attemptId/accept');
+
+  static Uri rejectOffer(int attemptId) =>
+      _mainUri(path: 'offers/$attemptId/reject');
+
+  /// Delivery orders
+
+  static Uri getCurrentDeliveryOrder() => _orders(path: '/current');
+
+  static Uri startDeliveryOrder(int orderId) => _orders(path: '/$orderId/start');
+
+  static Uri pickupDeliveryOrder(int orderId) =>
+      _orders(path: '/$orderId/pickup');
+
+  static Uri deliverDeliveryOrder(int orderId) =>
+      _orders(path: '/$orderId/deliver');
+
+  /// Disputes
+
+  static Uri getDisputes(QueryParams queryParameters) =>
+      _mainUri(path: 'disputes', queryParameters: queryParameters);
 }

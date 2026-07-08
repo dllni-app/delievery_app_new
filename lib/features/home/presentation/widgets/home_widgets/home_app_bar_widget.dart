@@ -5,6 +5,7 @@ import '../../../../../common/design/src/widgets/svg_asset.dart';
 import '../../../../../common/extensions/src/context_extensions.dart';
 
 class HomeAppBarWidget extends StatelessWidget {
+  const HomeAppBarWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +29,14 @@ class HomeAppBarWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                IconButton(
-                  icon: SvgAsset(Assets.images.svg.home.drawerIcon,color: context.primarySwatch),
-                  onPressed:  () => Scaffold.of(context).openDrawer(),
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: SvgAsset(
+                      Assets.images.svg.home.drawerIcon,
+                      color: context.primarySwatch,
+                    ),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
                 ),
                 Text(
                   "GT Express",

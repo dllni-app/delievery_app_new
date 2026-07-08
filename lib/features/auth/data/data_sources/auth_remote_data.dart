@@ -17,7 +17,7 @@ class AuthRemoteData with HandlingApiManager {
     tryCall: () => _apiClient.post(
       ApiVariables.login(),
       data: params,
-      options: Options(headers: {'fcm-token': AppVariables.fcmToken}),
+      // options: Options(headers: {'fcm-token': AppVariables.fcmToken}),
     ),
     jsonConvert: authResponseFromJson,
   );

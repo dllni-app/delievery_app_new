@@ -30,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   FutureOr<void> _login(LoginEvent event, Emitter<AuthState> emit) async {
+    print('enter login');
     emit(state.copyWith(loginData: state.loginData.setLoading()));
 
     final val = await _loginUseCase(event.params);
@@ -43,8 +44,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
       },
       (r) {
+        print('right login');
+        print(r);
+        print(r.data);
+        print(r.data?.toJson());
+
         emit(state.copyWith(loginData: state.loginData.setSuccess(data: r)));
-        AppVariables.token = r.data!.accessToken;
+        AppVariables.token = r.token;
         AppVariables.user = r.data!.user!;
         getIt<ApiClient>().resetHeader();
 

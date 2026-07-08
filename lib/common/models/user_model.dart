@@ -1,58 +1,112 @@
 class UserModel {
   final int? id;
-  final String? name;
-  final String? email;
-  final dynamic phone;
-  final dynamic emailVerifiedAt;
+  final int? userId;
+  final int? companyId;
+  final String? firstName;
+  final String? displayName;
+  final String? phone;
+  final String? vehicleType;
+  final String? plateNumber;
+  final String? availabilityStatus;
+  final bool? isActive;
+  final bool? isSuspended;
+  final int? trustScore;
+  final int? openDisputesCount;
+  final DateTime? lastSeenAt;
+  final dynamic latestLocation;
   final DateTime? createdAt;
-  final DateTime? updatedAt;
 
   UserModel({
     this.id,
-    this.name,
-    this.email,
+    this.userId,
+    this.companyId,
+    this.firstName,
+    this.displayName,
     this.phone,
-    this.emailVerifiedAt,
+    this.vehicleType,
+    this.plateNumber,
+    this.availabilityStatus,
+    this.isActive,
+    this.isSuspended,
+    this.trustScore,
+    this.openDisputesCount,
+    this.lastSeenAt,
+    this.latestLocation,
     this.createdAt,
-    this.updatedAt,
   });
 
   UserModel copyWith({
     int? id,
-    String? name,
-    String? email,
-    dynamic phone,
-    dynamic emailVerifiedAt,
+    int? userId,
+    int? companyId,
+    String? firstName,
+    String? displayName,
+    String? phone,
+    String? vehicleType,
+    String? plateNumber,
+    String? availabilityStatus,
+    bool? isActive,
+    bool? isSuspended,
+    int? trustScore,
+    int? openDisputesCount,
+    DateTime? lastSeenAt,
+    dynamic latestLocation,
     DateTime? createdAt,
-    DateTime? updatedAt,
   }) =>
       UserModel(
         id: id ?? this.id,
-        name: name ?? this.name,
-        email: email ?? this.email,
+        userId: userId ?? this.userId,
+        companyId: companyId ?? this.companyId,
+        firstName: firstName ?? this.firstName,
+        displayName: displayName ?? this.displayName,
         phone: phone ?? this.phone,
-        emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
+        vehicleType: vehicleType ?? this.vehicleType,
+        plateNumber: plateNumber ?? this.plateNumber,
+        availabilityStatus: availabilityStatus ?? this.availabilityStatus,
+        isActive: isActive ?? this.isActive,
+        isSuspended: isSuspended ?? this.isSuspended,
+        trustScore: trustScore ?? this.trustScore,
+        openDisputesCount: openDisputesCount ?? this.openDisputesCount,
+        lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+        latestLocation: latestLocation ?? this.latestLocation,
         createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
       );
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
     id: json["id"],
-    name: json["name"],
-    email: json["email"],
+    userId: json["userId"],
+    companyId: json["companyId"],
+    firstName: json["firstName"],
+    displayName: json["displayName"],
     phone: json["phone"],
-    emailVerifiedAt: json["email_verified_at"],
-    createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-    updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+    vehicleType: json["vehicleType"],
+    plateNumber: json["plateNumber"],
+    availabilityStatus: json["availabilityStatus"],
+    isActive: json["isActive"],
+    isSuspended: json["isSuspended"],
+    trustScore: json["trustScore"],
+    openDisputesCount: json["openDisputesCount"],
+    lastSeenAt: json["lastSeenAt"] == null ? null : DateTime.parse(json["lastSeenAt"]),
+    latestLocation: json["latestLocation"],
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "name": name,
-    "email": email,
+    "userId": userId,
+    "companyId": companyId,
+    "firstName": firstName,
+    "displayName": displayName,
     "phone": phone,
-    "email_verified_at": emailVerifiedAt,
-    "created_at": createdAt?.toIso8601String(),
-    "updated_at": updatedAt?.toIso8601String(),
+    "vehicleType": vehicleType,
+    "plateNumber": plateNumber,
+    "availabilityStatus": availabilityStatus,
+    "isActive": isActive,
+    "isSuspended": isSuspended,
+    "trustScore": trustScore,
+    "openDisputesCount": openDisputesCount,
+    "lastSeenAt": lastSeenAt?.toIso8601String(),
+    "latestLocation": latestLocation,
+    "createdAt": createdAt?.toIso8601String(),
   };
 }

@@ -12,7 +12,12 @@ class GetAllNotificationEvent extends NotificationEvent with EventWithReload{
 
 }
 
-class GetMarkNotificationEvent extends NotificationEvent {}
+class MarkNotificationReadEvent extends NotificationEvent {
+  final MarkNotificationReadParams params;
+
+  MarkNotificationReadEvent({required this.params});
+}
+
 class AddOneNotificationEvent extends NotificationEvent {
   final NotificationModel notificationModel;
 
@@ -25,4 +30,3 @@ class NewNotificationRevisedEvent extends NotificationEvent{
 
   NewNotificationRevisedEvent({required this.id});
 }
-
