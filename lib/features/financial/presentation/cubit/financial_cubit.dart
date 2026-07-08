@@ -2,20 +2,26 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/di/injection.dart';
+import '../../../../core/use_case/use_case.dart';
 import '../../data/models/financial_summary_response.dart';
 import '../../data/models/financial_transaction_model.dart';
 import '../../domain/repositories/financial_repositories.dart';
+import '../../domain/use_cases/get_financial_summary_use_case.dart';
 
 part 'financial_state.dart';
 
 @lazySingleton
 class FinancialCubit extends Cubit<FinancialState> {
-  FinancialCubit(this._repositories) : super(const FinancialState());
+  FinancialCubit(this._getFinancialSummaryUseCase)
+      : _repositories = getIt<FinancialRepositories>(),
+        super(const FinancialState());
 
+  final GetFinancialSummaryUseCase _getFinancialSummaryUseCase;
   final FinancialRepositories _repositories;
 
   Future<void> loadSummary() async {
-    final result = await _repositories.getFinancialSummary();
+    final result = await _getFinancialSummaryUseCase(NoParams());
 
     result.fold(
       (failure) => emit(
