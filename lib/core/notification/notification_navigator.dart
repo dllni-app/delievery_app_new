@@ -85,6 +85,6 @@ class NotificationNavigator {
       navigator.popUntil((route) => route.isFirst);
     }
 
-    getIt<HomeCubit>().changeIndex(2);
+    getIt<HomeCubit>().changeIndex(3);
   }
 }
