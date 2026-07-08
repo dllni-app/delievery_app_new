@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart' as d;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../common/design/src/theme/theme/theme_collection.dart';
+import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
@@ -13,9 +14,9 @@ import '../../../financial/presentation/pages/driver_financial_page.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
 import '../../../notification/presentation/pages/notification_screen.dart';
 import '../../../user/presentation/bloc/user_bloc.dart';
+import '../../../user/presentation/pages/new_more_screen.dart';
 import '../cubit/home_cubit.dart';
 import 'new_home_screen.dart';
-import '../../../user/presentation/pages/new_more_screen.dart';
 
 class NavBarScreen extends StatefulWidget {
   const NavBarScreen({super.key});
@@ -72,7 +73,6 @@ class _DriverTopAppBar extends StatelessWidget {
                 );
               },
             ),
-
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
