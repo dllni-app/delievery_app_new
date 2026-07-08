@@ -5,30 +5,27 @@ import '../../../../../common/design/src/widgets/svg_asset.dart';
 import '../../../../../common/extensions/src/context_extensions.dart';
 import '../../../../../common/helper/src/locale_keys.dart';
 import '../../../../../core/di/injection.dart';
+import '../../../../../core/utils/app_colors.dart';
 import '../../../../../router/app_router.dart';
 import '../../../../user/presentation/bloc/user_bloc.dart';
 
 class DeleteAccountWidget extends StatefulWidget {
   const DeleteAccountWidget({super.key});
 
-
-
   @override
   State<DeleteAccountWidget> createState() => _DeleteAccountWidgetState();
 }
 
 class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
-
   late final UserBloc userBloc;
 
   @override
   void initState() {
-    userBloc =getIt<UserBloc>();
+    userBloc = getIt<UserBloc>();
 
     // TODO: implement initState
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +43,11 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
 
               child: Row(
                 children: [
-                  SvgAsset(Assets.images.svg.drawer.delete,color: context.errorColor),
+                  SvgAsset(Assets.images.svg.drawer.delete, color: Colors.red),
                   SizedBox(width: 10),
                   Text(
                     LocaleKeys.deleteAccountTitle.tr(),
-                    style: context.bodySmall(
-                      fontSize: 16,
-                      color: context.errorColor,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.red),
                   ),
                 ],
               ),
@@ -69,15 +63,12 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                         SizedBox(height: 12),
                         Text(
                           LocaleKeys.deleteAccountTitle.tr(),
-                          style: context.headlineSmall(
-                            fontSize: 20,
-                            color: context.textColor,
-                          ),
+                          style: TextStyle(fontSize: 20, color: Colors.black),
                         ),
                         SizedBox(height: 12),
                         Text(
                           LocaleKeys.deleteAccountMessage.tr(),
-                          style: context.bodySmall(fontSize: 14),
+                          style: TextStyle(fontSize: 14),
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 24),
@@ -88,25 +79,24 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                                 onPressed: () {
                                   context.pop();
                                 },
-                                child: Text(LocaleKeys.deleteAccountCancel.tr(),
-                                  style: context.headlineSmall(
-                                      color: context.primarySwatch,
-                                      fontSize: 14
+                                child: Text(
+                                  LocaleKeys.deleteAccountCancel.tr(),
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 14,
                                   ),
-
                                 ),
                               ),
                             ),
                             SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
-                                child: Text(LocaleKeys.deleteAccountConfirm.tr(),
-                                  style: context.headlineSmall(
-                                      color: Colors.white,
-                                      fontSize: 14
+                                child: Text(
+                                  LocaleKeys.deleteAccountConfirm.tr(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
                                   ),
-
-
                                 ),
                                 onPressed: () {
                                   userBloc.add(UserDeleteMeEvent());

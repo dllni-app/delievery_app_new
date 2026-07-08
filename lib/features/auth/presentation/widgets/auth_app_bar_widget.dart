@@ -1,9 +1,8 @@
-
-
 import 'package:flutter/material.dart';
 
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class AuthAppBarWidget extends StatelessWidget {
   const AuthAppBarWidget({super.key});
@@ -11,7 +10,7 @@ class AuthAppBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: context.statusBarHeight),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
@@ -21,7 +20,7 @@ class AuthAppBarWidget extends StatelessWidget {
             spreadRadius: 0,
           ),
         ],
-        color: context.scaffoldBackgroundColor,
+        color: Colors.white,
       ),
       child: Column(
         children: [
@@ -31,17 +30,16 @@ class AuthAppBarWidget extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   Icons.arrow_back_sharp,
-                  color: context.appBarColor,
+                  color: AppColors.primary,
                   size: 30,
                 ),
                 onPressed: () => context.pop(),
               ),
               Text(
                 "GT Express",
-                style: context.headlineSmall(
+                style: TextStyle(
                   fontSize: 20,
-                  fontFamily: AppFontFamily.workSans,
-                  color: context.appBarColor,
+                  color: AppColors.primary,
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -49,7 +47,7 @@ class AuthAppBarWidget extends StatelessWidget {
             ],
           ),
           Space.vM2,
-          Divider(height: 1, color: context.dividerColor),
+          Divider(height: 1, color: Colors.grey.shade300),
         ],
       ),
     );

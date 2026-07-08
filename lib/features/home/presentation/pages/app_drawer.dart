@@ -8,6 +8,7 @@ import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/app_varibles.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../user/presentation/widgets/build_lang_sheet.dart';
 import '../cubit/home_cubit.dart';
@@ -46,7 +47,7 @@ class _AppDrawerState extends State<AppDrawer> {
               child: AnimatedScaleWidget(
                 child: Text(
                   AppVariables.user?.firstName ?? LocaleKeys.nullText.tr(),
-                  style: context.headlineMedium(fontSize: 22),
+                  style: TextStyle(fontSize: 22),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -59,16 +60,16 @@ class _AppDrawerState extends State<AppDrawer> {
               child: AnimatedScaleWidget(
                 child: Text(
                   AppVariables.user?.phone ?? LocaleKeys.nullText.tr(),
-                  style: context.bodyMedium(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: context.textSubColor,
+                    color: Colors.black,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
-          Divider(height: 48, color: context.dividerColor),
+          Divider(height: 48, color: Colors.grey.shade300),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -78,7 +79,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     padding: const EdgeInsetsDirectional.only(start: 20),
                     child: Text(
                       LocaleKeys.drawerList.tr(),
-                      style: context.bodySmall(fontSize: 16),
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -120,7 +121,7 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
             ),
           ),
-          Divider(height: 1, color: context.dividerColor),
+          Divider(height: 1, color: Colors.grey.shade300),
           LogOutWidget(authBloc: authBloc),
         ],
       ),
@@ -150,14 +151,14 @@ class _DrawerNavItem extends StatelessWidget {
             AnimatedScaleWidget(
               child: SvgAsset(
                 svgImage,
-                color: context.navBarSelectedColor,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(width: 10),
             AnimatedTitleTextWidget(
               child: Text(
                 title,
-                style: context.headlineSmall(fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
             ),
           ],

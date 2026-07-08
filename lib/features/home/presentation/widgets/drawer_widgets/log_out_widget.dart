@@ -5,6 +5,7 @@ import '../../../../../common/design/src/widgets/svg_asset.dart';
 import '../../../../../common/extensions/src/context_extensions.dart';
 import '../../../../../common/helper/src/locale_keys.dart';
 import '../../../../../core/di/injection.dart';
+import '../../../../../core/utils/app_colors.dart';
 import '../../../../../router/app_router.dart';
 import '../../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../user/presentation/bloc/user_bloc.dart';
@@ -34,9 +35,9 @@ class LogOutWidget extends StatelessWidget {
                   SizedBox(width: 10),
                   Text(
                     LocaleKeys.drawerLogOut.tr(),
-                    style: context.bodySmall(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: context.errorColor,
+                      color: Colors.red,
                     ),
                   ),
                 ],
@@ -53,15 +54,15 @@ class LogOutWidget extends StatelessWidget {
                         SizedBox(height: 12),
                         Text(
                           LocaleKeys.profileConfirmLogOut.tr(),
-                          style: context.headlineSmall(
+                          style: TextStyle(
                             fontSize: 20,
-                            color: context.textColor,
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 12),
                         Text(
                           LocaleKeys.profileAreUSure.tr(),
-                          style: context.bodySmall(fontSize: 14),
+                          style: TextStyle(fontSize: 14),
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 24),
@@ -73,8 +74,8 @@ class LogOutWidget extends StatelessWidget {
                                   context.pop();
                                 },
                                 child: Text(LocaleKeys.profileBack.tr(),
-                                  style: context.headlineSmall(
-                                      color: context.primarySwatch,
+                                  style: TextStyle(
+                                      color: AppColors.primary,
                                       fontSize: 14
                                   ),
 
@@ -85,7 +86,7 @@ class LogOutWidget extends StatelessWidget {
                             Expanded(
                               child: ElevatedButton(
                                 child: Text(LocaleKeys.drawerLogOut.tr(),
-                                  style: context.headlineSmall(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14
                                   ),
@@ -159,13 +160,13 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
 
               child: Row(
                 children: [
-                  SvgAsset(Assets.images.svg.drawer.delete,color: context.errorColor),
+                  SvgAsset(Assets.images.svg.drawer.delete,color: Colors.red),
                   SizedBox(width: 10),
                   Text(
                     LocaleKeys.deleteAccountTitle.tr(),
-                    style: context.bodySmall(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: context.errorColor,
+                      color: Colors.red,
                     ),
                   ),
                 ],
@@ -182,15 +183,15 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                         SizedBox(height: 12),
                         Text(
                           LocaleKeys.deleteAccountTitle.tr(),
-                          style: context.headlineSmall(
+                          style: TextStyle(
                             fontSize: 20,
-                            color: context.textColor,
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 12),
                         Text(
                           LocaleKeys.deleteAccountMessage.tr(),
-                          style: context.bodySmall(fontSize: 14),
+                          style: TextStyle(fontSize: 14),
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 24),
@@ -202,8 +203,8 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                                   context.pop();
                                 },
                                 child: Text(LocaleKeys.deleteAccountCancel.tr(),
-                                  style: context.headlineSmall(
-                                      color: context.primarySwatch,
+                                  style: TextStyle(
+                                      color: AppColors.primary,
                                       fontSize: 14
                                   ),
 
@@ -214,7 +215,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                             Expanded(
                               child: ElevatedButton(
                                 child: Text(LocaleKeys.deleteAccountConfirm.tr(),
-                                  style: context.headlineSmall(
+                                  style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14
                                   ),

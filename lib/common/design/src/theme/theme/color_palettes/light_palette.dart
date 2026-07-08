@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class LightPalette implements AppColorPalette {
+  @override
+  String get fontFamily => 'Cairo';
+
   //
   // @override
   // MaterialColor get primarySwatch =>
@@ -107,7 +110,7 @@ class LightPalette implements AppColorPalette {
   Color get onBackground => const Color(0xFF1F1F1F);
 
   @override
-  Color get surface => const Color(0xFFFFFFFF);
+  Color get surface => const Color(0xFFd9dadb);
 
   @override
   Color get onSurface => const Color(0xFF1F1F1F);

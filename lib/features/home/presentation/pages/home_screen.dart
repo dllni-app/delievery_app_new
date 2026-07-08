@@ -1,3 +1,4 @@
+import 'package:dllne_deliver_app/core/utils/snck_bars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,7 +9,6 @@ import '../../../delivery/presentation/widgets/delivery_widgets.dart';
 import '../../../financial/presentation/cubit/financial_cubit.dart';
 import '../../../user/presentation/bloc/user_bloc.dart';
 
-/// Dashboard tab: composes user, financial, and delivery feature state.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -18,14 +18,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final UserBloc userBloc;
-
-  @override
-  void initState() {
-    userBloc = getIt<UserBloc>()..add(DriverGetMeEvent());
-    getIt<DeliveryCubit>().loadDashboard();
-    getIt<FinancialCubit>().loadSummary();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
             listenWhen: (p, c) => p.errorMessage != c.errorMessage,
             listener: (context, state) {
               if (state.errorMessage != null) {
-                _showSnack(context, state.errorMessage!);
+                showSnack(context, state.errorMessage!, type: SnackBarType.failure);
               }
             },
           ),
@@ -52,10 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 onSuccess: () => getIt<DeliveryCubit>().loadDashboard(),
               );
               state.postLocationData.listenerFunction(
-                onSuccess: () => _showSnack(context, 'تم تحديث الموقع'),
-                onFailed: () => _showSnack(
+                onSuccess: () => showSnack(
+                  context,
+                  'تم تحديث الموقع',
+                  type: SnackBarType.success,
+                ),
+                onFailed: () => showSnack(
                   context,
                   state.postLocationData.errorMessage,
+                  type: SnackBarType.failure,
                 ),
               );
             },
@@ -74,14 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showSnack(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+  @override
+  void initState() {
+    userBloc = getIt<UserBloc>()..add(DriverGetMeEvent());
+    getIt<DeliveryCubit>().loadDashboard();
+    getIt<FinancialCubit>().loadSummary();
+    super.initState();
   }
 }

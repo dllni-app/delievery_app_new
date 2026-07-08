@@ -10,6 +10,7 @@ import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/extensions/src/validation.dart';
 import '../../../../common/helper/src/app_varibles.dart';
 import '../../../../common/helper/src/locale_keys.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../domain/use_cases/user_update_me_use_cases.dart';
 import '../bloc/user_bloc.dart';
 
@@ -94,7 +95,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                           const SizedBox(width: 8),
                           Text(
                             LocaleKeys.profilePersonalInformation.tr(),
-                            style: context.labelSmall(
+                            style: TextStyle(
                               fontSize: 24,
                             ),
                           ),
@@ -122,7 +123,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                                 valueNotifier.value = true;
                               }
                             },
-                            color: value ? context.primarySwatch : Colors.white,
+                            color: value ? AppColors.primary : Colors.white,
                             svgColor: value ? Colors.white : null,
                           ),
                         ],

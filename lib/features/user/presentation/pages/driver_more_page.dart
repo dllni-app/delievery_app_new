@@ -55,7 +55,7 @@ class _DriverMorePageState extends State<DriverMorePage> {
                       children: [
                         Text(
                           LocaleKeys.profilePersonalAccount.tr(),
-                          style: context.headlineSmall(fontSize: 18),
+                          style: TextStyle(fontSize: 18),
                         ),
                         Space.vM1,
                         _ProfileLine(
@@ -105,9 +105,9 @@ class _ProfileLine extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: context.bodyMedium(
+              style: TextStyle(
                 fontSize: 14,
-                color: context.onSurfaceVariantColor,
+                color: Colors.black,
               ),
             ),
           ),
@@ -115,7 +115,7 @@ class _ProfileLine extends StatelessWidget {
             flex: 3,
             child: Text(
               value,
-              style: context.headlineSmall(fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
           ),
         ],

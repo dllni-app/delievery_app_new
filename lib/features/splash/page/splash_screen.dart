@@ -6,6 +6,7 @@ import '../../../common/design/src/theme/assets.gen.dart';
 import '../../../common/design/src/theme/theme/theme_collection.dart';
 import '../../../common/extensions/src/context_extensions.dart';
 import '../../../core/di/injection.dart';
+import '../../../core/utils/app_colors.dart';
 import '../../../router/app_router.dart';
 import 'cubit/splash_cubit.dart';
 
@@ -96,12 +97,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
       child: Scaffold(
         body: Container(
-          width: context.width,
-          height: context.height,
-          color: context.primarySwatch,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          color: AppColors.primary,
           child:  Center(
             child: Assets.images.png.logoWhitle.image(
-              width: context.width*.5,
+              width: MediaQuery.of(context).size.width*.5,
 
               fit: BoxFit.cover,
             ),

@@ -20,7 +20,7 @@ FontWeight get black => FontWeight.w900;
 
 
 abstract class FontFamily {
-  static const String family = 'Sora';
+  static const String family = 'Cairo';
 }
 
 abstract class FontSize {

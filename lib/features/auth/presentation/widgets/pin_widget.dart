@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../../common/extensions/src/context_extensions.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class PinWidget extends StatelessWidget {
   final PinInputController _pinController;
@@ -31,13 +32,13 @@ class PinWidget extends StatelessWidget {
 
           theme: MaterialPinTheme(
             borderRadius: BorderRadius.circular(20),
-            borderColor: context.textFieldBorder,
-            focusedBorderColor: context.primarySwatch,
+            borderColor: Colors.grey.shade300,
+            focusedBorderColor: AppColors.primary,
 
             fillColor: Colors.white,
-            cursorColor: context.primarySwatch,
-            textStyle: context.bodyMedium(
-              color: context.primarySwatch,
+            cursorColor: AppColors.primary,
+            textStyle: TextStyle(
+              color: AppColors.primary,
               fontSize: 14,
             ),
           ),

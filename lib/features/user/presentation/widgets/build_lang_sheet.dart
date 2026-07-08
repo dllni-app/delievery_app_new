@@ -3,6 +3,7 @@ import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/app_varibles.dart';
 import '../../../../common/helper/src/helper_func.dart';
 import '../../../../common/helper/src/locale_keys.dart';
+import '../../../../core/utils/app_colors.dart';
 
 Future<dynamic> buildLangSheet(BuildContext context) {
   final isArabic = context.locale.languageCode == 'ar' ? true : false;
@@ -15,8 +16,8 @@ Future<dynamic> buildLangSheet(BuildContext context) {
     builder: (ctx) {
       return Container(
         width: double.infinity,
-        height: context.height * 0.3,
-        padding: EdgeInsets.only(top: context.height * .03),
+        height: MediaQuery.sizeOf(context).height * 0.3,
+        padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * .03),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -27,10 +28,10 @@ Future<dynamic> buildLangSheet(BuildContext context) {
             SizedBox(height: 12),
             Center(
               child: Container(
-                width: context.width * .28,
+                width: MediaQuery.sizeOf(context).width * .28,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  color: context.fieldLabelColor.withOpacity(.24),
+                  color: AppColors.primary.withOpacity(.24),
                 ),
                 height: 6,
               ),
@@ -43,7 +44,7 @@ Future<dynamic> buildLangSheet(BuildContext context) {
                   padding: EdgeInsetsDirectional.only(start: 20),
                   child: Text(
                     LocaleKeys.profileLanguage.tr(),
-                    style: context.labelSmall(fontSize: 24),
+                    style: TextStyle(fontSize: 24),
                   ),
                 ),
                 SizedBox(height: 24),
@@ -67,13 +68,13 @@ Future<dynamic> buildLangSheet(BuildContext context) {
                             value: true,
                             groupValue: value,
                             onChanged: null,
-                            activeColor: context.primarySwatch,
+                            activeColor: AppColors.primary,
                           );
                         },
                       ),
                       Text(
                         "العربية",
-                        style: context.headlineSmall(fontSize: 16),
+                        style: TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
@@ -99,13 +100,13 @@ Future<dynamic> buildLangSheet(BuildContext context) {
                             value: false,
                             groupValue: value,
                             onChanged: null,
-                            activeColor: context.primarySwatch,
+                            activeColor: AppColors.primary,
                           );
                         },
                       ),
                       Text(
                         "English",
-                        style: context.headlineSmall(fontSize: 16),
+                        style: TextStyle(fontSize: 16),
                       ),
                     ],
                   ),

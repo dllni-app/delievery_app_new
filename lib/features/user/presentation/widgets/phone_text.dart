@@ -14,7 +14,7 @@ class PhoneText extends StatelessWidget {
       textDirection: TextDirection.ltr,
       child: Text(
         formatPhone(text),
-        style: style ?? context.displaySmall(fontSize: 14),
+        style: style ?? TextStyle(fontSize: 14),
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
       ),

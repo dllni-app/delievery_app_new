@@ -1,9 +1,7 @@
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../design/src/theme/assets.gen.dart';
 import '../../design/src/theme/toaster.dart';
 import '../../design/src/widgets.dart';
@@ -31,8 +29,7 @@ class DataStateModel<T> {
 
   bool get isInit => status == BlocStatus.init;
 
-  bool get isLoading =>
-      status == BlocStatus.loading || status == BlocStatus.init;
+  bool get isLoading => status == BlocStatus.loading;
 
   bool get isFailed => status == BlocStatus.failed;
 
@@ -58,16 +55,13 @@ class DataStateModel<T> {
     VoidCallback? onLoading,
     VoidCallback? onFailed,
     required VoidCallback onSuccess,
-  })
-  {
+  }) {
     Toaster.closeAllLoading();
     if (status == BlocStatus.loading) {
       Toaster.showLoading();
       onLoading?.call();
     } else if (status == BlocStatus.failed) {
-      Toaster.showCustomErrorToast(
-        message: errorMessage
-      );
+      Toaster.showCustomErrorToast(message: errorMessage);
 
       onFailed?.call();
     } else if (status == BlocStatus.success) {
@@ -79,12 +73,10 @@ class DataStateModel<T> {
     VoidCallback? onLoading,
     VoidCallback? onFailed,
     required VoidCallback onSuccess,
-  })
-  {
+  }) {
     Toaster.closeAllLoading();
     if (status == BlocStatus.loading) {
-    }
-    else if (status == BlocStatus.failed) {
+    } else if (status == BlocStatus.failed) {
       BotToast.showCustomNotification(
         duration: const Duration(seconds: 4),
         toastBuilder: (cancelFunc) {
@@ -103,7 +95,8 @@ class DataStateModel<T> {
                 Expanded(
                   child: Text(
                     errorMessage,
-                    style: GoogleFonts.alexandria(
+                    style: const TextStyle(
+                      fontFamily: 'Cairo',
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w300,
@@ -126,8 +119,7 @@ class DataStateModel<T> {
       );
 
       onFailed?.call();
-    }
-    else if (status == BlocStatus.success) {
+    } else if (status == BlocStatus.success) {
       onSuccess();
     }
   }
@@ -137,8 +129,7 @@ class DataStateModel<T> {
     Widget? failedWidget,
     VoidCallback? onTapRetry,
     required Widget Function(T data) onSuccess,
-  })
-  {
+  }) {
     if (failedWidget == null && onTapRetry == null) {
       throw ArgumentError(
         'Either failed widget or onTapRetry must be provided.',

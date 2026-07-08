@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../common/models/notification_model.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class NotificationWidget extends StatelessWidget {
   final NotificationModel notification;
@@ -16,7 +16,7 @@ class NotificationWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: context.surfaceColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.06),
@@ -36,12 +36,12 @@ class NotificationWidget extends StatelessWidget {
             ),
             leading: Icon(
               _isRead ? Icons.notifications_none : Icons.notifications_active,
-              color: context.primarySwatch,
+              color: AppColors.primary,
               size: 28,
             ),
             title: Text(
               notification.title ?? LocaleKeys.nullText.tr(),
-              style: context.headlineSmall(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
@@ -54,9 +54,9 @@ class NotificationWidget extends StatelessWidget {
                 notification.body ??
                     notification.message ??
                     LocaleKeys.nullText.tr(),
-                style: context.bodySmall(
+                style: TextStyle(
                   fontSize: 14,
-                  color: context.onSurfaceVariantColor,
+                  color: Colors.black,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -66,9 +66,9 @@ class NotificationWidget extends StatelessWidget {
                 ? null
                 : Text(
                     formatNotificationDate(notification.createdAt),
-                    style: context.bodySmall(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: context.onSurfaceVariantColor,
+                      color: Colors.black,
                     ),
                   ),
             isThreeLine: true,

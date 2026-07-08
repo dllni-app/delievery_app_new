@@ -6,6 +6,7 @@ import '../../../../../common/design/src/widgets/animation_widget/animated_title
 import '../../../../../common/design/src/widgets/svg_asset.dart';
 import '../../../../../common/extensions/src/context_extensions.dart';
 import '../../../../../common/helper/src/locale_keys.dart';
+import '../../../../../core/utils/app_colors.dart';
 
 class DrawerContactUsWidget extends StatelessWidget {
   const DrawerContactUsWidget({super.key});
@@ -19,14 +20,14 @@ class DrawerContactUsWidget extends StatelessWidget {
           AnimatedScaleWidget(
             child: SvgAsset(
               Assets.images.svg.contactUs.contactUsSvgrepoCom,
-              color: context.navBarSelectedColor,
+              color: AppColors.primary,
             ),
           ),
           SizedBox(width: 10),
           AnimatedTitleTextWidget(
             child: Text(
               LocaleKeys.contactUs.tr(),
-              style: context.headlineSmall(fontSize: 16),
+              style: TextStyle(fontSize: 16),
             ),
           ),
         ],
@@ -78,11 +79,11 @@ class ContactusElement extends StatelessWidget {
         child: Row(
           children: [
             AnimatedScaleWidget(
-              child: SvgAsset(svgImage, color: context.navBarSelectedColor),
+              child: SvgAsset(svgImage, color: AppColors.primary),
             ),
             SizedBox(width: 10),
             AnimatedTitleTextWidget(
-              child: Text(title, style: context.headlineSmall(fontSize: 16)),
+              child: Text(title, style: TextStyle(fontSize: 16)),
             ),
           ],
         ),

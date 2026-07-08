@@ -10,6 +10,7 @@ class ThemeCollection {
   static ThemeData _buildTheme(AppColorPalette palette) {
     final themeExt = AppThemeExtensions(palette: palette);
     return ThemeData(
+      fontFamily: "Cairo",
       scaffoldBackgroundColor: palette.scaffoldBackground,
       useMaterial3: true,
       brightness: palette.brightness,

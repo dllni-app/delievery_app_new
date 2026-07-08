@@ -1,7 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../design.dart';
 
@@ -48,7 +47,8 @@ class Toaster {
               Expanded(
                 child: Text(
                   message,
-                  style: GoogleFonts.cairo(
+                  style: const TextStyle(
+                    fontFamily: 'Cairo',
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,

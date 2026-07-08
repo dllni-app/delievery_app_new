@@ -14,6 +14,7 @@ import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/extensions/src/validation.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../../router/app_router.dart';
 import '../../domain/use_cases/login_use_case.dart';
 import '../bloc/auth_bloc.dart';
@@ -99,15 +100,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Text(
                     LocaleKeys.exitConfirmationTitle.tr(),
-                    style: context.headlineSmall(fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 16),
                     child: Text(
                       LocaleKeys.exitConfirmationMessage.tr(),
-                      style: context.bodyMedium(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: context.textColor,
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -119,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: Colors.white,
                             side: BorderSide(
                               width: 1,
-                              color: context.primarySwatch,
+                              color: AppColors.primary,
                             ),
                           ),
                           onPressed: () {
@@ -127,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           child: Text(
                             LocaleKeys.ratingNo.tr(),
-                            style: context.bodyMedium(fontSize: 14),
+                            style: TextStyle(fontSize: 14),
                           ),
                         ),
                       ),
@@ -140,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             LocaleKeys.ratingYes.tr(),
 
-                            style: context.bodyMedium(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                             ),
@@ -173,8 +174,8 @@ class _LoginScreenState extends State<LoginScreen> {
             key: _globalKey,
             child: Container(
               margin: EdgeInsets.only(
-                top: context.height * .05,
-                bottom: context.height * .05,
+                top: MediaQuery.sizeOf(context).height * .05,
+                bottom: MediaQuery.sizeOf(context).height * .05,
               ),
 
               padding: EdgeInsets.all(22),
@@ -204,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: EdgeInsets.all(36),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: context.primarySwatch,
+                        color: AppColors.primary,
                       ),
                       child: SvgAsset(
                         Assets.images.svg.logIn.track,
@@ -215,9 +216,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     AnimatedScaleWidget(
                       child: Text(
                         'تطبيق المندوب',
-                        style: context.headlineSmall(
+                        style: TextStyle(
                           fontSize: 32,
-                          color: context.primarySwatch[900],
+                          color: Colors.black,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -227,9 +228,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     AnimatedSubTextWidget(
                       child: Text(
                         'مرحباً بك مجدداً، يرجى تسجيل الدخول للمتابعة',
-                        style: context.bodySmall(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: context.textSubColor,
+                          color: Colors.black,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -239,8 +240,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         'رقم الهاتف',
-                        style: context.bodyLarge(
-                          color: context.hintColor,
+                        style: TextStyle(
+                          color: Colors.grey.shade300,
                           fontSize: 14,
                         ),
                       ),
@@ -264,8 +265,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "كلمة المرور",
-                        style: context.bodyLarge(
-                          color: context.hintColor,
+                        style: TextStyle(
+                          color: Colors.grey.shade300,
                           fontSize: 14,
                         ),
                       ),
@@ -290,7 +291,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Space.vM4,
                     SizedBox(
-                      width: context.width,
+                      width: MediaQuery.sizeOf(context).width,
                       child: AnimatedScaleWidget(
                         child: ElevatedButton(
                           onPressed: () => _login(),
@@ -299,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               Text(
                                 LocaleKeys.authLogIn.tr(),
-                                style: context.bodyLarge(
+                                  style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.white,
                                 ),
@@ -332,14 +333,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           children: [Icon(Icons.info_outline,
 
-                        color: context.grey,
+                        color: Colors.grey.shade300,
                         size: 18,
 
                       ),
                       Space.hS3,
                         Text('تسجيل الدخول مخصص للمندوبين فقط',
-                        style: context.bodySmall(
-                          color: context.grey,
+                        style: TextStyle(
+                          color: Colors.grey.shade300,
                           fontSize: 11
                         ),
                         )

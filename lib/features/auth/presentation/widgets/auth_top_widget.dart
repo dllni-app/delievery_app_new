@@ -24,20 +24,20 @@ class AuthTopWidget extends StatelessWidget {
     return Column(
       children: [
         isPng
-            ? Image.asset(image, height: context.width * .31)
-            : SvgAsset(image, height: context.width * .31),
+            ? Image.asset(image, height: MediaQuery.sizeOf(context).width * .31)
+            : SvgAsset(image, height: MediaQuery.sizeOf(context).width * .31),
         Padding(
           padding: EdgeInsets.only(bottom: 8, top: 24),
           child: Text(
             title,
-            style: context.labelSmall(fontSize: 24),
+            style: TextStyle(fontSize: 24),
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(bottom: context.height * .03),
+          padding: EdgeInsets.only(bottom: MediaQuery.sizeOf(context).height * .03),
           child: Text(
             subTitle,
-            style: context.bodySmall(fontSize: 14),
+            style: TextStyle(fontSize: 14),
             textAlign: TextAlign.center,
           ),
         ),
@@ -45,12 +45,12 @@ class AuthTopWidget extends StatelessWidget {
           alignment: AlignmentDirectional.centerStart,
           child: Padding(
             padding: EdgeInsets.only(
-              bottom: context.height * .02,
-              top: context.height * .01,
+              bottom: MediaQuery.sizeOf(context).height * .02,
+              top: MediaQuery.sizeOf(context).height * .01,
             ),
             child: Text(
               leading,
-              style: context.labelSmall(fontSize: 20),
+              style: TextStyle(fontSize: 20),
             ),
           ),
         ),

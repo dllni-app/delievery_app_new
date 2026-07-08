@@ -20,7 +20,7 @@ class CarouselSliderLoadingWidget extends StatelessWidget {
           int pageViewIndex,
           ) {
         return Container(
-          width: context.width,
+          width: MediaQuery.of(context).size.width,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: Color.fromRGBO(221, 221, 221, 1),
@@ -32,7 +32,7 @@ class CarouselSliderLoadingWidget extends StatelessWidget {
         );
       },
       options: CarouselOptions(
-          height: context.width*.5,
+          height: MediaQuery.of(context).size.width*.5,
         viewportFraction: 1,
         initialPage: 0,
         enableInfiniteScroll: true,

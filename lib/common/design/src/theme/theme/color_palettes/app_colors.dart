@@ -153,5 +153,6 @@ abstract class AppColorPalette {
 
   Color get notificationRequest;
 
+  String get fontFamily;
 
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../design/design.dart';
 import '../../design/src/theme/theme/theme_extensions.dart';
@@ -255,29 +254,36 @@ class AppFontFamily {
 
   const AppFontFamily(this.font);
 
-  /// الخط الافتراضي
-  static const cairo = AppFontFamily(GoogleFonts.cairo);
+  static const String _cairoFamily = 'Cairo';
 
-  /// خطوط إضافية
-  static const alexandria = AppFontFamily(GoogleFonts.alexandria);
-  static const tajawal = AppFontFamily(GoogleFonts.tajawal);
-  static const inter = AppFontFamily(GoogleFonts.inter);
-  static const poppins = AppFontFamily(GoogleFonts.poppins);
-  static const roboto = AppFontFamily(GoogleFonts.roboto);
-  static const montserrat = AppFontFamily(GoogleFonts.montserrat);
-  static const openSans = AppFontFamily(GoogleFonts.openSans);
-  static const lato = AppFontFamily(GoogleFonts.lato);
-  static const nunito = AppFontFamily(GoogleFonts.nunito);
-  static const raleway = AppFontFamily(GoogleFonts.raleway);
-  static const ubuntu = AppFontFamily(GoogleFonts.ubuntu);
-  static const oswald = AppFontFamily(GoogleFonts.oswald);
-  static const playfairDisplay = AppFontFamily(GoogleFonts.playfairDisplay);
-  static const merriweather = AppFontFamily(GoogleFonts.merriweather);
-  static const rubik = AppFontFamily(GoogleFonts.rubik);
-  static const dmSans = AppFontFamily(GoogleFonts.dmSans);
-  static const outfit = AppFontFamily(GoogleFonts.outfit);
-  static const quicksand = AppFontFamily(GoogleFonts.quicksand);
-  static const workSans = AppFontFamily(GoogleFonts.workSans);
+  /// Default font mapped to your local bundled Cairo fonts.
+  static final cairo = AppFontFamily(
+    ({TextStyle? textStyle}) => textStyle?.copyWith(
+          fontFamily: _cairoFamily,
+        ) ??
+        const TextStyle(fontFamily: _cairoFamily),
+  );
+
+  /// Backward compatible aliases.
+  static final alexandria = cairo;
+  static final tajawal = cairo;
+  static final inter = cairo;
+  static final poppins = cairo;
+  static final roboto = cairo;
+  static final montserrat = cairo;
+  static final openSans = cairo;
+  static final lato = cairo;
+  static final nunito = cairo;
+  static final raleway = cairo;
+  static final ubuntu = cairo;
+  static final oswald = cairo;
+  static final playfairDisplay = cairo;
+  static final merriweather = cairo;
+  static final rubik = cairo;
+  static final dmSans = cairo;
+  static final outfit = cairo;
+  static final quicksand = cairo;
+  static final workSans = cairo;
 }
 
 extension TextStyleExtensions on BuildContext {

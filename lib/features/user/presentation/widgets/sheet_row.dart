@@ -21,7 +21,7 @@ class SheetRow extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             SizedBox(
-              width: context.width * .01,
+              width: MediaQuery.sizeOf(context).width * .01,
             ),
             Icon(
               icon,

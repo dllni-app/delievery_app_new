@@ -4,11 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
 
 class DeliveryDisputesPage extends StatefulWidget {
-
+  const DeliveryDisputesPage({super.key});
   @override
   State<DeliveryDisputesPage> createState() => _DeliveryDisputesPageState();
 }
@@ -31,7 +32,7 @@ late final DeliveryCubit deliveryCubit;
       bloc: deliveryCubit,
       builder: (context, state) {
         return RefreshIndicator(
-          color: context.primarySwatch,
+          color: AppColors.primary,
           onRefresh: deliveryCubit.loadDisputes,
           child: ListView(
             padding: PEdgeInsets.all,
@@ -67,7 +68,7 @@ late final DeliveryCubit deliveryCubit;
                           Text(
                             dispute.category,
                             style: TextStyle(
-                              color: context.onSurfaceVariantColor,
+                              color: Colors.black,
                             ),
                           ),
                           Space.vS3,

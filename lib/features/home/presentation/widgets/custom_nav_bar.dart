@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/design/src/widgets/auto_scroll_text_widget.dart';
 import '../../../../common/design/src/widgets/svg_asset.dart';
-import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/helper.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
 
 class CustomNavBar extends StatefulWidget {
@@ -45,7 +45,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
         // widget.currentIndex == 2
         //     ? HomeCartWidget(cartBloc:cartBloc)
         //     : SizedBox(),
-        Divider(height: 5,color: context.dividerColor),
+        Divider(height: 5,color: Colors.grey.shade300),
 
         Container(
           padding: EdgeInsets.only(
@@ -76,7 +76,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
                     padding: EdgeInsets.symmetric(vertical: 12,horizontal: 12),
                     decoration: isSel
                         ? BoxDecoration(
-                            color: context.primaryContainerColor,
+                            color: AppColors.primary,
 
                             borderRadius: BorderRadius.circular(1000),
                           )
@@ -91,7 +91,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
                           children: [
                             SvgAsset(
                               item.icon,
-                              color: isSel ? context.navBarSelectedColor : context.navBarColor,
+                              color: isSel ? AppColors.primary : Colors.grey,
                               height: 20
                             ),
                             BlocBuilder<NotificationBloc,NotificationState>(
@@ -108,7 +108,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
                                       width: 10,
                                       height: 10,
                                       decoration: BoxDecoration(
-                                        color: context.errorColor,
+                                        color: Colors.red,
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           color: Colors.white,
@@ -126,16 +126,16 @@ class _CustomNavBarState extends State<CustomNavBar> {
 
                           ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxWidth: context.width * .3, // 👈 الحد الأعلى فقط
+                              maxWidth: MediaQuery.of(context).size.width * .3, // 👈 الحد الأعلى فقط
                             ),
 
                             child: FlexibleAutoScrollText(
                              text:
                               item.title.tr(),
-                              style: context.titleLarge(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w900,
-                                color: isSel?  context.navBarSelectedColor :context.navBarColor
+                                color: isSel?  AppColors.primary : Colors.grey
                               ),
                               // maxLines: 1,
                               // overflow: TextOverflow.ellipsis,

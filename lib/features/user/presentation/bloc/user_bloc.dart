@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import '../../../../common/helper/src/data_state_model.dart';
@@ -154,9 +155,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       },
       (_) {
         emit(
-          state.copyWith(
-            postLocationData: state.postLocationData.setSuccess(),
-          ),
+          state.copyWith(postLocationData: state.postLocationData.setSuccess()),
         );
       },
     );
@@ -203,9 +202,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       },
       (r) {
         emit(
-          state.copyWith(
-            updateMeData: state.updateMeData.setSuccess(data: r),
-          ),
+          state.copyWith(updateMeData: state.updateMeData.setSuccess(data: r)),
         );
       },
     );

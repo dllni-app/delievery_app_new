@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../data/models/delivery_order_model.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class DeliveryCard extends StatelessWidget {
   const DeliveryCard({
@@ -23,7 +24,7 @@ class DeliveryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color ?? context.surfaceColor,
+      color: color ?? Colors.white,
       borderRadius: BorderRadius.circular(24),
       shadowColor: Colors.black.withOpacity(.08),
       elevation: 4,
@@ -56,7 +57,7 @@ class DeliveryPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDanger ? context.errorColor : context.primarySwatch;
+    final color = isDanger ? Colors.red : AppColors.primary;
     final child = isLoading
         ? SizedBox(
             width: 22,
@@ -71,7 +72,7 @@ class DeliveryPrimaryButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[Icon(icon, size: 20), Space.hS3],
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(label, style: TextStyle(fontWeight: FontWeight.w700)),
             ],
           );
 
@@ -115,7 +116,7 @@ class DeliveryStatusBadge extends StatelessWidget {
       'completed' ||
       'delivered' ||
       'COMPLETED' =>
-        context.successColor,
+        Colors.green,
       'busy' ||
       'offered' ||
       'open' ||
@@ -127,14 +128,14 @@ class DeliveryStatusBadge extends StatelessWidget {
       'dispatching' ||
       'WAITING_ACCEPTANCE' ||
       'ACTIVE' =>
-        context.warningColor,
+        Colors.yellow,
       'offline' ||
       'cancelled' ||
       'rejected' ||
       'expired' ||
       'REJECTED' =>
-        context.errorColor,
-      _ => context.primarySwatch,
+        Colors.red,
+      _ => AppColors.primary,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -184,11 +185,11 @@ class DeliveryMetricCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: color ?? context.primarySwatch),
+          Icon(icon, color: color ?? AppColors.primary),
           Space.vL1,
           Text(
             displayValue,
-            style: context.headlineSmall(
+            style: TextStyle(
               fontSize: displayValue.length > 8 ? 16 : 24,
               fontWeight: FontWeight.w800,
             ),
@@ -196,7 +197,7 @@ class DeliveryMetricCard extends StatelessWidget {
           Space.vS2,
           Text(
             label,
-            style: TextStyle(fontSize: 13, color: context.onSurfaceVariantColor),
+            style: TextStyle(fontSize: 13, color: Colors.black),
           ),
         ],
       ),
@@ -226,20 +227,20 @@ class DeliveryEmptyState extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 34,
-            backgroundColor: context.surfaceVariantColor,
-            child: Icon(icon, size: 34, color: context.onSurfaceVariantColor),
+              backgroundColor: Colors.grey.shade300,
+            child: Icon(icon, size: 34, color: Colors.black),
           ),
           Space.vM2,
           Text(
             title,
             textAlign: TextAlign.center,
-            style: context.headlineSmall(fontSize: 17),
+            style: TextStyle(fontSize: 17),
           ),
           Space.vS3,
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(color: context.onSurfaceVariantColor),
+            style: TextStyle(color: Colors.black),
           ),
           if (onRetry != null) ...[
             Space.vM2,
@@ -281,7 +282,7 @@ class DeliveryOrderCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'طلب ${order.orderNumber}',
-                  style: context.headlineSmall(fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               DeliveryStatusBadge(status: order.statusUi ?? order.status),
@@ -300,7 +301,7 @@ class DeliveryOrderCard extends StatelessWidget {
               child: VerticalDivider(
                 width: 2,
                 thickness: 1.2,
-                color: context.onSurfaceVariantColor.withOpacity(.4),
+                color: Colors.grey.shade300.withOpacity(.4),
               ),
             ),
           ),
@@ -361,8 +362,8 @@ class DeliveryRoutePoint extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundColor: context.surfaceVariantColor,
-          child: Icon(icon, size: 20, color: context.primarySwatch),
+          backgroundColor: Colors.grey.shade300,
+          child: Icon(icon, size: 20, color: AppColors.primary),
         ),
         Space.hM1,
         Expanded(
@@ -373,7 +374,7 @@ class DeliveryRoutePoint extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: context.onSurfaceVariantColor,
+                  color: Colors.black,
                 ),
               ),
               Space.vS2,
@@ -410,7 +411,7 @@ class DeliveryLoadingOverlay extends StatelessWidget {
             child: ColoredBox(
               color: Colors.black.withOpacity(.08),
               child: Center(
-                child: CircularProgressIndicator(color: context.primarySwatch),
+                child: CircularProgressIndicator(color: AppColors.primary),
               ),
             ),
           ),
@@ -430,13 +431,13 @@ class _SmallInfo extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: context.surfaceVariantColor,
+        color: Colors.grey.shade300,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: context.onSurfaceVariantColor),
+          Icon(icon, size: 16, color: Colors.black),
           Space.hS2,
           Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),
         ],

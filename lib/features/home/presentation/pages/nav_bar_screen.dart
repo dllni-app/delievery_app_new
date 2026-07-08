@@ -1,13 +1,22 @@
+import 'package:dllne_deliver_app/features/home/presentation/widgets/shell_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' as d;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../common/design/src/theme/theme/theme_collection.dart';
-import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
+import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
+import '../../../delivery/presentation/pages/delivery_orders_page.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
+import '../../../notification/presentation/pages/notification_screen.dart';
+import '../../../user/presentation/bloc/user_bloc.dart';
+import '../../../user/presentation/pages/driver_more_page.dart';
 import '../cubit/home_cubit.dart';
+import 'new_home_screen.dart';
+import '../../../user/presentation/pages/new_more_screen.dart';
 
 class NavBarScreen extends StatefulWidget {
   const NavBarScreen({super.key});
@@ -16,42 +25,102 @@ class NavBarScreen extends StatefulWidget {
   State<NavBarScreen> createState() => _NavBarScreenState();
 }
 
-class _NavBarScreenState extends State<NavBarScreen> {
-  late final HomeCubit homeCubit;
-  late final PageController pageController;
+class _DriverTopAppBar extends StatelessWidget {
+  final String driverName;
+  final VoidCallback onNotificationPressed;
+
+  const _DriverTopAppBar({
+    required this.driverName,
+    required this.onNotificationPressed,
+  });
 
   @override
-  void initState() {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: ThemeCollection.lightTheme.scaffoldBackgroundColor,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
+  Widget build(BuildContext context) {
+    return d.Directionality(
+      textDirection: d.TextDirection.ltr,
+      child: Container(
+        color: Colors.white,
+        padding: EdgeInsets.fromLTRB(
+          16,
+          MediaQuery.paddingOf(context).top + 16,
+          16,
+          8,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            BlocBuilder<NotificationBloc, NotificationState>(
+              bloc: getIt<NotificationBloc>(),
+              builder: (context, notificationState) {
+                return InkWell(
+                  borderRadius: BorderRadius.circular(999),
+                  onTap: onNotificationPressed,
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(
+                      child: Badge(
+                        isLabelVisible: notificationState.isNew,
+                        child: Icon(
+                          Icons.notifications_none,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // Right: driver avatar + name.
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    driverName,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.primary,
+                  child: Text(
+                    _initial(driverName),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
-    pageController = PageController();
-    homeCubit = getIt<HomeCubit>()..initNav();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (homeCubit.state.pendingNotificationData != null) {
-        homeCubit.processPendingNotification();
-      }
-    });
-    super.initState();
   }
 
-  @override
-  void dispose() {
-    pageController.dispose();
-    super.dispose();
+  String _initial(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return '-';
+    return trimmed[0];
   }
+}
 
-  String _titleForTab(int index) {
-    if (index < 0 || index >= homeCubit.state.navBar.length) return '';
-    return homeCubit.state.navBar[index].titleKey;
-  }
-
+// I make it global for new_more_screen.dart
+  late final HomeCubit homeCubit;
+class _NavBarScreenState extends State<NavBarScreen> {
+  late final PageController pageController;
+  late final UserBloc userBloc;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -76,16 +145,13 @@ class _NavBarScreenState extends State<NavBarScreen> {
                 children: [
                   Text(
                     LocaleKeys.exitConfirmationTitle.tr(),
-                    style: context.headlineSmall(fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 16),
                     child: Text(
                       LocaleKeys.exitConfirmationMessage.tr(),
-                      style: context.bodyMedium(
-                        fontSize: 14,
-                        color: context.textColor,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                   ),
                   Row(
@@ -102,7 +168,7 @@ class _NavBarScreenState extends State<NavBarScreen> {
                           onPressed: () => Navigator.of(context).pop(true),
                           child: Text(
                             LocaleKeys.ratingYes.tr(),
-                            style: context.bodyMedium(color: Colors.white),
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
@@ -124,66 +190,69 @@ class _NavBarScreenState extends State<NavBarScreen> {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: context.scaffoldBackgroundColor,
-              appBar: AppBar(
-                backgroundColor: context.scaffoldBackgroundColor,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                title: Text(
-                  _titleForTab(state.selectedIndex),
-                  style: context.headlineSmall(
-                    fontSize: 18,
-                    color: context.primarySwatch,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                actions: [
-                  if (state.selectedIndex != 2)
-                    BlocBuilder<NotificationBloc, NotificationState>(
-                      bloc: getIt<NotificationBloc>(),
-                      builder: (context, notificationState) {
-                        return IconButton(
-                          onPressed: () => homeCubit.changeIndex(2),
-                          icon: Badge(
-                            isLabelVisible: notificationState.isNew,
-                            child: Icon(
-                              Icons.notifications_none,
-                              color: context.primarySwatch,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                ],
+            backgroundColor: Colors.white,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(64),
+              child: BlocBuilder<UserBloc, UserState>(
+                bloc: userBloc,
+                builder: (context, userState) {
+                  return _DriverTopAppBar(
+                    driverName:
+                        userState.driverGetMeData.data?.data?.firstName ?? '-',
+                    onNotificationPressed: () => homeCubit.changeIndex(2),
+                  );
+                },
               ),
-              body: PageView(
-                controller: pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: state.navBar.map((tab) => tab.widget).toList(),
-              ),
-              bottomNavigationBar: NavigationBar(
-                selectedIndex: state.selectedIndex,
-                onDestinationSelected: homeCubit.changeIndex,
-                backgroundColor: context.scaffoldBackgroundColor,
-                indicatorColor: context.secondaryColor,
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                destinations: [
-                  for (final tab in state.navBar)
-                    NavigationDestination(
-                      icon: Icon(tab.icon, color: context.navBarColor),
-                      selectedIcon: Icon(
-                        tab.selectedIcon,
-                        color: Colors.white,
-                      ),
-                      label: tab.titleKey,
-
-
-                    ),
-                ],
-              ),
-            );
+            ),
+            body: PageView(
+              controller: pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: const [
+                // HomeScreen(),
+                NewHomeScreen(),
+                DeliveryOrdersPage(),
+                NotificationScreen(),
+                DeliveryDisputesPage(),
+                NewMoreScreen(),
+              ],
+            ),
+            bottomNavigationBar: ShellBottomNavBar(
+              selectedIndex: state.selectedIndex,
+              onTap: homeCubit.changeIndex,
+            ),
+          );
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: ThemeCollection.lightTheme.scaffoldBackgroundColor,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+    pageController = PageController();
+    homeCubit = getIt<HomeCubit>();
+    // Preload driver name for the header.
+    userBloc = getIt<UserBloc>();
+    userBloc.add(DriverGetMeEvent());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (homeCubit.state.pendingNotificationData != null) {
+        homeCubit.processPendingNotification();
+      }
+    });
+    super.initState();
   }
 }

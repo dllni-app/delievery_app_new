@@ -5,6 +5,7 @@ import 'package:location/location.dart' as loc;
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../financial/presentation/cubit/financial_cubit.dart';
 import '../../../user/domain/use_cases/post_location_use_cases.dart';
 import '../../../user/domain/use_cases/update_availability_use_cases.dart';
@@ -13,12 +14,16 @@ import '../../data/models/delivery_offer_model.dart';
 import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
 
-InputDecoration _inputDecoration(BuildContext context, String label, IconData icon) {
+InputDecoration _inputDecoration(
+  BuildContext context,
+  String label,
+  IconData icon,
+) {
   return InputDecoration(
     labelText: label,
-    prefixIcon: Icon(icon, color: context.primarySwatch),
+    prefixIcon: Icon(icon, color: AppColors.primary),
     filled: true,
-    fillColor: context.surfaceVariantColor,
+    fillColor: Colors.grey.shade300,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide.none,
@@ -26,7 +31,7 @@ InputDecoration _inputDecoration(BuildContext context, String label, IconData ic
   );
 }
 
-Future<void> _postCurrentLocation(BuildContext context) async {
+Future<void> postCurrentLocation(BuildContext context) async {
   final userBloc = context.read<UserBloc>();
   final location = loc.Location();
   var enabled = await location.serviceEnabled();
@@ -40,7 +45,8 @@ Future<void> _postCurrentLocation(BuildContext context) async {
   if (permission != loc.PermissionStatus.granted) return;
 
   final data = await location.getLocation();
-  if (!context.mounted || data.latitude == null || data.longitude == null) return;
+  if (!context.mounted || data.latitude == null || data.longitude == null)
+    return;
 
   userBloc.add(
     PostLocationEvent(
@@ -72,7 +78,10 @@ void _showAcceptSheet(
           children: [
             Text(
               'قبول طلب التوصيل؟',
-              style: context.headlineSmall(fontSize: 20, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             Space.vS3,
             const Text('سيتم تعيين الطلب لك وتبدأ رحلة التوصيل.'),
@@ -116,13 +125,20 @@ void _showRejectSheet(
           children: [
             Text(
               'سبب رفض الطلب',
-              style: context.headlineSmall(fontSize: 20, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             Space.vM1,
             TextField(
               controller: controller,
               maxLines: 3,
-              decoration: _inputDecoration(sheetContext, 'اكتب السبب', Icons.edit_note),
+              decoration: _inputDecoration(
+                sheetContext,
+                'اكتب السبب',
+                Icons.edit_note,
+              ),
             ),
             Space.vM3,
             DeliveryPrimaryButton(
@@ -131,7 +147,10 @@ void _showRejectSheet(
               isDanger: true,
               onPressed: () {
                 Navigator.pop(sheetContext);
-                context.read<DeliveryCubit>().rejectOffer(offer, controller.text);
+                context.read<DeliveryCubit>().rejectOffer(
+                  offer,
+                  controller.text,
+                );
               },
             ),
           ],
@@ -153,11 +172,13 @@ class DeliveryDashboardPage extends StatelessWidget {
         final offer = state.currentOffer;
 
         return RefreshIndicator(
-          color: context.primarySwatch,
+          color: AppColors.primary,
           onRefresh: () async {
             await getIt<DeliveryCubit>().loadDashboard();
             getIt<FinancialCubit>().loadSummary();
-            context.read<UserBloc>().add(DriverGetMeEvent());
+            if (context.mounted) {
+              context.read<UserBloc>().add(DriverGetMeEvent());
+            }
           },
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -175,7 +196,7 @@ class DeliveryDashboardPage extends StatelessWidget {
                       icon: Icons.pending_actions,
                       value: order == null ? '0' : '1',
                       label: 'طلبات نشطة',
-                      color: context.warningColor,
+                      color: Colors.yellow,
                     ),
                   ),
                   Space.hM1,
@@ -198,7 +219,10 @@ class DeliveryDashboardPage extends StatelessWidget {
                 ],
               ),
               Space.vM3,
-              Text('طلبات قريبة منك', style: context.headlineSmall(fontSize: 18)),
+              Text(
+                'طلبات قريبة منك',
+                style: TextStyle(fontSize: 18),
+              ),
               Space.vS3,
               if (offer != null)
                 _OfferCard(offer: offer)
@@ -210,7 +234,7 @@ class DeliveryDashboardPage extends StatelessWidget {
                 ),
               if (order != null) ...[
                 Space.vM3,
-                Text('الطلب النشط', style: context.headlineSmall(fontSize: 18)),
+                        Text('الطلب النشط', style: TextStyle(fontSize: 18)),
                 Space.vS3,
                 DeliveryOrderCard(
                   order: order,
@@ -241,8 +265,8 @@ class _DriverProfileCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: context.primaryContainerColor,
-                child: Icon(Icons.person, color: context.primarySwatch),
+                backgroundColor: Colors.grey.shade300,
+                child: Icon(Icons.person, color: AppColors.primary),
               ),
               Space.hM1,
               Expanded(
@@ -253,14 +277,14 @@ class _DriverProfileCard extends StatelessWidget {
                       driver?.firstName.isNotEmpty == true
                           ? driver!.firstName
                           : 'مندوب التوصيل',
-                      style: context.headlineSmall(fontSize: 18),
+                      style: TextStyle(fontSize: 18),
                     ),
                     Space.vS1,
                     Text(
                       driver?.phone ?? '',
-                      style: context.bodyMedium(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: context.onSurfaceVariantColor,
+                        color: Colors.black,
                       ),
                     ),
                   ],
@@ -290,15 +314,23 @@ class _AvailabilityCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('حالة التوفر', style: context.headlineSmall(fontSize: 17)),
+              Text('حالة التوفر', style: TextStyle(fontSize: 17)),
               Space.vM1,
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _StatusChoice(label: 'متاح', value: 'available', current: status),
+                  _StatusChoice(
+                    label: 'متاح',
+                    value: 'available',
+                    current: status,
+                  ),
                   _StatusChoice(label: 'مشغول', value: 'busy', current: status),
-                  _StatusChoice(label: 'غير متصل', value: 'offline', current: status),
+                  _StatusChoice(
+                    label: 'غير متصل',
+                    value: 'offline',
+                    current: status,
+                  ),
                 ],
               ),
             ],
@@ -327,7 +359,7 @@ class _StatusChoice extends StatelessWidget {
     return ChoiceChip(
       label: Text(label),
       selected: selected,
-      selectedColor: context.primaryContainerColor,
+      selectedColor: Colors.grey.shade300,
       onSelected: (_) {
         context.read<UserBloc>().add(
           UpdateAvailabilityEvent(
@@ -347,17 +379,20 @@ class _GpsCard extends StatelessWidget {
     return DeliveryCard(
       child: Row(
         children: [
-          Icon(Icons.my_location, color: context.successColor),
+          Icon(Icons.my_location, color: Colors.green),
           Space.hM1,
           Expanded(
             child: Text(
               'تحديث موقعك الحالي',
-              style: context.headlineSmall(fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
           ),
           TextButton(
-            onPressed: () => _postCurrentLocation(context),
-            child: Text('تحديث', style: TextStyle(color: context.primarySwatch)),
+            onPressed: () => postCurrentLocation(context),
+            child: Text(
+              'تحديث',
+              style: TextStyle(color: AppColors.primary),
+            ),
           ),
         ],
       ),
@@ -382,7 +417,7 @@ class _OfferCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'طلب توصيل جديد',
-                  style: context.headlineSmall(fontSize: 19),
+                    style: TextStyle(fontSize: 19),
                 ),
               ),
               DeliveryStatusBadge(

@@ -6,10 +6,11 @@ import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class DeliveryOrdersPage extends StatefulWidget {
 
-
+  const DeliveryOrdersPage({super.key});
 
   @override
   State<DeliveryOrdersPage> createState() => _DeliveryOrdersPageState();
@@ -36,7 +37,7 @@ class _DeliveryOrdersPageState extends State<DeliveryOrdersPage> {
         final order = state.currentOrder;
 
         return RefreshIndicator(
-          color: context.primarySwatch,
+          color: AppColors.primary,
           onRefresh: deliveryCubit.loadDashboard,
           child: ListView(
             padding: PEdgeInsets.all,

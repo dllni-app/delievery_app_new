@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/extensions/src/context_extensions.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class CheckWidget extends StatelessWidget {
   final ValueNotifier<String?> selectedGenderNotifier;
@@ -30,7 +31,7 @@ class CheckWidget extends StatelessWidget {
             return Container(
               padding: EdgeInsetsDirectional.only(top: 16, bottom: 16, start: 18),
               decoration: BoxDecoration(
-                border: Border.all(color:valueNoti==value?  context.primarySwatch:  context.textFieldBorder),
+                border: Border.all(color:valueNoti==value?  AppColors.primary:  Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -40,7 +41,7 @@ class CheckWidget extends StatelessWidget {
                     groupValueNotifier: selectedGenderNotifier,
                   ),
                   SizedBox(width: 10),
-                  Text(title, style: context.headlineSmall(fontSize: 14)),
+                  Text(title, style: TextStyle(fontSize: 14)),
                 ],
               ),
             );

@@ -6,6 +6,7 @@ import '../../../../common/design/src/widgets/animation_widget/animated_title_te
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../../router/app_router.dart';
 import '../bloc/user_bloc.dart';
 import '../widgets/build_lang_sheet.dart';
@@ -37,8 +38,8 @@ class _AccountScreenState extends State<AccountScreen> {
         return Padding(
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top,
-            left: context.width * .05,
-            right: context.width * .05,
+            left: MediaQuery.of(context).size.width * .05,
+            right: MediaQuery.of(context).size.width * .05,
           ),
           child: state.getMeData.builder(
             onSuccess: (_) {
@@ -56,7 +57,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: AnimatedTitleTextWidget(
                           child: Text(
                             LocaleKeys.profile.tr(),
-                            style: context.labelSmall(
+                            style: TextStyle(
                               fontSize: 24,
                             ),
                           ),
@@ -68,17 +69,17 @@ class _AccountScreenState extends State<AccountScreen> {
                       sliver: SliverToBoxAdapter(
                         child: Center(
                           child: Container(
-                            width: context.width * .272,
-                            height: context.width * .272,
+                            width: MediaQuery.of(context).size.width * .272,
+                            height: MediaQuery.of(context).size.width * .272,
                             decoration: BoxDecoration(
-                              border: Border.all(color: context.textFieldBorder),
+                              border: Border.all(color: Colors.grey.shade300),
                               shape: BoxShape.circle,
-                              color: context.primaryContainerColor,
+                              color: AppColors.primary,
                             ),
                             child: Icon(
                               Icons.person,
-                              size: context.width * .12,
-                              color: context.primarySwatch,
+                              size: MediaQuery.of(context).size .width * .12,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -90,7 +91,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: Center(
                           child: Text(
                             driver.firstName,
-                            style: context.labelSmall(fontSize: 20),
+                            style: TextStyle(fontSize: 20),
                             softWrap: true,
                             textAlign: TextAlign.center,
                           ),
@@ -119,7 +120,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: context.textFieldBorder,
+                            color: Colors.grey.shade300,
                             width: 1,
                           ),
                           borderRadius: BorderRadius.circular(16),
@@ -137,7 +138,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   ),
                                 );
                               },
-                              color: context.primarySwatch,
+                              color: AppColors.primary,
                               hasDivider: true,
                             ),
                             ListTileDivider(
@@ -147,20 +148,20 @@ class _AccountScreenState extends State<AccountScreen> {
                                 FocusScope.of(context).unfocus();
                                 buildLangSheet(context);
                               },
-                              color: context.langColor,
+                              color: AppColors.primary,
                               hasDivider: true,
                             ),
                             ListTileDivider(
                               title: LocaleKeys.profileShareThisLing.tr(),
                               svgIcon: Assets.images.svg.profile.shareIcon,
-                              color: context.shareColor,
+                              color: AppColors.primary,
                               onTap: () {},
                               hasDivider: true,
                             ),
                             ListTileDivider(
                               title: LocaleKeys.profileAppVersion.tr(),
                               svgIcon: Assets.images.svg.profile.versionIcon,
-                              color: context.versionColor,
+                              color: AppColors.primary,
                               onTap: () {},
                               hasDivider: true,
                               isNext: false,

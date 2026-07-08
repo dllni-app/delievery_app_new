@@ -27,7 +27,7 @@ void showVersionDialog({
               ),
               Text(
                 LocaleKeys.aNewVersion.tr(),
-                style: context.headlineSmall(fontSize: 18),
+                style: TextStyle(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
 
@@ -35,7 +35,7 @@ void showVersionDialog({
                 margin: const EdgeInsets.only(top: 16, bottom: 24),
                 child: Text(
                   LocaleKeys.thisVersionForce.tr(),
-                  style: context.bodySmall(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -57,7 +57,7 @@ void showVersionDialog({
 
                   child: Text(
                     LocaleKeys.updateNow.tr(),
-                    style: context.headlineSmall(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
@@ -96,7 +96,7 @@ void showVersionDialogOptional({
               ),
               Text(
                 LocaleKeys.aNewVersion.tr(),
-                style: context.headlineSmall(fontSize: 18),
+                style: TextStyle(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
 
@@ -104,7 +104,7 @@ void showVersionDialogOptional({
                 margin: const EdgeInsets.only(top: 16, bottom: 24),
                 child: Text(
                   LocaleKeys.thisVersionSuggest.tr(),
-                  style: context.bodySmall(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -129,7 +129,7 @@ void showVersionDialogOptional({
 
                   child: Text(
                     LocaleKeys.updateNow.tr(),
-                    style: context.headlineSmall(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
@@ -141,7 +141,7 @@ void showVersionDialogOptional({
               InkWell(
                 child: Text(
                   'Skip',
-                  style: context.headlineSmall(fontSize: 16),
+                  style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 onTap: () => ctx.pop(),

@@ -7,6 +7,7 @@ import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/notification/notification_service.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../bloc/notification_bloc.dart';
 import '../widgets/notification_widget.dart';
 
@@ -35,7 +36,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      color: context.primarySwatch,
+      color: AppColors.primary,
       onRefresh: _onRefresh,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -115,7 +116,6 @@ class _NotificationEmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Material(
-        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(24),
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.06),
@@ -126,26 +126,26 @@ class _NotificationEmptyState extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 34,
-                backgroundColor: context.surfaceVariantColor,
+                backgroundColor: Colors.grey.shade300,
                 child: Icon(
                   Icons.notifications_none,
                   size: 34,
-                  color: context.onSurfaceVariantColor,
+                  color: Colors.black,
                 ),
               ),
               Space.vM2,
               Text(
                 LocaleKeys.notificationsEmptyNotifications.tr(),
                 textAlign: TextAlign.center,
-                style: context.headlineSmall(fontSize: 17),
+                style: TextStyle(fontSize: 17),
               ),
               Space.vS3,
               Text(
                 LocaleKeys.notificationsNotificationsWillAppeared.tr(),
                 textAlign: TextAlign.center,
-                style: context.bodyMedium(
+                style: TextStyle(
                   fontSize: 14,
-                  color: context.onSurfaceVariantColor,
+                  color: Colors.black,
                 ),
               ),
               Space.vM2,
