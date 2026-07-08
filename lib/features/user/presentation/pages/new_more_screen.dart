@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../auth/presentation/pages/login_screen.dart';
+import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
 import '../bloc/user_bloc.dart';
 
 class MenuCard extends StatelessWidget {
@@ -146,7 +147,7 @@ class MenuItem extends StatelessWidget {
             if (showChevron) ...[
               const SizedBox(width: 8),
               Transform.flip(
-                flipX: true, // RTL chevron direction.
+                flipX: true,
                 child: Icon(Icons.chevron_right_rounded, color: Colors.black54),
               ),
             ],
@@ -214,7 +215,7 @@ class ProfileCard extends StatelessWidget {
                     radius: 32,
                     backgroundColor: AppColors.primary,
                     child: Text(
-                      userName[0].toUpperCase(),
+                      userName.isEmpty ? '-' : userName[0].toUpperCase(),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -239,7 +240,6 @@ class ProfileCard extends StatelessWidget {
                       vechial,
                       style: TextStyle(
                         color: AppColors.white,
-
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -367,13 +367,20 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
                         homeCubit.changeIndex(0);
                       },
                       onWallet: () {
-                        homeCubit.changeIndex(1);
+                        homeCubit.changeIndex(2);
                       },
                       onReports: () {
-                        homeCubit.changeIndex(3);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const Scaffold(
+                              appBar: _ReportsAppBar(),
+                              body: DeliveryDisputesPage(),
+                            ),
+                          ),
+                        );
                       },
                       onNotifications: () {
-                        homeCubit.changeIndex(2);
+                        homeCubit.changeIndex(3);
                       },
                       onLogout: () {
                         SharedPreferences.getInstance().then((value) {
@@ -406,4 +413,22 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
     userBloc = getIt<UserBloc>();
     userBloc.add(UserGetMeEvent());
   }
+}
+
+class _ReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _ReportsAppBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: const Text('البلاغات'),
+      centerTitle: false,
+      backgroundColor: Colors.white,
+      foregroundColor: AppColors.primary,
+      elevation: 0,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
