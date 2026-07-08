@@ -198,6 +198,11 @@ class ApiVariables {
 
   static Uri getFinancialSummary() => _mainUri(path: 'financial/summary');
 
+  static Uri getWalletLimits() => _mainUri(path: 'wallet/limits');
+
+  static Uri getWalletTransactions(QueryParams params) =>
+      _mainUri(path: 'wallet/transactions', queryParameters: params);
+
   /// Delivery offers
 
   static Uri getCurrentOffer() => _mainUri(path: 'offers/current');
