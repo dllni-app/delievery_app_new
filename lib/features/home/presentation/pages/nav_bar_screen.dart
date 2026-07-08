@@ -8,12 +8,11 @@ import '../../../../common/design/src/theme/theme/theme_collection.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
 import '../../../delivery/presentation/pages/delivery_orders_page.dart';
+import '../../../financial/presentation/pages/driver_financial_page.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
 import '../../../notification/presentation/pages/notification_screen.dart';
 import '../../../user/presentation/bloc/user_bloc.dart';
-import '../../../user/presentation/pages/driver_more_page.dart';
 import '../cubit/home_cubit.dart';
 import 'new_home_screen.dart';
 import '../../../user/presentation/pages/new_more_screen.dart';
@@ -26,11 +25,13 @@ class NavBarScreen extends StatefulWidget {
 }
 
 class _DriverTopAppBar extends StatelessWidget {
-  final String driverName;
+  final String title;
+  final String avatarName;
   final VoidCallback onNotificationPressed;
 
   const _DriverTopAppBar({
-    required this.driverName,
+    required this.title,
+    required this.avatarName,
     required this.onNotificationPressed,
   });
 
@@ -72,13 +73,12 @@ class _DriverTopAppBar extends StatelessWidget {
               },
             ),
 
-            // Right: driver avatar + name.
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
                   child: Text(
-                    driverName,
+                    title,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -93,7 +93,7 @@ class _DriverTopAppBar extends StatelessWidget {
                   radius: 20,
                   backgroundColor: AppColors.primary,
                   child: Text(
-                    _initial(driverName),
+                    _initial(avatarName),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -117,10 +117,22 @@ class _DriverTopAppBar extends StatelessWidget {
 }
 
 // I make it global for new_more_screen.dart
-  late final HomeCubit homeCubit;
+late final HomeCubit homeCubit;
+
 class _NavBarScreenState extends State<NavBarScreen> {
   late final PageController pageController;
   late final UserBloc userBloc;
+
+  String _titleForIndex(int index, String driverName) {
+    return switch (index) {
+      1 => 'الطلبات',
+      2 => 'المستحقات',
+      3 => 'الإشعارات',
+      4 => 'المزيد',
+      _ => driverName,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -196,10 +208,12 @@ class _NavBarScreenState extends State<NavBarScreen> {
               child: BlocBuilder<UserBloc, UserState>(
                 bloc: userBloc,
                 builder: (context, userState) {
+                  final driverName =
+                      userState.driverGetMeData.data?.data?.firstName ?? '-';
                   return _DriverTopAppBar(
-                    driverName:
-                        userState.driverGetMeData.data?.data?.firstName ?? '-',
-                    onNotificationPressed: () => homeCubit.changeIndex(2),
+                    title: _titleForIndex(state.selectedIndex, driverName),
+                    avatarName: driverName,
+                    onNotificationPressed: () => homeCubit.changeIndex(3),
                   );
                 },
               ),
@@ -208,11 +222,10 @@ class _NavBarScreenState extends State<NavBarScreen> {
               controller: pageController,
               physics: const NeverScrollableScrollPhysics(),
               children: const [
-                // HomeScreen(),
                 NewHomeScreen(),
                 DeliveryOrdersPage(),
+                DriverFinancialPage(),
                 NotificationScreen(),
-                DeliveryDisputesPage(),
                 NewMoreScreen(),
               ],
             ),
@@ -244,7 +257,6 @@ class _NavBarScreenState extends State<NavBarScreen> {
     );
     pageController = PageController();
     homeCubit = getIt<HomeCubit>();
-    // Preload driver name for the header.
     userBloc = getIt<UserBloc>();
     userBloc.add(DriverGetMeEvent());
 
