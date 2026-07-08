@@ -15,14 +15,12 @@ class DeliveryDisputesPage extends StatefulWidget {
 }
 
 class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
+  late final DeliveryCubit deliveryCubit;
 
-late final DeliveryCubit deliveryCubit;
-
-@override
+  @override
   void initState() {
-  deliveryCubit=getIt<DeliveryCubit>();
-
-  // TODO: implement initState
+    deliveryCubit = getIt<DeliveryCubit>();
+    deliveryCubit.loadDisputes();
     super.initState();
   }
 
@@ -37,7 +35,14 @@ late final DeliveryCubit deliveryCubit;
           child: ListView(
             padding: PEdgeInsets.all,
             children: [
-              if (state.disputes.isEmpty)
+              if (state.isLoading)
+                const Padding(
+                  padding: EdgeInsets.only(top: 48),
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                )
+              else if (state.disputes.isEmpty)
                 const DeliveryEmptyState(
                   title: 'لا توجد بلاغات',
                   message: 'أي بلاغات مرتبطة بالطلبات ستظهر هنا.',
