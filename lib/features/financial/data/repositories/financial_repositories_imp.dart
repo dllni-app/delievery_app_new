@@ -5,6 +5,7 @@ import '../../../../core/unified_api/error/error_handeler.dart';
 import '../../domain/repositories/financial_repositories.dart';
 import '../data_sources/financial_remote_data.dart';
 import '../models/financial_summary_response.dart';
+import '../models/financial_transaction_model.dart';
 
 @LazySingleton(as: FinancialRepositories)
 class FinancialRepositoriesImp
@@ -19,5 +20,19 @@ class FinancialRepositoriesImp
   DataResponse<FinancialSummaryModel> getFinancialSummary() async =>
       wrapHandlingException(
         tryCall: () => _remoteData.getFinancialSummary(),
+      );
+
+  @override
+  DataResponse<FinancialSummaryModel> getWalletLimits() async =>
+      wrapHandlingException(
+        tryCall: () => _remoteData.getWalletLimits(),
+      );
+
+  @override
+  DataResponse<List<FinancialTransactionModel>> getWalletTransactions(
+    QueryParams params,
+  ) async =>
+      wrapHandlingException(
+        tryCall: () => _remoteData.getWalletTransactions(params),
       );
 }
