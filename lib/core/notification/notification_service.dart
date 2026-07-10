@@ -1,43 +1,38 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
 import '../../common/helper/src/app_varibles.dart';
+import '../../features/delivery/presentation/cubit/delivery_cubit.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
 import '../di/injection.dart';
 import 'notification_navigator.dart';
 
-
 const String _notificationIcon = 'resource://drawable/notification_icon';
 const String _notificationLargeIcon = 'resource://mipmap/launcher_icon';
-/// ---------------- BACKGROUND HANDLER ----------------
+
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("📩 Terminated message received: ${message.data}");
-
-  // خزّن البيانات فقط
+  print('📩 Terminated message received: ${message.data}');
   getIt<HomeCubit>().setPendingNotification(message.data);
 }
 
-/// ---------------- AWESOME ACTION LISTENER ----------------
 @pragma('vm:entry-point')
 Future<void> onActionReceivedMethod(ReceivedAction action) async {
-  print("🔔 Notification clicked: ${action.payload}");
+  print('🔔 Notification clicked: ${action.payload}');
 
   if (action.payload != null && action.payload!.isNotEmpty) {
-    print('nav from sector 1');
     NotificationNavigator.navigateFromData(action.payload!);
   }
 }
 
-/// =====================================================
-/// ================= Notification Utils =================
-/// =====================================================
 class NotificationUtils {
   NotificationUtils._();
 
@@ -46,11 +41,8 @@ class NotificationUtils {
   factory NotificationUtils() => _instance;
 
   static final AwesomeNotifications _awesome = AwesomeNotifications();
-
-  /// 🔢 عدّاد الإشعارات غير المقروءة (الحقيقة هنا)
   static int _unreadCount = 0;
 
-  /// ---------------- INIT ALL ----------------
   Future<void> initAllNotifications() async {
     await _initFirebase();
     await _initAwesomeNotifications();
@@ -60,36 +52,33 @@ class NotificationUtils {
     _startAwesomeListeners();
   }
 
-  /// ---------------- FIREBASE INIT ----------------
   Future<void> _initFirebase() async {
     await Firebase.initializeApp();
 
     final token = await FirebaseMessaging.instance.getToken();
     if (token != null) {
       AppVariables.fcmToken = token;
-      print("FCM Token: $token");
+      print('FCM Token: $token');
     }
   }
 
-  /// ---------------- AWESOME INIT ----------------
   Future<void> _initAwesomeNotifications() async {
     await _awesome.initialize(
-      // null,
-        Platform.isAndroid ? _notificationIcon : null,
-        [
-      NotificationChannel(
-        channelKey: 'basic_channel',
-        channelName: 'Basic Notifications',
-        channelDescription: 'Basic Instant Notification',
-        importance: NotificationImportance.High,
-        defaultColor: const  Color(0xFF1E2A78),
-        onlyAlertOnce: true,
-        channelShowBadge: true,
-      ),
-    ]);
+      Platform.isAndroid ? _notificationIcon : null,
+      [
+        NotificationChannel(
+          channelKey: 'basic_channel',
+          channelName: 'Basic Notifications',
+          channelDescription: 'Basic Instant Notification',
+          importance: NotificationImportance.High,
+          defaultColor: const Color(0xFF1E2A78),
+          onlyAlertOnce: true,
+          channelShowBadge: true,
+        ),
+      ],
+    );
   }
 
-  /// ---------------- PERMISSION ----------------
   Future<void> _ensurePermission() async {
     final allowed = await _awesome.isNotificationAllowed();
     if (!allowed) {
@@ -97,38 +86,40 @@ class NotificationUtils {
     }
   }
 
-  /// ---------------- LISTENERS ----------------
   void _startAwesomeListeners() {
     _awesome.setListeners(onActionReceivedMethod: onActionReceivedMethod);
   }
 
   void _registerListeners() {
-    // Foreground
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-    // Background (tap)
     FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundTap);
-
-    // Terminated
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
 
-  /// ---------------- FOREGROUND ----------------
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     getIt<NotificationBloc>().add(GetAllNotificationEvent(isReload: true));
 
-    final args = jsonDecode(message.data['args']);
-    getIt<NotificationBloc>().add(
-      NewNotificationRevisedEvent(
-        id: args['tracking_number'].toString(),
-      ),
-    );
+    if (_isDeliveryReadinessNotification(message.data)) {
+      await getIt<DeliveryCubit>().refreshAfterNotification();
+    }
+
+    final rawArgs = message.data['args'];
+    if (rawArgs is String && rawArgs.isNotEmpty) {
+      final decoded = jsonDecode(rawArgs);
+      if (decoded is Map && decoded['tracking_number'] != null) {
+        getIt<NotificationBloc>().add(
+          NewNotificationRevisedEvent(
+            id: decoded['tracking_number'].toString(),
+          ),
+        );
+      }
+    }
 
     final payload = message.data.map(
-      (k, v) => MapEntry(k.toString(), v.toString()),
+      (key, value) => MapEntry(key.toString(), value.toString()),
     );
 
-    _unreadCount++; // ✅ زيادة العداد الحقيقي
+    _unreadCount++;
 
     await _awesome.createNotification(
       content: NotificationContent(
@@ -137,36 +128,43 @@ class NotificationUtils {
         title: message.notification?.title ?? message.data['title'] ?? '',
         body: message.notification?.body ?? message.data['body'] ?? '',
         payload: payload,
-        badge: _unreadCount, // ✅ إرسال العدد الحقيقي
-        largeIcon:_notificationLargeIcon,
+        badge: _unreadCount,
+        largeIcon: _notificationLargeIcon,
       ),
     );
   }
 
-  /// ---------------- BACKGROUND TAP ----------------
   void _handleBackgroundTap(RemoteMessage message) {
-    print("📩 Background notification tapped: ${message.data}");
-    print('nav from sector 2');
-    print(message.data);
-
+    if (_isDeliveryReadinessNotification(message.data)) {
+      getIt<DeliveryCubit>().refreshAfterNotification();
+    }
     NotificationNavigator.navigateFromData(message.data);
   }
 
-  /// ---------------- TERMINATED CHECK ----------------
   Future<void> _checkTerminatedNotification() async {
     final RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
 
     if (initialMessage != null) {
-      print("📩 Terminated notification data: ${initialMessage.data}");
-
-      // خزّن فقط – لا تنفّذ Navigation هنا
       getIt<HomeCubit>().setPendingNotification(initialMessage.data);
     }
   }
 
-  /// ---------------- CLEAR BADGE ----------------
-  /// استدعِها عند فتح التطبيق أو شاشة الإشعارات
+  bool _isDeliveryReadinessNotification(Map<String, dynamic> data) {
+    final candidates = <String>[
+      data['canonicalType']?.toString() ?? '',
+      data['canonical_type']?.toString() ?? '',
+      data['type']?.toString() ?? '',
+      data['notificationType']?.toString() ?? '',
+      data['notification_type']?.toString() ?? '',
+    ];
+
+    return candidates.any(
+      (value) => value.contains('merchant_ready') ||
+          value.contains('merchant_preparation_updated'),
+    );
+  }
+
   static Future<void> clearUnreadCount() async {
     _unreadCount = 0;
     await AwesomeNotifications().resetGlobalBadge();
