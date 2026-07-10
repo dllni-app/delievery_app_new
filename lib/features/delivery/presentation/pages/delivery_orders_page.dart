@@ -59,7 +59,7 @@ class _DeliveryOrdersPageState extends State<DeliveryOrdersPage>
                   message: 'عند قبول عرض توصيل سيظهر الطلب النشط هنا.',
                   icon: Icons.list_alt_outlined,
                 )
-              else
+              else ...[
                 DeliveryOrderCard(
                   order: order,
                   isActionLoading: state.isActionLoading,
@@ -67,6 +67,16 @@ class _DeliveryOrdersPageState extends State<DeliveryOrdersPage>
                       ? () => deliveryCubit.performOrderAction(order)
                       : null,
                 ),
+                if (order.isPickupBlocked) ...[
+                  Space.vM2,
+                  DeliveryPrimaryButton(
+                    label: order.merchantPreparation?.displayLabel ??
+                        'بانتظار جاهزية المتجر',
+                    icon: Icons.lock_clock_outlined,
+                    onPressed: null,
+                  ),
+                ],
+              ],
             ],
           ),
         );
