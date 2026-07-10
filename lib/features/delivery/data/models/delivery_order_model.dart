@@ -39,8 +39,22 @@ String? _nullableString(Object? value) =>
 
 int _asInt(Object? value) => int.tryParse(value?.toString() ?? '') ?? 0;
 
+int? _nullableInt(Object? value) =>
+    value == null ? null : int.tryParse(value.toString());
+
 num _asNum(Object? value, {num fallback = 0}) =>
     num.tryParse(value?.toString() ?? '') ?? fallback;
+
+bool _asBool(Object? value, {bool fallback = false}) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  if (value is String) {
+    final normalized = value.trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1') return true;
+    if (normalized == 'false' || normalized == '0') return false;
+  }
+  return fallback;
+}
 
 DateTime? _asDate(Object? value) =>
     value == null ? null : DateTime.tryParse(value.toString());
@@ -58,6 +72,71 @@ String _deliveryStatusUi(String status) {
     'cancelled' => 'ملغي',
     _ => status,
   };
+}
+
+class MerchantPreparationModel extends Equatable {
+  const MerchantPreparationModel({
+    this.status,
+    required this.isReady,
+    this.estimatedPreparationMinutes,
+    this.estimatedReadyAt,
+    this.readyAt,
+    required this.hasEstimate,
+    required this.isEstimateOverdue,
+  });
+
+  final String? status;
+  final bool isReady;
+  final int? estimatedPreparationMinutes;
+  final DateTime? estimatedReadyAt;
+  final DateTime? readyAt;
+  final bool hasEstimate;
+  final bool isEstimateOverdue;
+
+  factory MerchantPreparationModel.fromJson(Map<String, dynamic> json) {
+    return MerchantPreparationModel(
+      status: _nullableString(json['status']),
+      isReady: _asBool(json['isReady'] ?? json['is_ready']),
+      estimatedPreparationMinutes: _nullableInt(
+        json['estimatedPreparationMinutes'] ??
+            json['estimated_preparation_minutes'],
+      ),
+      estimatedReadyAt: _asDate(
+        json['estimatedReadyAt'] ?? json['estimated_ready_at'],
+      ),
+      readyAt: _asDate(json['readyAt'] ?? json['ready_at']),
+      hasEstimate: _asBool(json['hasEstimate'] ?? json['has_estimate']),
+      isEstimateOverdue: _asBool(
+        json['isEstimateOverdue'] ?? json['is_estimate_overdue'],
+      ),
+    );
+  }
+
+  String get displayLabel {
+    if (isReady) return 'جاهز للاستلام';
+    if (!hasEstimate || estimatedReadyAt == null) {
+      return 'لا يوجد وقت تجهيز متوقع';
+    }
+    if (isEstimateOverdue) {
+      return 'انتهى الوقت المتوقع — بانتظار المتجر';
+    }
+
+    final local = estimatedReadyAt!.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return 'الجاهزية المتوقعة $hour:$minute';
+  }
+
+  @override
+  List<Object?> get props => [
+        status,
+        isReady,
+        estimatedPreparationMinutes,
+        estimatedReadyAt,
+        readyAt,
+        hasEstimate,
+        isEstimateOverdue,
+      ];
 }
 
 class DeliveryOrderEventModel extends Equatable {
@@ -109,6 +188,7 @@ class DeliveryOrderModel extends Equatable {
     required this.deliveryFee,
     required this.currency,
     required this.events,
+    this.merchantPreparation,
     this.statusUi,
     this.acceptedAt,
     this.startedAt,
@@ -134,6 +214,7 @@ class DeliveryOrderModel extends Equatable {
   final num deliveryFee;
   final String currency;
   final List<DeliveryOrderEventModel> events;
+  final MerchantPreparationModel? merchantPreparation;
   final String? statusUi;
   final DateTime? acceptedAt;
   final DateTime? startedAt;
@@ -147,6 +228,20 @@ class DeliveryOrderModel extends Equatable {
     final dropoff = _asMap(json['dropoff']);
     final timestamps = _asMap(json['status_timestamps']);
     final rawStatus = _asString(json['status'], fallback: 'unknown');
+    final merchantPreparationJson = _asMap(
+      json['merchantPreparation'] ?? json['merchant_preparation'],
+    );
+    final merchantPreparation = merchantPreparationJson.isEmpty
+        ? null
+        : MerchantPreparationModel.fromJson(merchantPreparationJson);
+    final normalStatusUi =
+        _nullableString(json['statusUi'] ?? json['status_ui']) ??
+            _deliveryStatusUi(rawStatus);
+    final readinessStatusUi = merchantPreparation != null &&
+            (rawStatus == 'accepted' || rawStatus == 'in_progress')
+        ? merchantPreparation.displayLabel
+        : normalStatusUi;
+
     return DeliveryOrderModel(
       id: _asInt(json['id']),
       orderNumber: _asString(
@@ -182,11 +277,17 @@ class DeliveryOrderModel extends Equatable {
         json['dropoffLongitude'] ?? json['dropoff_longitude'] ?? dropoff['lng'],
         fallback: 0,
       ),
-      distanceKm: _asNum(json['distanceKm'] ?? json['distance_km'], fallback: 0),
-      deliveryFee: _asNum(json['deliveryFee'] ?? json['delivery_fee'], fallback: 0),
+      distanceKm: _asNum(
+        json['distanceKm'] ?? json['distance_km'],
+        fallback: 0,
+      ),
+      deliveryFee: _asNum(
+        json['deliveryFee'] ?? json['delivery_fee'],
+        fallback: 0,
+      ),
       currency: _asString(json['currency'], fallback: 'SYP'),
-      statusUi: _nullableString(json['statusUi'] ?? json['status_ui']) ??
-          _deliveryStatusUi(rawStatus),
+      merchantPreparation: merchantPreparation,
+      statusUi: readinessStatusUi,
       acceptedAt: _asDate(
         json['acceptedAt'] ?? json['accepted_at'] ?? timestamps['accepted_at'],
       ),
@@ -197,10 +298,14 @@ class DeliveryOrderModel extends Equatable {
         json['pickedUpAt'] ?? json['picked_up_at'] ?? timestamps['picked_up_at'],
       ),
       deliveredAt: _asDate(
-        json['deliveredAt'] ?? json['delivered_at'] ?? timestamps['delivered_at'],
+        json['deliveredAt'] ??
+            json['delivered_at'] ??
+            timestamps['delivered_at'],
       ),
       completedAt: _asDate(
-        json['completedAt'] ?? json['completed_at'] ?? timestamps['completed_at'],
+        json['completedAt'] ??
+            json['completed_at'] ??
+            timestamps['completed_at'],
       ),
       events: eventsJson is List
           ? eventsJson
@@ -211,13 +316,23 @@ class DeliveryOrderModel extends Equatable {
     );
   }
 
+  bool get isPickupBlocked =>
+      status == 'in_progress' &&
+      merchantPreparation != null &&
+      !merchantPreparation!.isReady;
+
+  bool get isWaitingForMerchantReadiness =>
+      merchantPreparation != null &&
+      !merchantPreparation!.isReady &&
+      (status == 'accepted' || status == 'in_progress');
+
   String? get apiAction {
     switch (status) {
       case 'accepted':
       case 'offered':
         return 'start';
       case 'in_progress':
-        return 'pickup';
+        return isPickupBlocked ? null : 'pickup';
       case 'picked_up':
         return 'deliver';
       default:
@@ -226,9 +341,10 @@ class DeliveryOrderModel extends Equatable {
   }
 
   String get nextActionLabel {
+    if (isPickupBlocked) return 'بانتظار جاهزية المتجر';
     switch (apiAction) {
       case 'start':
-        return 'بدء الطلب';
+        return 'بدء التوجه إلى المتجر';
       case 'pickup':
         return 'تأكيد الاستلام';
       case 'deliver':
@@ -259,6 +375,7 @@ class DeliveryOrderModel extends Equatable {
         deliveryFee,
         currency,
         events,
+        merchantPreparation,
         statusUi,
         acceptedAt,
         startedAt,
