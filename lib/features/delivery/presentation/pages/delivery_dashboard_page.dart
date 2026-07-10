@@ -45,8 +45,9 @@ Future<void> postCurrentLocation(BuildContext context) async {
   if (permission != loc.PermissionStatus.granted) return;
 
   final data = await location.getLocation();
-  if (!context.mounted || data.latitude == null || data.longitude == null)
+  if (!context.mounted || data.latitude == null || data.longitude == null) {
     return;
+  }
 
   userBloc.add(
     PostLocationEvent(
@@ -84,7 +85,10 @@ void _showAcceptSheet(
               ),
             ),
             Space.vS3,
-            const Text('سيتم تعيين الطلب لك وتبدأ رحلة التوصيل.'),
+            const Text(
+              'يمكنك قبول الطلب والتوجه إلى المتجر قبل اكتمال التجهيز، '
+              'لكن الاستلام يبقى مقفلاً حتى يحدد المتجر أن الطلب جاهز.',
+            ),
             Space.vM3,
             DeliveryPrimaryButton(
               label: 'تأكيد القبول',
@@ -148,9 +152,9 @@ void _showRejectSheet(
               onPressed: () {
                 Navigator.pop(sheetContext);
                 context.read<DeliveryCubit>().rejectOffer(
-                  offer,
-                  controller.text,
-                );
+                      offer,
+                      controller.text,
+                    );
               },
             ),
           ],
@@ -234,14 +238,24 @@ class DeliveryDashboardPage extends StatelessWidget {
                 ),
               if (order != null) ...[
                 Space.vM3,
-                        Text('الطلب النشط', style: TextStyle(fontSize: 18)),
+                Text('الطلب النشط', style: TextStyle(fontSize: 18)),
                 Space.vS3,
                 DeliveryOrderCard(
                   order: order,
                   isActionLoading: state.isActionLoading,
-                  onAction: () =>
-                      getIt<DeliveryCubit>().performOrderAction(order),
+                  onAction: order.hasLifecycleAction
+                      ? () => getIt<DeliveryCubit>().performOrderAction(order)
+                      : null,
                 ),
+                if (order.isPickupBlocked) ...[
+                  Space.vM2,
+                  DeliveryPrimaryButton(
+                    label: order.merchantPreparation?.displayLabel ??
+                        'بانتظار جاهزية المتجر',
+                    icon: Icons.lock_clock_outlined,
+                    onPressed: null,
+                  ),
+                ],
               ],
             ],
           ),
@@ -325,7 +339,11 @@ class _AvailabilityCard extends StatelessWidget {
                     value: 'available',
                     current: status,
                   ),
-                  _StatusChoice(label: 'مشغول', value: 'busy', current: status),
+                  _StatusChoice(
+                    label: 'مشغول',
+                    value: 'busy',
+                    current: status,
+                  ),
                   _StatusChoice(
                     label: 'غير متصل',
                     value: 'offline',
@@ -362,10 +380,10 @@ class _StatusChoice extends StatelessWidget {
       selectedColor: Colors.grey.shade300,
       onSelected: (_) {
         context.read<UserBloc>().add(
-          UpdateAvailabilityEvent(
-            params: UpdateAvailabilityParams(availabilityStatus: value),
-          ),
-        );
+              UpdateAvailabilityEvent(
+                params: UpdateAvailabilityParams(availabilityStatus: value),
+              ),
+            );
       },
     );
   }
@@ -417,7 +435,7 @@ class _OfferCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'طلب توصيل جديد',
-                    style: TextStyle(fontSize: 19),
+                  style: TextStyle(fontSize: 19),
                 ),
               ),
               DeliveryStatusBadge(
