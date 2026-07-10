@@ -8,6 +8,7 @@ class DeliveryState extends Equatable {
     this.currentOffer,
     this.currentOrder,
     this.disputes = const [],
+    this.disputesSummary = const DeliveryDisputesSummary(),
   });
 
   final bool isLoading;
@@ -16,6 +17,7 @@ class DeliveryState extends Equatable {
   final DeliveryAssignmentAttemptModel? currentOffer;
   final DeliveryOrderModel? currentOrder;
   final List<DeliveryDisputeModel> disputes;
+  final DeliveryDisputesSummary disputesSummary;
 
   DeliveryState copyWith({
     bool? isLoading,
@@ -27,6 +29,7 @@ class DeliveryState extends Equatable {
     DeliveryOrderModel? currentOrder,
     bool clearOrder = false,
     List<DeliveryDisputeModel>? disputes,
+    DeliveryDisputesSummary? disputesSummary,
   }) {
     return DeliveryState(
       isLoading: isLoading ?? this.isLoading,
@@ -35,16 +38,18 @@ class DeliveryState extends Equatable {
       currentOffer: clearOffer ? null : currentOffer ?? this.currentOffer,
       currentOrder: clearOrder ? null : currentOrder ?? this.currentOrder,
       disputes: disputes ?? this.disputes,
+      disputesSummary: disputesSummary ?? this.disputesSummary,
     );
   }
 
   @override
   List<Object?> get props => [
-        isLoading,
-        isActionLoading,
-        errorMessage,
-        currentOffer,
-        currentOrder,
-        disputes,
-      ];
+    isLoading,
+    isActionLoading,
+    errorMessage,
+    currentOffer,
+    currentOrder,
+    disputes,
+    disputesSummary,
+  ];
 }

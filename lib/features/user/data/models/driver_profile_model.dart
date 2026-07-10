@@ -3,6 +3,7 @@ class DriverProfileModel {
   final int userId;
   final int companyId;
   final String firstName;
+  final String displayName;
   final String phone;
   final String vehicleType;
   final String plateNumber;
@@ -19,6 +20,7 @@ class DriverProfileModel {
     required this.userId,
     required this.companyId,
     required this.firstName,
+    required this.displayName,
     required this.phone,
     required this.vehicleType,
     required this.plateNumber,
@@ -36,6 +38,7 @@ class DriverProfileModel {
     int? userId,
     int? companyId,
     String? firstName,
+    String? displayName,
     String? phone,
     String? vehicleType,
     String? plateNumber,
@@ -46,23 +49,23 @@ class DriverProfileModel {
     int? openDisputesCount,
     DateTime? lastSeenAt,
     DateTime? createdAt,
-  }) =>
-      DriverProfileModel(
-        id: id ?? this.id,
-        userId: userId ?? this.userId,
-        companyId: companyId ?? this.companyId,
-        firstName: firstName ?? this.firstName,
-        phone: phone ?? this.phone,
-        vehicleType: vehicleType ?? this.vehicleType,
-        plateNumber: plateNumber ?? this.plateNumber,
-        availabilityStatus: availabilityStatus ?? this.availabilityStatus,
-        isActive: isActive ?? this.isActive,
-        isSuspended: isSuspended ?? this.isSuspended,
-        trustScore: trustScore ?? this.trustScore,
-        openDisputesCount: openDisputesCount ?? this.openDisputesCount,
-        lastSeenAt: lastSeenAt ?? this.lastSeenAt,
-        createdAt: createdAt ?? this.createdAt,
-      );
+  }) => DriverProfileModel(
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    companyId: companyId ?? this.companyId,
+    firstName: firstName ?? this.firstName,
+    displayName: displayName ?? this.displayName,
+    phone: phone ?? this.phone,
+    vehicleType: vehicleType ?? this.vehicleType,
+    plateNumber: plateNumber ?? this.plateNumber,
+    availabilityStatus: availabilityStatus ?? this.availabilityStatus,
+    isActive: isActive ?? this.isActive,
+    isSuspended: isSuspended ?? this.isSuspended,
+    trustScore: trustScore ?? this.trustScore,
+    openDisputesCount: openDisputesCount ?? this.openDisputesCount,
+    lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+    createdAt: createdAt ?? this.createdAt,
+  );
 
   factory DriverProfileModel.fromJson(Map<String, dynamic> json) =>
       DriverProfileModel(
@@ -70,6 +73,10 @@ class DriverProfileModel {
         userId: _asInt(json['userId'] ?? json['user_id']),
         companyId: _asInt(json['companyId'] ?? json['company_id']),
         firstName: _asString(json['firstName'] ?? json['first_name']),
+        displayName: _asString(
+          json['displayName'] ?? json['display_name'],
+          fallback: _asString(json['firstName'] ?? json['first_name']),
+        ),
         phone: _asString(json['phone']),
         vehicleType: _asString(json['vehicleType'] ?? json['vehicle_type']),
         plateNumber: _asString(json['plateNumber'] ?? json['plate_number']),
@@ -79,7 +86,10 @@ class DriverProfileModel {
         ),
         isActive: _asBool(json['isActive'] ?? json['is_active']),
         isSuspended: _asBool(json['isSuspended'] ?? json['is_suspended']),
-        trustScore: _asNum(json['trustScore'] ?? json['trust_score'], fallback: 0),
+        trustScore: _asNum(
+          json['trustScore'] ?? json['trust_score'],
+          fallback: 0,
+        ),
         openDisputesCount: _asInt(
           json['openDisputesCount'] ?? json['open_disputes_count'],
         ),
@@ -88,21 +98,22 @@ class DriverProfileModel {
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'userId': userId,
-        'companyId': companyId,
-        'firstName': firstName,
-        'phone': phone,
-        'vehicleType': vehicleType,
-        'plateNumber': plateNumber,
-        'availabilityStatus': availabilityStatus,
-        'isActive': isActive,
-        'isSuspended': isSuspended,
-        'trustScore': trustScore,
-        'openDisputesCount': openDisputesCount,
-        'lastSeenAt': lastSeenAt?.toIso8601String(),
-        'createdAt': createdAt?.toIso8601String(),
-      };
+    'id': id,
+    'userId': userId,
+    'companyId': companyId,
+    'firstName': firstName,
+    'displayName': displayName,
+    'phone': phone,
+    'vehicleType': vehicleType,
+    'plateNumber': plateNumber,
+    'availabilityStatus': availabilityStatus,
+    'isActive': isActive,
+    'isSuspended': isSuspended,
+    'trustScore': trustScore,
+    'openDisputesCount': openDisputesCount,
+    'lastSeenAt': lastSeenAt?.toIso8601String(),
+    'createdAt': createdAt?.toIso8601String(),
+  };
 }
 
 String _asString(Object? value, {String fallback = ''}) =>

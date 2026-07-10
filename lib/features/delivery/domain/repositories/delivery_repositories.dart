@@ -18,5 +18,5 @@ abstract class DeliveryRepositories {
 
   DataResponse<DeliveryOrderModel> deliverOrder(int orderId);
 
-  DataResponse<List<DeliveryDisputeModel>> getDisputes(QueryParams params);
+  DataResponse<DeliveryDisputesResponse> getDisputes(QueryParams params);
 }

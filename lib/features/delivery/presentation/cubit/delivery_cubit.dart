@@ -36,9 +36,8 @@ class DeliveryCubit extends Cubit<DeliveryState> {
     final result = await _loadDeliveryDashboardUseCase(NoParams());
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(isLoading: false, errorMessage: failure.message),
-      ),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
       (snapshot) => emit(
         state.copyWith(
           isLoading: false,
@@ -67,10 +66,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
     await result.fold(
       (failure) async {
         emit(
-          state.copyWith(
-            isActionLoading: false,
-            errorMessage: failure.message,
-          ),
+          state.copyWith(isActionLoading: false, errorMessage: failure.message),
         );
         await loadDashboard();
       },
@@ -105,10 +101,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
     await result.fold(
       (failure) async {
         emit(
-          state.copyWith(
-            isActionLoading: false,
-            errorMessage: failure.message,
-          ),
+          state.copyWith(isActionLoading: false, errorMessage: failure.message),
         );
         await loadDashboard();
       },
@@ -131,10 +124,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
     await result.fold(
       (failure) async {
         emit(
-          state.copyWith(
-            isActionLoading: false,
-            errorMessage: failure.message,
-          ),
+          state.copyWith(isActionLoading: false, errorMessage: failure.message),
         );
         await loadDashboard();
       },
@@ -150,14 +140,19 @@ class DeliveryCubit extends Cubit<DeliveryState> {
   Future<void> loadDisputes({int perPage = 10}) async {
     emit(state.copyWith(isLoading: true, clearError: true));
 
-    final result = await _getDisputesUseCase(GetDisputesParams(perPage: perPage));
+    final result = await _getDisputesUseCase(
+      GetDisputesParams(perPage: perPage),
+    );
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(isLoading: false, errorMessage: failure.message),
-      ),
-      (disputes) => emit(
-        state.copyWith(isLoading: false, disputes: disputes),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (response) => emit(
+        state.copyWith(
+          isLoading: false,
+          disputes: response.disputes,
+          disputesSummary: response.summary,
+        ),
       ),
     );
   }

@@ -7,14 +7,14 @@ import '../repositories/delivery_repositories.dart';
 
 @lazySingleton
 class GetDisputesUseCase
-    implements UseCase<List<DeliveryDisputeModel>, GetDisputesParams> {
+    implements UseCase<DeliveryDisputesResponse, GetDisputesParams> {
   GetDisputesUseCase({required DeliveryRepositories repositories})
-      : _repositories = repositories;
+    : _repositories = repositories;
 
   final DeliveryRepositories _repositories;
 
   @override
-  DataResponse<List<DeliveryDisputeModel>> call(GetDisputesParams params) async =>
+  DataResponse<DeliveryDisputesResponse> call(GetDisputesParams params) async =>
       _repositories.getDisputes(params.getParams());
 }
 
