@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -30,25 +32,38 @@ class DeliveryCubit extends Cubit<DeliveryState> {
   final PerformOrderActionUseCase _performOrderActionUseCase;
   final GetDisputesUseCase _getDisputesUseCase;
 
+  Timer? _readinessTimer;
+  bool _dashboardRequestInFlight = false;
+
   Future<void> loadDashboard() async {
+    if (_dashboardRequestInFlight || isClosed) return;
+    _dashboardRequestInFlight = true;
     emit(state.copyWith(isLoading: true, clearError: true));
 
     final result = await _loadDeliveryDashboardUseCase(NoParams());
+    _dashboardRequestInFlight = false;
+    if (isClosed) return;
 
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
-      (snapshot) => emit(
-        state.copyWith(
-          isLoading: false,
-          currentOffer: snapshot.currentOffer,
-          clearOffer: snapshot.currentOffer == null,
-          currentOrder: snapshot.currentOrder,
-          clearOrder: snapshot.currentOrder == null,
-        ),
-      ),
+      (failure) {
+        emit(state.copyWith(isLoading: false, errorMessage: failure.message));
+      },
+      (snapshot) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            currentOffer: snapshot.currentOffer,
+            clearOffer: snapshot.currentOffer == null,
+            currentOrder: snapshot.currentOrder,
+            clearOrder: snapshot.currentOrder == null,
+          ),
+        );
+        _syncReadinessPolling(snapshot.currentOrder);
+      },
     );
   }
+
+  Future<void> refreshAfterNotification() => loadDashboard();
 
   Future<void> acceptOffer(DeliveryAssignmentAttemptModel offer) async {
     if (offer.isExpired) {
@@ -78,6 +93,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
             clearOffer: true,
           ),
         );
+        _syncReadinessPolling(order);
         await loadDashboard();
       },
     );
@@ -113,7 +129,16 @@ class DeliveryCubit extends Cubit<DeliveryState> {
   }
 
   Future<void> performOrderAction(DeliveryOrderModel order) async {
-    if (!order.hasLifecycleAction) return;
+    if (!order.hasLifecycleAction) {
+      if (order.isPickupBlocked) {
+        emit(
+          state.copyWith(
+            errorMessage: 'الطلب لم يصبح جاهزاً للاستلام بعد',
+          ),
+        );
+      }
+      return;
+    }
 
     emit(state.copyWith(isActionLoading: true, clearError: true));
 
@@ -123,8 +148,11 @@ class DeliveryCubit extends Cubit<DeliveryState> {
 
     await result.fold(
       (failure) async {
+        final message = failure.statusCode == 409
+            ? 'الطلب لم يصبح جاهزاً للاستلام بعد. تم تحديث حالة التجهيز.'
+            : failure.message;
         emit(
-          state.copyWith(isActionLoading: false, errorMessage: failure.message),
+          state.copyWith(isActionLoading: false, errorMessage: message),
         );
         await loadDashboard();
       },
@@ -132,6 +160,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
         emit(
           state.copyWith(isActionLoading: false, currentOrder: updatedOrder),
         );
+        _syncReadinessPolling(updatedOrder);
         await loadDashboard();
       },
     );
@@ -155,5 +184,25 @@ class DeliveryCubit extends Cubit<DeliveryState> {
         ),
       ),
     );
+  }
+
+  void _syncReadinessPolling(DeliveryOrderModel? order) {
+    _readinessTimer?.cancel();
+    _readinessTimer = null;
+
+    if (order == null || !order.isWaitingForMerchantReadiness || isClosed) {
+      return;
+    }
+
+    _readinessTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => loadDashboard(),
+    );
+  }
+
+  @override
+  Future<void> close() {
+    _readinessTimer?.cancel();
+    return super.close();
   }
 }
