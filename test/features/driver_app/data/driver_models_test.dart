@@ -1,85 +1,116 @@
-// import 'package:dllne_deliver_app/features/driver_app/data/driver_models.dart';
-// import 'package:flutter_test/flutter_test.dart';
-//
-// void main() {
-//   group('DriverModel', () {
-//     test('parses snake_case API response', () {
-//       final driver = DriverModel.fromJson(const {
-//         'id': 7,
-//         'user_id': 11,
-//         'company_id': 3,
-//         'first_name': 'محمد',
-//         'phone': '0999999999',
-//         'vehicle_type': 'motorbike',
-//         'plate_number': 'A-123',
-//         'availability_status': 'available',
-//         'is_active': true,
-//         'is_suspended': false,
-//         'trust_score': 95,
-//         'open_disputes_count': 2,
-//       });
-//
-//       expect(driver.id, 7);
-//       expect(driver.firstName, 'محمد');
-//       expect(driver.availabilityStatus, 'available');
-//       expect(driver.isActive, isTrue);
-//       expect(driver.openDisputesCount, 2);
-//     });
-//   });
-//
-//   group('DeliveryOrderModel', () {
-//     test('parses order and exposes next action label', () {
-//       final order = DeliveryOrderModel.fromJson(const {
-//         'id': 99,
-//         'order_number': 'ORD-99',
-//         'company_id': 3,
-//         'driver_id': 7,
-//         'status': 'in_progress',
-//         'customer_name': 'عبد الله',
-//         'customer_phone': '0999999999',
-//         'pickup_address': 'نقطة الاستلام',
-//         'pickup_latitude': 36.2,
-//         'pickup_longitude': 37.1,
-//         'dropoff_address': 'نقطة التسليم',
-//         'dropoff_latitude': 36.3,
-//         'dropoff_longitude': 37.2,
-//         'distance_km': 3.2,
-//         'delivery_fee': 145,
-//         'currency': 'SYP',
-//       });
-//
-//       expect(order.orderNumber, 'ORD-99');
-//       expect(order.hasLifecycleAction, isTrue);
-//       expect(order.nextActionLabel, 'تأكيد الاستلام');
-//       expect(order.distanceKm, 3.2);
-//     });
-//   });
-//
-//   group('DeliveryAssignmentAttemptModel', () {
-//     test('parses nested order', () {
-//       final offer = DeliveryAssignmentAttemptModel.fromJson(const {
-//         'id': 5,
-//         'order_id': 99,
-//         'driver_id': 7,
-//         'attempt_no': 1,
-//         'status': 'offered',
-//         'distance_to_pickup_km': 1.4,
-//         'order': {
-//           'id': 99,
-//           'order_number': 'ORD-99',
-//           'company_id': 3,
-//           'driver_id': 7,
-//           'status': 'offered',
-//           'pickup_address': 'مطعم',
-//           'dropoff_address': 'بيت العميل',
-//           'delivery_fee': 250,
-//           'currency': 'SYP',
-//         },
-//       });
-//
-//       expect(offer.id, 5);
-//       expect(offer.order?.deliveryFee, 250);
-//       expect(offer.order?.pickupAddress, 'مطعم');
-//     });
-//   });
-// }
+import 'package:dllne_deliver_app/features/delivery/data/models/delivery_order_model.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('DeliveryOrderModel merchant preparation', () {
+    test('parses nullable preparation state and allows travel before readiness', () {
+      final order = DeliveryOrderModel.fromJson(const {
+        'id': 99,
+        'orderNumber': 'DEL-99',
+        'companyId': 3,
+        'driverId': 7,
+        'status': 'accepted',
+        'customerName': 'Customer',
+        'customerPhone': '0999999999',
+        'pickupAddress': 'Store',
+        'pickupLatitude': 36.2,
+        'pickupLongitude': 37.1,
+        'dropoffAddress': 'Customer home',
+        'dropoffLatitude': 36.3,
+        'dropoffLongitude': 37.2,
+        'distanceKm': 3.2,
+        'deliveryFee': 145,
+        'currency': 'SYP',
+        'merchantPreparation': {
+          'status': 'preparing',
+          'isReady': false,
+          'estimatedPreparationMinutes': null,
+          'estimatedReadyAt': null,
+          'readyAt': null,
+          'hasEstimate': false,
+          'isEstimateOverdue': false,
+        },
+      });
+
+      expect(order.merchantPreparation, isNotNull);
+      expect(order.merchantPreparation!.hasEstimate, isFalse);
+      expect(order.merchantPreparation!.displayLabel, 'لا يوجد وقت تجهيز متوقع');
+      expect(order.apiAction, 'start');
+      expect(order.hasLifecycleAction, isTrue);
+      expect(order.nextActionLabel, 'بدء التوجه إلى المتجر');
+    });
+
+    test('blocks pickup when estimate passed but merchant is not ready', () {
+      final order = DeliveryOrderModel.fromJson(const {
+        'id': 100,
+        'orderNumber': 'DEL-100',
+        'companyId': 3,
+        'driverId': 7,
+        'status': 'in_progress',
+        'customerName': 'Customer',
+        'customerPhone': '0999999999',
+        'pickupAddress': 'Restaurant',
+        'pickupLatitude': 36.2,
+        'pickupLongitude': 37.1,
+        'dropoffAddress': 'Customer home',
+        'dropoffLatitude': 36.3,
+        'dropoffLongitude': 37.2,
+        'distanceKm': 3.2,
+        'deliveryFee': 145,
+        'currency': 'SYP',
+        'merchantPreparation': {
+          'status': 'preparing',
+          'isReady': false,
+          'estimatedPreparationMinutes': 25,
+          'estimatedReadyAt': '2026-07-10T12:30:00Z',
+          'readyAt': null,
+          'hasEstimate': true,
+          'isEstimateOverdue': true,
+        },
+      });
+
+      expect(order.isPickupBlocked, isTrue);
+      expect(order.hasLifecycleAction, isFalse);
+      expect(
+        order.merchantPreparation!.displayLabel,
+        'انتهى الوقت المتوقع — بانتظار المتجر',
+      );
+      expect(order.statusUi, 'انتهى الوقت المتوقع — بانتظار المتجر');
+    });
+
+    test('enables pickup only after actual readiness', () {
+      final order = DeliveryOrderModel.fromJson(const {
+        'id': 101,
+        'orderNumber': 'DEL-101',
+        'companyId': 3,
+        'driverId': 7,
+        'status': 'in_progress',
+        'customerName': 'Customer',
+        'customerPhone': '0999999999',
+        'pickupAddress': 'Restaurant',
+        'pickupLatitude': 36.2,
+        'pickupLongitude': 37.1,
+        'dropoffAddress': 'Customer home',
+        'dropoffLatitude': 36.3,
+        'dropoffLongitude': 37.2,
+        'distanceKm': 3.2,
+        'deliveryFee': 145,
+        'currency': 'SYP',
+        'merchantPreparation': {
+          'status': 'ready_for_pickup',
+          'isReady': true,
+          'estimatedPreparationMinutes': 25,
+          'estimatedReadyAt': '2026-07-10T12:30:00Z',
+          'readyAt': '2026-07-10T12:25:00Z',
+          'hasEstimate': true,
+          'isEstimateOverdue': false,
+        },
+      });
+
+      expect(order.isPickupBlocked, isFalse);
+      expect(order.apiAction, 'pickup');
+      expect(order.hasLifecycleAction, isTrue);
+      expect(order.merchantPreparation!.displayLabel, 'جاهز للاستلام');
+    });
+  });
+}
