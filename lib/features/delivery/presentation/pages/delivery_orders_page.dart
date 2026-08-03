@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../router/app_router.dart';
 import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
+import 'delivery_order_details_page.dart';
 
 class DeliveryOrdersPage extends StatefulWidget {
   const DeliveryOrdersPage({super.key});
@@ -59,24 +61,17 @@ class _DeliveryOrdersPageState extends State<DeliveryOrdersPage>
                   message: 'عند قبول عرض توصيل سيظهر الطلب النشط هنا.',
                   icon: Icons.list_alt_outlined,
                 )
-              else ...[
+              else
                 DeliveryOrderCard(
                   order: order,
-                  isActionLoading: state.isActionLoading,
-                  onAction: order.hasLifecycleAction
-                      ? () => deliveryCubit.performOrderAction(order)
-                      : null,
+                  onTap: () async {
+                    await context.pushNamed(
+                      RouteName.deliveryOrderDetails,
+                      arguments: DeliveryOrderDetailsArgs(order: order),
+                    );
+                    await deliveryCubit.loadDashboard();
+                  },
                 ),
-                if (order.isPickupBlocked) ...[
-                  Space.vM2,
-                  DeliveryPrimaryButton(
-                    label: order.merchantPreparation?.displayLabel ??
-                        'بانتظار جاهزية المتجر',
-                    icon: Icons.lock_clock_outlined,
-                    onPressed: null,
-                  ),
-                ],
-              ],
             ],
           ),
         );
