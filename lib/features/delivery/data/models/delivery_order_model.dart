@@ -61,14 +61,18 @@ DateTime? _asDate(Object? value) =>
 
 String _deliveryStatusUi(String status) {
   return switch (status) {
+    'new' => 'تم إنشاء الطلب',
     'waiting_merchant_ready' => 'بانتظار جاهزية المتجر',
     'searching_for_driver' => 'جاري البحث عن مندوب',
     'dispatching' => 'جاري البحث عن مندوب',
     'offered' => 'تم إرسال العرض',
-    'accepted' => 'مقبول',
-    'in_progress' => 'قيد التنفيذ',
-    'picked_up' => 'تم الاستلام',
+    'accepted' => 'تم قبول الطلب',
+    'in_progress' => 'في الطريق إلى نقطة الاستلام',
+    'picked_up' => 'تم استلام الطلب',
+    'delivered' => 'تم تسليم الطلب',
     'completed' => 'مكتمل',
+    'rejected' => 'مرفوض',
+    'stopped' => 'متوقف',
     'cancelled' => 'ملغي',
     _ => status,
   };
@@ -234,9 +238,13 @@ class DeliveryOrderModel extends Equatable {
     final merchantPreparation = merchantPreparationJson.isEmpty
         ? null
         : MerchantPreparationModel.fromJson(merchantPreparationJson);
-    final normalStatusUi =
-        _nullableString(json['statusUi'] ?? json['status_ui']) ??
-            _deliveryStatusUi(rawStatus);
+    final normalStatusUi = _nullableString(
+          json['statusUi'] ??
+              json['status_ui'] ??
+              json['statusLabelAr'] ??
+              json['status_label_ar'],
+        ) ??
+        _deliveryStatusUi(rawStatus);
     final readinessStatusUi = merchantPreparation != null &&
             (rawStatus == 'accepted' || rawStatus == 'in_progress')
         ? merchantPreparation.displayLabel
@@ -245,9 +253,7 @@ class DeliveryOrderModel extends Equatable {
     return DeliveryOrderModel(
       id: _asInt(json['id']),
       orderNumber: _asString(
-        json['orderNumber'] ??
-            json['order_number'] ??
-            json['order_id'],
+        json['orderNumber'] ?? json['order_number'] ?? json['order_id'],
         fallback: '#${json['id'] ?? ''}',
       ),
       companyId: _asInt(json['companyId'] ?? json['company_id']),
@@ -329,7 +335,6 @@ class DeliveryOrderModel extends Equatable {
   String? get apiAction {
     switch (status) {
       case 'accepted':
-      case 'offered':
         return 'start';
       case 'in_progress':
         return isPickupBlocked ? null : 'pickup';
