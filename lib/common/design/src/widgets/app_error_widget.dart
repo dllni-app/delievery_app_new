@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
 
+import '../../../../router/app_router.dart';
 import '../../../extensions/extensions.dart';
 import '../../../helper/src/locale_keys.dart';
 import '../../design.dart';
+
+bool _isUnauthorizedError(String errorMessage) {
+  return errorMessage == LocaleKeys.errorMassegeUnauthorizederror.tr();
+}
+
+String _errorActionLabel(String errorMessage) {
+  return _isUnauthorizedError(errorMessage)
+      ? LocaleKeys.authLogin.tr()
+      : LocaleKeys.retry.tr();
+}
+
+VoidCallback _errorAction(
+  BuildContext context,
+  String errorMessage,
+  VoidCallback onRetry,
+) {
+  return () {
+    if (_isUnauthorizedError(errorMessage)) {
+      context.pushNamedAndRemoveUntil(RouteName.login, (route) => false);
+      return;
+    }
+
+    onRetry();
+  };
+}
 
 class AppErrorWidget extends StatelessWidget {
   const AppErrorWidget({
@@ -25,20 +51,18 @@ class AppErrorWidget extends StatelessWidget {
           Space.vM4,
           Text(
             errorMessage,
-            style: context.bodyMedium(fontSize: 16,color: context.textColor),
+            style: context.bodyMedium(fontSize: 16, color: context.textColor),
             textAlign: TextAlign.center,
           ),
           Space.vM1,
-
-
           SizedBox(
             width: context.width,
             child: ElevatedButton(
-              onPressed: onTap,
-              child:  Text(LocaleKeys.retry.tr(),style: context.bodyMedium(
-                  color: Colors.white,
-                  fontSize: 16
-              ),),
+              onPressed: _errorAction(context, errorMessage, onTap),
+              child: Text(
+                _errorActionLabel(errorMessage),
+                style: context.bodyMedium(color: Colors.white, fontSize: 16),
+              ),
             ),
           ),
         ],
@@ -61,6 +85,11 @@ class AppErrorWidgetReFresh extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
+        if (_isUnauthorizedError(errorMessage)) {
+          context.pushNamedAndRemoveUntil(RouteName.login, (route) => false);
+          return;
+        }
+
         onTap();
       },
       child: CustomScrollView(
@@ -70,33 +99,34 @@ class AppErrorWidgetReFresh extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: context.width * .05),
               child: GestureDetector(
-                onTap: onTap,
+                onTap: _errorAction(context, errorMessage, onTap),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Assets.images.png.error.error.image(
-                      width: context.width
-                    ),
-                   Space.vM4,
-
+                    Assets.images.png.error.error.image(width: context.width),
+                    Space.vM4,
                     Text(
                       errorMessage,
-                      style: context.bodyMedium(fontSize: 16,color: context.textColor),
+                      style: context.bodyMedium(
+                        fontSize: 16,
+                        color: context.textColor,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     Space.vM1,
-
                     SizedBox(
                       width: context.width,
                       child: ElevatedButton(
-                        onPressed: onTap,
-                        child:  Text(LocaleKeys.retry.tr(),style: context.bodyMedium(
+                        onPressed: _errorAction(context, errorMessage, onTap),
+                        child: Text(
+                          _errorActionLabel(errorMessage),
+                          style: context.bodyMedium(
                             color: Colors.white,
-                            fontSize: 16
-                        ),),
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -167,7 +197,6 @@ class AppErrorWidgetNullReFresh extends StatelessWidget {
   }
 }
 
-
 class AppCenterErrorImageWidget extends StatelessWidget {
   final String subErrorMessage;
   final VoidCallback? onTapRetry;
@@ -175,36 +204,46 @@ class AppCenterErrorImageWidget extends StatelessWidget {
 
   const AppCenterErrorImageWidget({
     super.key,
-   required this.subErrorMessage,
+    required this.subErrorMessage,
     this.image,
     this.onTapRetry,
   });
 
   @override
   Widget build(BuildContext context) {
+    final action = _isUnauthorizedError(subErrorMessage)
+        ? _errorAction(context, subErrorMessage, () {})
+        : onTapRetry;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(Assets.images.png.error.error.path,width: context.width,),
+        Image.asset(
+          Assets.images.png.error.error.path,
+          width: context.width,
+        ),
         Space.vS3,
         Text(
-          subErrorMessage! ,
+          subErrorMessage,
           style: context.bodySmall(fontSize: 18, color: context.hintColor),
           textAlign: TextAlign.center,
         ),
         Space.vL3,
-        onTapRetry == null
-            ? SizedBox()
+        action == null
+            ? const SizedBox()
             : SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: onTapRetry,
-            child:  Text(LocaleKeys.retry.tr(),style: context.bodyMedium(
-              color: Colors.white,
-              fontSize: 16
-            ),),
-          ),
-        ),
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: action,
+                  child: Text(
+                    _errorActionLabel(subErrorMessage),
+                    style: context.bodyMedium(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
       ],
     );
   }
