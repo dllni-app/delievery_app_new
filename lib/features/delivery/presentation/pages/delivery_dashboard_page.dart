@@ -78,10 +78,7 @@ void _showAcceptSheet(
           children: [
             Text(
               'قبول طلب التوصيل؟',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
             ),
             Space.vS3,
             const Text('سيتم تعيين الطلب لك وتبدأ رحلة التوصيل.'),
@@ -125,10 +122,7 @@ void _showRejectSheet(
           children: [
             Text(
               'سبب رفض الطلب',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
             ),
             Space.vM1,
             TextField(
@@ -189,6 +183,28 @@ class DeliveryDashboardPage extends StatelessWidget {
               Space.vM2,
               const _GpsCard(),
               Space.vM2,
+              Text('طلبات قريبة منك', style: TextStyle(fontSize: 18)),
+              Space.vS3,
+              if (offer != null)
+                _OfferCard(offer: offer)
+              else
+                const DeliveryEmptyState(
+                  title: 'لا توجد عروض حالياً',
+                  message: 'عندما يصل طلب توصيل جديد سيظهر هنا مباشرة.',
+                  icon: Icons.radar,
+                ),
+              if (order != null) ...[
+                Space.vM3,
+                Text('الطلب النشط', style: TextStyle(fontSize: 18)),
+                Space.vS3,
+                DeliveryOrderCard(
+                  order: order,
+                  isActionLoading: state.isActionLoading,
+                  onAction: () =>
+                      getIt<DeliveryCubit>().performOrderAction(order),
+                ),
+              ],
+              Space.vM3,
               Row(
                 children: [
                   Expanded(
@@ -218,31 +234,6 @@ class DeliveryDashboardPage extends StatelessWidget {
                   ),
                 ],
               ),
-              Space.vM3,
-              Text(
-                'طلبات قريبة منك',
-                style: TextStyle(fontSize: 18),
-              ),
-              Space.vS3,
-              if (offer != null)
-                _OfferCard(offer: offer)
-              else
-                const DeliveryEmptyState(
-                  title: 'لا توجد عروض حالياً',
-                  message: 'عندما يصل طلب توصيل جديد سيظهر هنا مباشرة.',
-                  icon: Icons.radar,
-                ),
-              if (order != null) ...[
-                Space.vM3,
-                        Text('الطلب النشط', style: TextStyle(fontSize: 18)),
-                Space.vS3,
-                DeliveryOrderCard(
-                  order: order,
-                  isActionLoading: state.isActionLoading,
-                  onAction: () =>
-                      getIt<DeliveryCubit>().performOrderAction(order),
-                ),
-              ],
             ],
           ),
         );
@@ -282,10 +273,7 @@ class _DriverProfileCard extends StatelessWidget {
                     Space.vS1,
                     Text(
                       driver?.phone ?? '',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                   ],
                 ),
@@ -382,17 +370,11 @@ class _GpsCard extends StatelessWidget {
           Icon(Icons.my_location, color: Colors.green),
           Space.hM1,
           Expanded(
-            child: Text(
-              'تحديث موقعك الحالي',
-              style: TextStyle(fontSize: 14),
-            ),
+            child: Text('تحديث موقعك الحالي', style: TextStyle(fontSize: 14)),
           ),
           TextButton(
             onPressed: () => postCurrentLocation(context),
-            child: Text(
-              'تحديث',
-              style: TextStyle(color: AppColors.primary),
-            ),
+            child: Text('تحديث', style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
@@ -415,10 +397,7 @@ class _OfferCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  'طلب توصيل جديد',
-                    style: TextStyle(fontSize: 19),
-                ),
+                child: Text('طلب توصيل جديد', style: TextStyle(fontSize: 19)),
               ),
               DeliveryStatusBadge(
                 status: offer.isExpired ? 'expired' : offer.status,
