@@ -4,8 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
-import '../../data/models/delivery_order_model.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../data/models/delivery_order_model.dart';
 
 class DeliveryCard extends StatelessWidget {
   const DeliveryCard({
@@ -72,7 +72,7 @@ class DeliveryPrimaryButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[Icon(icon, size: 20), Space.hS3],
-              Text(label, style: TextStyle(fontWeight: FontWeight.w700)),
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
             ],
           );
 
@@ -116,7 +116,7 @@ class DeliveryStatusBadge extends StatelessWidget {
       'completed' ||
       'delivered' ||
       'COMPLETED' =>
-        Colors.green,
+        const Color(0xFF15803D),
       'busy' ||
       'offered' ||
       'open' ||
@@ -128,26 +128,27 @@ class DeliveryStatusBadge extends StatelessWidget {
       'dispatching' ||
       'WAITING_ACCEPTANCE' ||
       'ACTIVE' =>
-        Colors.yellow,
+        const Color(0xFFD97706),
       'offline' ||
       'cancelled' ||
       'rejected' ||
       'expired' ||
       'REJECTED' =>
-        Colors.red,
+        const Color(0xFFB91C1C),
       _ => AppColors.primary,
     };
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(.12),
+        color: color.withValues(alpha: .12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         deliveryStatusLabel(status),
         style: TextStyle(
           color: color,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           fontSize: 12,
         ),
       ),
@@ -195,9 +196,10 @@ class DeliveryMetricCard extends StatelessWidget {
             ),
           ),
           Space.vS2,
+          const SizedBox.shrink(),
           Text(
             label,
-            style: TextStyle(fontSize: 13, color: Colors.black),
+            style: const TextStyle(fontSize: 13, color: Colors.black),
           ),
         ],
       ),
@@ -227,20 +229,20 @@ class DeliveryEmptyState extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 34,
-              backgroundColor: Colors.grey.shade300,
+            backgroundColor: Colors.grey.shade300,
             child: Icon(icon, size: 34, color: Colors.black),
           ),
           Space.vM2,
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 17),
+            style: const TextStyle(fontSize: 17),
           ),
           Space.vS3,
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black),
+            style: const TextStyle(color: Colors.black),
           ),
           if (onRetry != null) ...[
             Space.vM2,
@@ -274,67 +276,159 @@ class DeliveryOrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DeliveryCard(
       onTap: onTap,
+      padding: EdgeInsets.zero,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'طلب ${order.orderNumber}',
-                  style: TextStyle(fontSize: 18),
-                ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: .055),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
               ),
-              DeliveryStatusBadge(status: order.statusUi ?? order.status),
-            ],
-          ),
-          Space.vM1,
-          DeliveryRoutePoint(
-            icon: Icons.storefront,
-            label: 'نقطة الاستلام',
-            value: order.pickupAddress,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.local_shipping_outlined,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'طلب ${order.orderNumber}',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        order.statusUi?.isNotEmpty == true
+                            ? order.statusUi!
+                            : deliveryStatusLabel(order.status),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF4B5563),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                DeliveryStatusBadge(status: order.status),
+              ],
+            ),
           ),
           Padding(
-            padding: const EdgeInsetsDirectional.only(start: 19),
-            child: SizedBox(
-              height: 18,
-              child: VerticalDivider(
-                width: 2,
-                thickness: 1.2,
-                color: Colors.grey.shade300.withOpacity(.4),
-              ),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+            child: Column(
+              children: [
+                DeliveryRoutePoint(
+                  icon: Icons.storefront_rounded,
+                  label: 'نقطة الاستلام',
+                  value: order.pickupAddress,
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 19),
+                  child: SizedBox(
+                    height: 24,
+                    child: VerticalDivider(
+                      width: 2,
+                      thickness: 1.5,
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+                ),
+                DeliveryRoutePoint(
+                  icon: Icons.person_pin_circle_rounded,
+                  label: 'موقع العميل',
+                  value: order.dropoffAddress,
+                ),
+              ],
             ),
           ),
-          DeliveryRoutePoint(
-            icon: Icons.location_on,
-            label: 'نقطة التسليم',
-            value: order.dropoffAddress,
-          ),
-          Space.vM1,
-          Row(
-            children: [
-              _SmallInfo(
-                icon: Icons.route,
-                text: order.distanceKm <= 0
-                    ? 'المسافة غير متوفرة'
-                    : '${order.distanceKm} كم',
-              ),
-              Space.hM1,
-              _SmallInfo(
-                icon: Icons.payments,
-                text: formatDeliveryMoney(order.deliveryFee, order.currency),
-              ),
-            ],
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _SmallInfo(
+                  icon: Icons.route_outlined,
+                  text: order.distanceKm <= 0
+                      ? 'المسافة غير متوفرة'
+                      : '${order.distanceKm} كم',
+                ),
+                _SmallInfo(
+                  icon: Icons.payments_outlined,
+                  text: formatDeliveryMoney(order.deliveryFee, order.currency),
+                ),
+                if (order.merchantPreparation != null)
+                  _SmallInfo(
+                    icon: order.merchantPreparation!.isReady
+                        ? Icons.check_circle_outline
+                        : Icons.schedule_outlined,
+                    text: order.merchantPreparation!.displayLabel,
+                  ),
+              ],
+            ),
           ),
           if (order.hasLifecycleAction && onAction != null) ...[
-            Space.vM2,
-            DeliveryPrimaryButton(
-              label: order.nextActionLabel,
-              icon: Icons.arrow_back,
-              onPressed: onAction,
-              isLoading: isActionLoading,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: DeliveryPrimaryButton(
+                label: order.nextActionLabel,
+                icon: Icons.arrow_back,
+                onPressed: onAction,
+                isLoading: isActionLoading,
+              ),
             ),
           ],
+          if (onTap != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(24),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'عرض تفاصيل الطلب والمسار',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(width: 6),
+                  Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 15,
+                    color: AppColors.primary,
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -362,7 +456,7 @@ class DeliveryRoutePoint extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundColor: Colors.grey.shade300,
+          backgroundColor: const Color(0xFFF1F5F9),
           child: Icon(icon, size: 20, color: AppColors.primary),
         ),
         Space.hM1,
@@ -372,15 +466,22 @@ class DeliveryRoutePoint extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.black,
+                  color: Color(0xFF6B7280),
                 ),
               ),
               Space.vS2,
               Text(
                 value.isEmpty ? 'غير محدد' : value,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.4,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1F2937),
+                ),
               ),
             ],
           ),
@@ -410,7 +511,7 @@ class DeliveryLoadingOverlay extends StatelessWidget {
           Positioned.fill(
             child: ColoredBox(
               color: Colors.black.withOpacity(.08),
-              child: Center(
+              child: const Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
             ),
@@ -431,15 +532,22 @@ class _SmallInfo extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.grey.shade300,
+        color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Colors.black),
+          Icon(icon, size: 16, color: AppColors.primary),
           Space.hS2,
-          Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF374151),
+            ),
+          ),
         ],
       ),
     );
@@ -473,6 +581,10 @@ String deliveryStatusLabel(String status) {
       return 'مكتمل';
     case 'cancelled':
       return 'ملغي';
+    case 'stopped':
+      return 'متوقف';
+    case 'rejected':
+      return 'مرفوض';
     case 'expired':
       return 'منتهي';
     case 'open':
