@@ -4,29 +4,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../common/design/src/theme/const.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
-import '../../../../core/utils/app_colors.dart';
 
 class DeliveryOrdersPage extends StatefulWidget {
-
   const DeliveryOrdersPage({super.key});
 
   @override
   State<DeliveryOrdersPage> createState() => _DeliveryOrdersPageState();
 }
 
-class _DeliveryOrdersPageState extends State<DeliveryOrdersPage> {
-
-  late final  DeliveryCubit  deliveryCubit;
+class _DeliveryOrdersPageState extends State<DeliveryOrdersPage>
+    with WidgetsBindingObserver {
+  late final DeliveryCubit deliveryCubit;
 
   @override
   void initState() {
-
-    deliveryCubit=getIt<DeliveryCubit>();
-
-    // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    deliveryCubit = getIt<DeliveryCubit>();
+    deliveryCubit.loadDashboard();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      deliveryCubit.loadDashboard();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -48,13 +59,24 @@ class _DeliveryOrdersPageState extends State<DeliveryOrdersPage> {
                   message: 'عند قبول عرض توصيل سيظهر الطلب النشط هنا.',
                   icon: Icons.list_alt_outlined,
                 )
-              else
+              else ...[
                 DeliveryOrderCard(
                   order: order,
                   isActionLoading: state.isActionLoading,
-                  onAction: () =>
-                      deliveryCubit.performOrderAction(order),
+                  onAction: order.hasLifecycleAction
+                      ? () => deliveryCubit.performOrderAction(order)
+                      : null,
                 ),
+                if (order.isPickupBlocked) ...[
+                  Space.vM2,
+                  DeliveryPrimaryButton(
+                    label: order.merchantPreparation?.displayLabel ??
+                        'بانتظار جاهزية المتجر',
+                    icon: Icons.lock_clock_outlined,
+                    onPressed: null,
+                  ),
+                ],
+              ],
             ],
           ),
         );

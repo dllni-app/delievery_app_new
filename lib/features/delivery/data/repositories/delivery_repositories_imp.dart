@@ -13,7 +13,7 @@ class DeliveryRepositoriesImp
     with HandlingException
     implements DeliveryRepositories {
   DeliveryRepositoriesImp({required DeliveryRemoteData remoteData})
-      : _remoteData = remoteData;
+    : _remoteData = remoteData;
 
   final DeliveryRemoteData _remoteData;
 
@@ -23,9 +23,7 @@ class DeliveryRepositoriesImp
 
   @override
   DataResponse<DeliveryOrderModel> acceptOffer(int attemptId) async =>
-      wrapHandlingException(
-        tryCall: () => _remoteData.acceptOffer(attemptId),
-      );
+      wrapHandlingException(tryCall: () => _remoteData.acceptOffer(attemptId));
 
   @override
   DataResponse<void> rejectOffer(int attemptId, String reason) async =>
@@ -50,7 +48,7 @@ class DeliveryRepositoriesImp
       wrapHandlingException(tryCall: () => _remoteData.deliverOrder(orderId));
 
   @override
-  DataResponse<List<DeliveryDisputeModel>> getDisputes(
+  DataResponse<DeliveryDisputesResponse> getDisputes(
     QueryParams params,
   ) async =>
       wrapHandlingException(tryCall: () => _remoteData.getDisputes(params));

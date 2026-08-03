@@ -36,28 +36,28 @@ class DeliveryRemoteData with HandlingApiManager {
       );
 
   Future<DeliveryOrderModel?> getCurrentOrder() async => wrapHandlingApi(
-        tryCall: () => _apiClient.get(ApiVariables.getCurrentDeliveryOrder()),
-        jsonConvert: deliveryOrderModelFromNullableJson,
-      );
+    tryCall: () => _apiClient.get(ApiVariables.getCurrentDeliveryOrder()),
+    jsonConvert: deliveryOrderModelFromNullableJson,
+  );
 
   Future<DeliveryOrderModel> startOrder(int orderId) async => wrapHandlingApi(
-        tryCall: () => _apiClient.post(ApiVariables.startDeliveryOrder(orderId)),
-        jsonConvert: deliveryOrderModelFromJson,
-      );
+    tryCall: () => _apiClient.post(ApiVariables.startDeliveryOrder(orderId)),
+    jsonConvert: deliveryOrderModelFromJson,
+  );
 
   Future<DeliveryOrderModel> pickupOrder(int orderId) async => wrapHandlingApi(
-        tryCall: () => _apiClient.post(ApiVariables.pickupDeliveryOrder(orderId)),
-        jsonConvert: deliveryOrderModelFromJson,
-      );
+    tryCall: () => _apiClient.post(ApiVariables.pickupDeliveryOrder(orderId)),
+    jsonConvert: deliveryOrderModelFromJson,
+  );
 
   Future<DeliveryOrderModel> deliverOrder(int orderId) async => wrapHandlingApi(
-        tryCall: () => _apiClient.post(ApiVariables.deliverDeliveryOrder(orderId)),
-        jsonConvert: deliveryOrderModelFromJson,
-      );
+    tryCall: () => _apiClient.post(ApiVariables.deliverDeliveryOrder(orderId)),
+    jsonConvert: deliveryOrderModelFromJson,
+  );
 
-  Future<List<DeliveryDisputeModel>> getDisputes(QueryParams params) async =>
+  Future<DeliveryDisputesResponse> getDisputes(QueryParams params) async =>
       wrapHandlingApi(
         tryCall: () => _apiClient.get(ApiVariables.getDisputes(params)),
-        jsonConvert: deliveryDisputesFromJson,
+        jsonConvert: deliveryDisputesResponseFromJson,
       );
 }

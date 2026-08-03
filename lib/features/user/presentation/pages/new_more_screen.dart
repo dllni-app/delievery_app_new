@@ -52,7 +52,7 @@ class MenuCard extends StatelessWidget {
             iconColor: primary,
             showChevron: true,
           ),
-          _Divider(),
+          const _Divider(),
           MenuItem(
             icon: Icons.account_balance_wallet_outlined,
             label: 'المستحقات',
@@ -61,7 +61,7 @@ class MenuCard extends StatelessWidget {
             iconColor: primary,
             showChevron: true,
           ),
-          _Divider(),
+          const _Divider(),
           MenuItem(
             icon: Icons.report_problem_outlined,
             label: 'البلاغات',
@@ -70,7 +70,7 @@ class MenuCard extends StatelessWidget {
             iconColor: primary,
             showChevron: true,
           ),
-          _Divider(),
+          const _Divider(),
           MenuItem(
             icon: Icons.notifications_none_rounded,
             label: 'الإشعارات',
@@ -79,12 +79,12 @@ class MenuCard extends StatelessWidget {
             iconColor: primary,
             showChevron: true,
           ),
-          _Divider(),
+          const _Divider(),
           MenuItem(
             icon: Icons.logout_rounded,
             label: 'تسجيل الخروج',
             onTap: onLogout,
-            iconBackground: Colors.red.withOpacity(0.10),
+            iconBackground: Colors.red.withValues(alpha: 0.10),
             iconColor: Colors.redAccent,
             labelColor: Colors.redAccent,
             showChevron: false,
@@ -119,7 +119,7 @@ class MenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      splashColor: Colors.blueGrey.withOpacity(0.08),
+      splashColor: Colors.blueGrey.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -148,7 +148,10 @@ class MenuItem extends StatelessWidget {
               const SizedBox(width: 8),
               Transform.flip(
                 flipX: true,
-                child: Icon(Icons.chevron_right_rounded, color: Colors.black54),
+                child: const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black54,
+                ),
               ),
             ],
           ],
@@ -207,7 +210,7 @@ class ProfileCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: primary.withOpacity(0.25),
+                      color: primary.withValues(alpha: 0.25),
                       width: 2,
                     ),
                   ),
@@ -216,7 +219,7 @@ class ProfileCard extends StatelessWidget {
                     backgroundColor: AppColors.primary,
                     child: Text(
                       userName.isEmpty ? '-' : userName[0].toUpperCase(),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -233,12 +236,12 @@ class ProfileCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: primary.withOpacity(0.5),
+                      color: primary.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
                       vechial,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -254,7 +257,7 @@ class ProfileCard extends StatelessWidget {
                 children: [
                   Text(
                     userName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
                       fontSize: 18,
@@ -264,7 +267,7 @@ class ProfileCard extends StatelessWidget {
                   Row(
                     spacing: 4,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.phone_iphone_rounded,
                         size: 18,
                         color: Colors.black54,
@@ -287,7 +290,7 @@ class ProfileCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: primary.withOpacity(0.08),
+                      color: primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
@@ -342,22 +345,25 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
                       onPressed: () {
                         userBloc.add(UserGetMeEvent());
                       },
-                      child: Text('اعادة المحاولة'),
+                      child: const Text('اعادة المحاولة'),
                     ),
                   ],
                 ),
               );
             } else if (state.getMeData.isSuccess) {
+              final profile = state.getMeData.data?.data;
+
               return SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ProfileCard(
-                      userName: state.getMeData.data?.data?.firstName ?? '-',
-                      userPhone: state.getMeData.data?.data?.phone ?? '-',
-                      userRole: "مندوب مستقل",
-                      vechial: state.getMeData.data?.data?.vehicleType ?? "-",
+                      userName:
+                          profile?.displayName ?? profile?.firstName ?? '-',
+                      userPhone: profile?.phone ?? '-',
+                      userRole: 'مندوب مستقل',
+                      vechial: profile?.vehicleType ?? '-',
                       primary: primary,
                     ),
                     const SizedBox(height: 16),
@@ -372,10 +378,7 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
                       onReports: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const Scaffold(
-                              appBar: _ReportsAppBar(),
-                              body: DeliveryDisputesPage(),
-                            ),
+                            builder: (_) => const DeliveryDisputesPage(),
                           ),
                         );
                       },
@@ -400,7 +403,7 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
                 ),
               );
             }
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           },
         ),
       ),
@@ -408,27 +411,9 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
   }
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     userBloc = getIt<UserBloc>();
     userBloc.add(UserGetMeEvent());
   }
-}
-
-class _ReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _ReportsAppBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: const Text('البلاغات'),
-      centerTitle: false,
-      backgroundColor: Colors.white,
-      foregroundColor: AppColors.primary,
-      elevation: 0,
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

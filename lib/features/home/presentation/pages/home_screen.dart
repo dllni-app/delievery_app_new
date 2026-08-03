@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late final UserBloc userBloc;
 
   @override
@@ -27,18 +27,24 @@ class _HomeScreenState extends State<HomeScreen> {
         listeners: [
           BlocListener<DeliveryCubit, DeliveryState>(
             bloc: getIt<DeliveryCubit>(),
-            listenWhen: (p, c) => p.errorMessage != c.errorMessage,
+            listenWhen: (previous, current) =>
+                previous.errorMessage != current.errorMessage,
             listener: (context, state) {
               if (state.errorMessage != null) {
-                showSnack(context, state.errorMessage!, type: SnackBarType.failure);
+                showSnack(
+                  context,
+                  state.errorMessage!,
+                  type: SnackBarType.failure,
+                );
               }
             },
           ),
           BlocListener<UserBloc, UserState>(
-            listenWhen: (p, c) =>
-                p.updateAvailabilityData.status !=
-                    c.updateAvailabilityData.status ||
-                p.postLocationData.status != c.postLocationData.status,
+            listenWhen: (previous, current) =>
+                previous.updateAvailabilityData.status !=
+                    current.updateAvailabilityData.status ||
+                previous.postLocationData.status !=
+                    current.postLocationData.status,
             listener: (context, state) {
               state.updateAvailabilityData.listenerFunction(
                 onSuccess: () => getIt<DeliveryCubit>().loadDashboard(),
@@ -73,9 +79,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     userBloc = getIt<UserBloc>()..add(DriverGetMeEvent());
     getIt<DeliveryCubit>().loadDashboard();
     getIt<FinancialCubit>().loadSummary();
-    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      getIt<DeliveryCubit>().loadDashboard();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 }
