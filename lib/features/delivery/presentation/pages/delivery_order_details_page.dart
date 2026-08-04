@@ -74,6 +74,7 @@ class _DeliveryOrderDetailsPageState extends State<DeliveryOrderDetailsPage> {
             title: const Text(
               'تفاصيل الطلب',
               style: TextStyle(
+                fontFamily: 'Cairo',
                 color: AppColors.primary,
                 fontWeight: FontWeight.w800,
               ),
