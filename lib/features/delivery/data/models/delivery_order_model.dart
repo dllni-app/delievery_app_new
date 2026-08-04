@@ -68,7 +68,7 @@ String _deliveryStatusUi(String status) {
     'offered' => 'تم إرسال العرض',
     'accepted' => 'تم قبول الطلب',
     'in_progress' => 'في الطريق إلى نقطة الاستلام',
-    'picked_up' => 'تم استلام الطلب',
+    'picked_up' => 'تم الاستلام',
     'delivered' => 'تم تسليم الطلب',
     'completed' => 'مكتمل',
     'rejected' => 'مرفوض',
@@ -351,7 +351,7 @@ class DeliveryOrderModel extends Equatable {
       case 'start':
         return 'بدء التوجه إلى المتجر';
       case 'pickup':
-        return 'تأكيد الاستلام';
+        return 'تم الاستلام';
       case 'deliver':
         return 'تأكيد التسليم';
       default:
