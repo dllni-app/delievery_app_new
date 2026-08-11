@@ -6,7 +6,7 @@ class ApiVariables {
   ApiVariables._();
 
   static const scheme = 'https';
-  static const host = "alnadha.net";
+  static const host = "dllni.mustafafares.com";
 
   static Uri _mainUri({
     required String path,
@@ -26,20 +26,17 @@ class ApiVariables {
   static Uri getVersion() => _mainUri(path: 'app/version/check');
 
   ///Auth///
-
   static Uri _auth({required String path}) => _mainUri(path: 'auth/$path');
 
   static Uri login() => _auth(path: "login");
 
   static Uri logOut() => _auth(path: "logout");
 
-
   ////product
   static Uri searchProduct() => _mainUri(path: "tracking/lookup");
   static Uri getProductDetails(String id) => _mainUri(path: "tracked-shipments/$id");
   static Uri getAllProduct(QueryParams params) => _mainUri(path: "tracked-shipments", queryParameters: params);
   static Uri trackShipment() => _mainUri(path: "tracked-shipments");
-
 
   static Uri _user({required String path, QueryParams? queryParameters}) =>
       _mainUri(path: 'user/$path', queryParameters: queryParameters);
@@ -64,7 +61,6 @@ class ApiVariables {
   static Uri updateMyPassword() => _user(path: "updateMyPassword");
 
   //cars
-
   static Uri _cars({String? path, QueryParams? queryParameters}) => _mainUri(
     path: path == null ? 'cars' : 'cars/$path',
     queryParameters: queryParameters,
@@ -108,7 +104,6 @@ class ApiVariables {
   static Uri checkStockCart() => _cart('check-stock');
 
   //////////service
-
   static Uri getAdvert() => _mainUri(path: 'getAdvert');
 
   static Uri _service({String? path, QueryParams? queryParams}) {
@@ -122,7 +117,6 @@ class ApiVariables {
   static Uri getOneService(int id) => _service(path: '$id');
 
   ////////category
-
   static Uri _category({String? path, QueryParams? queryParams}) {
     final fullPath = path == null ? 'category/' : 'category/$path';
     return _mainUri(path: fullPath, queryParameters: queryParams ?? {});
@@ -132,14 +126,12 @@ class ApiVariables {
       _category(queryParams: queryParams, path: 'all');
 
   //accessories
-
   static Uri getAllAccess(QueryParams queryParams) =>
       _mainUri(queryParameters: queryParams, path: 'accessories');
 
   static Uri getAccessDetails(int id) => _mainUri(path: 'accessories/$id');
 
   //service
-
   static Uri getAllServices() => _mainUri(path: 'services');
 
   static Uri getService(int id) => _mainUri(path: 'services/$id');
@@ -172,7 +164,6 @@ class ApiVariables {
   static Uri getPackage(int id) => _package(path: '/$id');
 
   ///notification
-
   static Uri getAllNotification(QueryParams queryParams) =>
       _mainUri(path: 'notifications', queryParameters: queryParams);
 
@@ -195,7 +186,6 @@ class ApiVariables {
       _mainUri(path: 'orders/$id/reject-instant-service');
 
   /// Financial
-
   static Uri getFinancialSummary() => _mainUri(path: 'financial/summary');
 
   static Uri getWalletLimits() => _mainUri(path: 'wallet/limits');
@@ -204,7 +194,6 @@ class ApiVariables {
       _mainUri(path: 'wallet/transactions', queryParameters: params);
 
   /// Delivery offers
-
   static Uri getCurrentOffer() => _mainUri(path: 'offers/current');
 
   static Uri acceptOffer(int attemptId) =>
@@ -214,7 +203,6 @@ class ApiVariables {
       _mainUri(path: 'offers/$attemptId/reject');
 
   /// Delivery orders
-
   static Uri getCurrentDeliveryOrder() => _orders(path: '/current');
 
   static Uri startDeliveryOrder(int orderId) => _orders(path: '/$orderId/start');
@@ -226,7 +214,6 @@ class ApiVariables {
       _orders(path: '/$orderId/deliver');
 
   /// Disputes
-
   static Uri getDisputes(QueryParams queryParameters) =>
       _mainUri(path: 'disputes', queryParameters: queryParameters);
 }
