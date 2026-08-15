@@ -6,7 +6,6 @@ import '../../../../common/design/src/widgets/shimmer_widget.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
-import '../../../../core/notification/notification_service.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../domain/use_cases/mark_notification_read_use_case.dart';
 import '../bloc/notification_bloc.dart';
@@ -26,7 +25,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void initState() {
     notificationBloc = getIt<NotificationBloc>()
       ..add(GetAllNotificationEvent(isReload: true));
-    NotificationUtils.clearUnreadCount();
     super.initState();
   }
 
