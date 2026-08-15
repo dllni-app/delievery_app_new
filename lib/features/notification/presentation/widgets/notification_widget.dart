@@ -6,8 +6,13 @@ import '../../../../core/utils/app_colors.dart';
 
 class NotificationWidget extends StatelessWidget {
   final NotificationModel notification;
+  final VoidCallback onTap;
 
-  const NotificationWidget({super.key, required this.notification});
+  const NotificationWidget({
+    super.key,
+    required this.notification,
+    required this.onTap,
+  });
 
   bool get _isRead => notification.readAt != null;
 
@@ -22,13 +27,7 @@ class NotificationWidget extends StatelessWidget {
         shadowColor: Colors.black.withValues(alpha: 0.06),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            if (notification.data?.args == null) {
-              return;
-            } else {
-              return;
-            }
-          },
+          onTap: onTap,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -41,7 +40,7 @@ class NotificationWidget extends StatelessWidget {
             ),
             title: Text(
               notification.title ?? LocaleKeys.nullText.tr(),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
@@ -54,7 +53,7 @@ class NotificationWidget extends StatelessWidget {
                 notification.body ??
                     notification.message ??
                     LocaleKeys.nullText.tr(),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black,
                 ),
@@ -66,7 +65,7 @@ class NotificationWidget extends StatelessWidget {
                 ? null
                 : Text(
                     formatNotificationDate(notification.createdAt),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       color: Colors.black,
                     ),
