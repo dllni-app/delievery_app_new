@@ -238,44 +238,6 @@ class DeliveryDashboardPage extends StatelessWidget {
                   ),
                 ],
               ),
-<<<<<<< HEAD
-=======
-              Space.vM3,
-              Text(
-                'طلبات قريبة منك',
-                style: TextStyle(fontSize: 18),
-              ),
-              Space.vS3,
-              if (offer != null)
-                _OfferCard(offer: offer)
-              else
-                const DeliveryEmptyState(
-                  title: 'لا توجد عروض حالياً',
-                  message: 'عندما يصل طلب توصيل جديد سيظهر هنا مباشرة.',
-                  icon: Icons.radar,
-                ),
-              if (order != null) ...[
-                Space.vM3,
-                Text('الطلب النشط', style: TextStyle(fontSize: 18)),
-                Space.vS3,
-                DeliveryOrderCard(
-                  order: order,
-                  isActionLoading: state.isActionLoading,
-                  onAction: order.hasLifecycleAction
-                      ? () => getIt<DeliveryCubit>().performOrderAction(order)
-                      : null,
-                ),
-                if (order.isPickupBlocked) ...[
-                  Space.vM2,
-                  DeliveryPrimaryButton(
-                    label: order.merchantPreparation?.displayLabel ??
-                        'بانتظار جاهزية المتجر',
-                    icon: Icons.lock_clock_outlined,
-                    onPressed: null,
-                  ),
-                ],
-              ],
->>>>>>> a61cdb4413cc7618458652c0353c7e41d4ae26c7
             ],
           ),
         );
@@ -443,14 +405,7 @@ class _OfferCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-<<<<<<< HEAD
                 child: Text('طلب توصيل جديد', style: TextStyle(fontSize: 19)),
-=======
-                child: Text(
-                  'طلب توصيل جديد',
-                  style: TextStyle(fontSize: 19),
-                ),
->>>>>>> a61cdb4413cc7618458652c0353c7e41d4ae26c7
               ),
               DeliveryStatusBadge(
                 status: offer.isExpired ? 'expired' : offer.status,

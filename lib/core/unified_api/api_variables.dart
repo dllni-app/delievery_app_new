@@ -6,7 +6,7 @@ class ApiVariables {
   ApiVariables._();
 
   static const scheme = 'https';
-  static const host = "alnadha.net";
+  static const host = "dllni.mustafafares.com";
 
   static Uri _mainUri({
     required String path,
