@@ -8,6 +8,7 @@ import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/notification/notification_service.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../domain/use_cases/mark_notification_read_use_case.dart';
 import '../bloc/notification_bloc.dart';
 import '../widgets/notification_widget.dart';
 
@@ -33,6 +34,29 @@ class _NotificationScreenState extends State<NotificationScreen> {
     notificationBloc.add(GetAllNotificationEvent(isReload: true));
   }
 
+  Future<void> _confirmDeleteAll() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('حذف الكل'),
+        content: const Text('هل أنت متأكد من حذف جميع الإشعارات؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('حذف'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      notificationBloc.add(DeleteAllNotificationsEvent());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -41,6 +65,30 @@ class _NotificationScreenState extends State<NotificationScreen> {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          BlocBuilder<NotificationBloc, NotificationState>(
+            bloc: notificationBloc,
+            builder: (context, state) {
+              if (state.getAllNotification.list.isEmpty) {
+                return const SliverToBoxAdapter(child: SizedBox.shrink());
+              }
+              return SliverToBoxAdapter(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
+                    child: TextButton.icon(
+                      onPressed: _confirmDeleteAll,
+                      icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+                      label: const Text(
+                        'حذف الكل',
+                        style: TextStyle(color: Color(0xFFEF4444)),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           BlocBuilder<NotificationBloc, NotificationState>(
             bloc: notificationBloc,
             builder: (context, state) {
@@ -57,13 +105,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             }
                             return _NotificationLoadingCard();
                           }
-                          return NotificationWidget(
-                            notification:
-                                state.getAllNotification.list[index],
+
+                          final notification = state.getAllNotification.list[index];
+                          final id = notification.id;
+                          return Dismissible(
+                            key: ValueKey(id ?? '${notification.createdAt}-$index'),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEF4444),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              alignment: AlignmentDirectional.centerEnd,
+                              padding: const EdgeInsetsDirectional.only(end: 20),
+                              child: const Icon(Icons.delete_outline, color: Colors.white),
+                            ),
+                            onDismissed: (_) {
+                              if (id != null && id.isNotEmpty) {
+                                notificationBloc.add(DeleteNotificationEvent(id: id));
+                              }
+                            },
+                            child: NotificationWidget(
+                              notification: notification,
+                              onTap: () {
+                                if (id != null &&
+                                    id.isNotEmpty &&
+                                    notification.readAt == null) {
+                                  notificationBloc.add(
+                                    MarkNotificationReadEvent(
+                                      params: MarkNotificationReadParams(id: id),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           );
                         },
-                        childCount:
-                            state.getAllNotification.listLength(2),
+                        childCount: state.getAllNotification.listLength(2),
                       ),
                     ),
                   );
@@ -127,7 +206,7 @@ class _NotificationEmptyState extends StatelessWidget {
               CircleAvatar(
                 radius: 34,
                 backgroundColor: Colors.grey.shade300,
-                child: Icon(
+                child: const Icon(
                   Icons.notifications_none,
                   size: 34,
                   color: Colors.black,
@@ -137,16 +216,13 @@ class _NotificationEmptyState extends StatelessWidget {
               Text(
                 LocaleKeys.notificationsEmptyNotifications.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 17),
+                style: const TextStyle(fontSize: 17),
               ),
               Space.vS3,
               Text(
                 LocaleKeys.notificationsNotificationsWillAppeared.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.black),
               ),
               Space.vM2,
               TextButton.icon(
