@@ -14,6 +14,12 @@ class MarkNotificationReadUseCase
   @override
   DataResponse<void> call(MarkNotificationReadParams params) async =>
       await _repositories.markNotificationRead(params.id);
+
+  DataResponse<void> deleteOne(String id) async =>
+      await _repositories.deleteNotification(id);
+
+  DataResponse<void> deleteAll() async =>
+      await _repositories.deleteAllNotifications();
 }
 
 class MarkNotificationReadParams with Params {
