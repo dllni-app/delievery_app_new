@@ -34,13 +34,11 @@ Map<String, dynamic> _asMap(Object? value) =>
 String _asString(Object? value, {String fallback = ''}) =>
     value == null ? fallback : value.toString();
 
-String? _nullableString(Object? value) =>
-    value == null ? null : value.toString();
+String? _nullableString(Object? value) => value?.toString();
 
 int _asInt(Object? value) => int.tryParse(value?.toString() ?? '') ?? 0;
 
-int? _nullableInt(Object? value) =>
-    value == null ? null : int.tryParse(value.toString());
+int? _nullableInt(Object? value) => int.tryParse(value?.toString() ?? '');
 
 num _asNum(Object? value, {num fallback = 0}) =>
     num.tryParse(value?.toString() ?? '') ?? fallback;
@@ -69,6 +67,8 @@ String _deliveryStatusUi(String status) {
     'accepted' => 'تم قبول الطلب',
     'in_progress' => 'في الطريق إلى نقطة الاستلام',
     'picked_up' => 'تم الاستلام',
+    'returning_to_merchant' => 'تعذر التسليم — إعادة الطلب إلى المتجر',
+    'returned_to_merchant' => 'تمت إعادة الطلب إلى المتجر',
     'delivered' => 'تم تسليم الطلب',
     'completed' => 'مكتمل',
     'rejected' => 'مرفوض',
@@ -204,6 +204,10 @@ class DeliveryOrderModel extends Equatable {
     this.pickedUpAt,
     this.deliveredAt,
     this.completedAt,
+    this.deliveryFailureCode,
+    this.deliveryFailureReason,
+    this.deliveryFailedAt,
+    this.returnedToMerchantAt,
   });
 
   final int id;
@@ -230,6 +234,10 @@ class DeliveryOrderModel extends Equatable {
   final DateTime? pickedUpAt;
   final DateTime? deliveredAt;
   final DateTime? completedAt;
+  final String? deliveryFailureCode;
+  final String? deliveryFailureReason;
+  final DateTime? deliveryFailedAt;
+  final DateTime? returnedToMerchantAt;
 
   factory DeliveryOrderModel.fromJson(Map<String, dynamic> json) {
     final eventsJson = json['events'];
@@ -322,6 +330,22 @@ class DeliveryOrderModel extends Equatable {
             json['completed_at'] ??
             timestamps['completed_at'],
       ),
+      deliveryFailureCode: _nullableString(
+        json['deliveryFailureCode'] ?? json['delivery_failure_code'],
+      ),
+      deliveryFailureReason: _nullableString(
+        json['deliveryFailureReason'] ?? json['delivery_failure_reason'],
+      ),
+      deliveryFailedAt: _asDate(
+        json['deliveryFailedAt'] ??
+            json['delivery_failed_at'] ??
+            timestamps['delivery_failed_at'],
+      ),
+      returnedToMerchantAt: _asDate(
+        json['returnedToMerchantAt'] ??
+            json['returned_to_merchant_at'] ??
+            timestamps['returned_to_merchant_at'],
+      ),
       events: eventsJson is List
           ? eventsJson
                 .whereType<Map<String, dynamic>>()
@@ -357,6 +381,8 @@ class DeliveryOrderModel extends Equatable {
         return isPickupBlocked ? null : 'pickup';
       case 'picked_up':
         return hasArrivedDropoff ? 'deliver' : 'arrived_dropoff';
+      case 'returning_to_merchant':
+        return 'returned_to_merchant';
       default:
         return null;
     }
@@ -375,12 +401,16 @@ class DeliveryOrderModel extends Equatable {
         return 'وصلت إلى موقع العميل';
       case 'deliver':
         return 'تأكيد التسليم';
+      case 'returned_to_merchant':
+        return 'تأكيد إعادة الطلب للمتجر';
       default:
         return '';
     }
   }
 
   bool get hasLifecycleAction => apiAction != null;
+
+  bool get canReportDeliveryFailure => status == 'picked_up';
 
   @override
   List<Object?> get props => [
@@ -408,6 +438,10 @@ class DeliveryOrderModel extends Equatable {
     pickedUpAt,
     deliveredAt,
     completedAt,
+    deliveryFailureCode,
+    deliveryFailureReason,
+    deliveryFailedAt,
+    returnedToMerchantAt,
   ];
 }
 

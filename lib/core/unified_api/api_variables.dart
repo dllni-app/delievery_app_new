@@ -229,6 +229,12 @@ class ApiVariables {
   static Uri arrivedDropoffDeliveryOrder(int orderId) =>
       _orders(path: '/$orderId/arrived-dropoff');
 
+  static Uri reportDeliveryFailure(int orderId) =>
+      _orders(path: '/$orderId/delivery-failed');
+
+  static Uri returnedToMerchant(int orderId) =>
+      _orders(path: '/$orderId/returned-to-merchant');
+
   static Uri deliverDeliveryOrder(int orderId) =>
       _orders(path: '/$orderId/deliver');
 

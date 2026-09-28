@@ -52,6 +52,22 @@ class DeliveryRepositoriesImp
       wrapHandlingException(tryCall: () => _remoteData.arrivedDropoff(orderId));
 
   @override
+  DataResponse<DeliveryOrderModel> reportDeliveryFailure(
+    int orderId,
+    String reasonCode,
+    String? reason,
+  ) async => wrapHandlingException(
+    tryCall: () =>
+        _remoteData.reportDeliveryFailure(orderId, reasonCode, reason),
+  );
+
+  @override
+  DataResponse<DeliveryOrderModel> returnedToMerchant(int orderId) async =>
+      wrapHandlingException(
+        tryCall: () => _remoteData.returnedToMerchant(orderId),
+      );
+
+  @override
   DataResponse<DeliveryOrderModel> deliverOrder(int orderId) async =>
       wrapHandlingException(tryCall: () => _remoteData.deliverOrder(orderId));
 

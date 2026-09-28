@@ -111,9 +111,107 @@ class _DeliveryOrderDetailsPageState extends State<DeliveryOrderDetailsPage> {
             onPressed: order.hasLifecycleAction
                 ? () => _confirmAndPerformAction(order)
                 : null,
+            onFailure: order.canReportDeliveryFailure
+                ? () => _reportDeliveryFailure(order)
+                : null,
           ),
         );
       },
+    );
+  }
+
+  Future<void> _reportDeliveryFailure(DeliveryOrderModel order) async {
+    const reasons = <String, String>{
+      'CUSTOMER_UNAVAILABLE': 'العميل غير متاح',
+      'CUSTOMER_REFUSED': 'العميل رفض الاستلام',
+      'WRONG_ADDRESS': 'العنوان غير صحيح',
+      'PAYMENT_ISSUE': 'مشكلة في الدفع',
+      'UNSAFE_LOCATION': 'الموقع غير آمن',
+      'OTHER': 'سبب آخر',
+    };
+    final controller = TextEditingController();
+    var selected = 'CUSTOMER_UNAVAILABLE';
+
+    final result = await showModalBottomSheet<({String code, String? reason})>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            MediaQuery.viewInsetsOf(context).bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'تعذر تسليم الطلب',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'اختر السبب. سيبقى الطلب معك حتى تأكيد إعادته للمتجر.',
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: selected,
+                items: reasons.entries
+                    .map(
+                      (entry) => DropdownMenuItem(
+                        value: entry.key,
+                        child: Text(entry.value),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) =>
+                    setSheetState(() => selected = value ?? selected),
+                decoration: const InputDecoration(
+                  labelText: 'سبب تعذر التسليم',
+                ),
+              ),
+              if (selected == 'OTHER') ...[
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller,
+                  maxLength: 500,
+                  maxLines: 3,
+                  decoration: const InputDecoration(labelText: 'اكتب السبب'),
+                ),
+              ],
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.red.shade700,
+                ),
+                onPressed: () {
+                  if (selected == 'OTHER' && controller.text.trim().isEmpty) {
+                    return;
+                  }
+                  Navigator.pop(sheetContext, (
+                    code: selected,
+                    reason: controller.text.trim().isEmpty
+                        ? null
+                        : controller.text.trim(),
+                  ));
+                },
+                icon: const Icon(Icons.assignment_return_rounded),
+                label: const Text('بدء إعادة الطلب للمتجر'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    controller.dispose();
+    if (result == null || !mounted) return;
+    await _deliveryCubit.reportDeliveryFailure(
+      order,
+      result.code,
+      result.reason,
     );
   }
 
@@ -151,6 +249,7 @@ class _DeliveryOrderDetailsPageState extends State<DeliveryOrderDetailsPage> {
       'pickup' => 'أكد أنك استلمت الطلب من المتجر وأصبح معك الآن.',
       'arrived_dropoff' => 'أكد أنك وصلت فعلياً إلى موقع العميل.',
       'deliver' => 'أكد أنك سلّمت الطلب إلى العميل في موقع التسليم.',
+      'returned_to_merchant' => 'أكد أنك أعدت الطلب فعلياً إلى نقطة الاستلام.',
       _ => 'هل تريد تحديث حالة الطلب؟',
     };
   }
@@ -265,6 +364,8 @@ class _OrderStatusCard extends StatelessWidget {
       'accepted' => Icons.task_alt_rounded,
       'in_progress' => Icons.near_me_rounded,
       'picked_up' => Icons.inventory_2_rounded,
+      'returning_to_merchant' => Icons.assignment_return_rounded,
+      'returned_to_merchant' => Icons.keyboard_return_rounded,
       'delivered' || 'completed' => Icons.check_circle_rounded,
       'cancelled' || 'rejected' => Icons.cancel_rounded,
       'stopped' => Icons.pause_circle_rounded,
@@ -285,8 +386,12 @@ class _OrderStatusCard extends StatelessWidget {
             : 'أنت في الطريق إلى نقطة الاستلام. سجّل وصولك عند الوصول إلى المتجر.',
       'picked_up' =>
         order.hasArrivedDropoff
-            ? 'أنت عند موقع العميل. أكد التسليم بعد تسليم الطلب.'
+            ? 'أنت عند موقع العميل. أكد التسليم بعد تسليم الطلب أو سجّل تعذر التسليم.'
             : 'الطلب معك الآن. اتبع الطريق إلى موقع العميل وسجّل وصولك عند الوصول.',
+      'returning_to_merchant' =>
+        'تعذر التسليم. أعد الطلب إلى نقطة الاستلام ثم أكد الإرجاع.',
+      'returned_to_merchant' =>
+        'تم تسجيل إعادة الطلب إلى المتجر وانتهت المهمة.',
       'delivered' => 'تم تسجيل تسليم الطلب إلى العميل.',
       'completed' => 'اكتملت دورة التوصيل لهذا الطلب.',
       'cancelled' => 'تم إلغاء الطلب ولا توجد إجراءات متاحة.',
@@ -635,11 +740,13 @@ class _OrderActionBar extends StatelessWidget {
     required this.order,
     required this.isLoading,
     required this.onPressed,
+    required this.onFailure,
   });
 
   final DeliveryOrderModel order;
   final bool isLoading;
   final VoidCallback? onPressed;
+  final VoidCallback? onFailure;
 
   @override
   Widget build(BuildContext context) {
@@ -655,14 +762,34 @@ class _OrderActionBar extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: DeliveryPrimaryButton(
-            label: isBlocked
-                ? order.merchantPreparation?.displayLabel ??
-                      'بانتظار جاهزية المتجر'
-                : order.nextActionLabel,
-            icon: isBlocked ? Icons.lock_clock_outlined : _actionIcon(order),
-            onPressed: isBlocked || isLoading ? null : onPressed,
-            isLoading: isLoading,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (onFailure != null) ...[
+                OutlinedButton.icon(
+                  onPressed: isLoading ? null : onFailure,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red.shade700,
+                    side: BorderSide(color: Colors.red.shade300),
+                  ),
+                  icon: const Icon(Icons.assignment_return_outlined),
+                  label: const Text('تعذر التسليم — إعادة الطلب للمتجر'),
+                ),
+                const SizedBox(height: 8),
+              ],
+              DeliveryPrimaryButton(
+                label: isBlocked
+                    ? order.merchantPreparation?.displayLabel ??
+                          'بانتظار جاهزية المتجر'
+                    : order.nextActionLabel,
+                icon: isBlocked
+                    ? Icons.lock_clock_outlined
+                    : _actionIcon(order),
+                onPressed: isBlocked || isLoading ? null : onPressed,
+                isLoading: isLoading,
+              ),
+            ],
           ),
         ),
       ),
@@ -676,6 +803,7 @@ class _OrderActionBar extends StatelessWidget {
       'pickup' => Icons.inventory_2_rounded,
       'arrived_dropoff' => Icons.location_on_rounded,
       'deliver' => Icons.task_alt_rounded,
+      'returned_to_merchant' => Icons.assignment_return_rounded,
       _ => Icons.arrow_forward_rounded,
     };
   }

@@ -14,6 +14,14 @@ void main() {
       ApiVariables.arrivedDropoffDeliveryOrder(42).path,
       endsWith('/orders/42/arrived-dropoff'),
     );
+    expect(
+      ApiVariables.reportDeliveryFailure(42).path,
+      endsWith('/orders/42/delivery-failed'),
+    );
+    expect(
+      ApiVariables.returnedToMerchant(42).path,
+      endsWith('/orders/42/returned-to-merchant'),
+    );
 
     expect(DeliveryRemoteData, isNotNull);
     expect(DeliveryRepositoriesImp, isNotNull);

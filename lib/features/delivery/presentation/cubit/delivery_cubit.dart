@@ -131,11 +131,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
   Future<void> performOrderAction(DeliveryOrderModel order) async {
     if (!order.hasLifecycleAction) {
       if (order.isPickupBlocked) {
-        emit(
-          state.copyWith(
-            errorMessage: 'الطلب لم يصبح جاهزاً للاستلام بعد',
-          ),
-        );
+        emit(state.copyWith(errorMessage: 'الطلب لم يصبح جاهزاً للاستلام بعد'));
       }
       return;
     }
@@ -151,9 +147,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
         final message = failure.statusCode == 409
             ? 'الطلب لم يصبح جاهزاً للاستلام بعد. تم تحديث حالة التجهيز.'
             : failure.message;
-        emit(
-          state.copyWith(isActionLoading: false, errorMessage: message),
-        );
+        emit(state.copyWith(isActionLoading: false, errorMessage: message));
         await loadDashboard();
       },
       (updatedOrder) async {
@@ -161,6 +155,42 @@ class DeliveryCubit extends Cubit<DeliveryState> {
           state.copyWith(isActionLoading: false, currentOrder: updatedOrder),
         );
         _syncReadinessPolling(updatedOrder);
+        await loadDashboard();
+      },
+    );
+  }
+
+  Future<void> reportDeliveryFailure(
+    DeliveryOrderModel order,
+    String reasonCode,
+    String? reason,
+  ) async {
+    if (reasonCode == 'OTHER' && (reason == null || reason.trim().isEmpty)) {
+      emit(state.copyWith(errorMessage: 'اكتب سبب تعذر التسليم'));
+      return;
+    }
+
+    emit(state.copyWith(isActionLoading: true, clearError: true));
+    final result = await _performOrderActionUseCase(
+      PerformOrderActionParams(
+        order: order,
+        action: 'delivery_failed',
+        reasonCode: reasonCode,
+        reason: reason,
+      ),
+    );
+
+    await result.fold(
+      (failure) async {
+        emit(
+          state.copyWith(isActionLoading: false, errorMessage: failure.message),
+        );
+        await loadDashboard();
+      },
+      (updatedOrder) async {
+        emit(
+          state.copyWith(isActionLoading: false, currentOrder: updatedOrder),
+        );
         await loadDashboard();
       },
     );

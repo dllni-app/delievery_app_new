@@ -113,6 +113,7 @@ class _DeliveryOrderMapState extends State<DeliveryOrderMap> {
   LatLng? _activeTarget({required LatLng? pickup, required LatLng? dropoff}) {
     return switch (widget.order.status) {
       'picked_up' || 'delivered' || 'completed' => dropoff ?? pickup,
+      'returning_to_merchant' || 'returned_to_merchant' => pickup ?? dropoff,
       _ => pickup ?? dropoff,
     };
   }
@@ -135,11 +136,7 @@ class _DeliveryOrderMapState extends State<DeliveryOrderMap> {
       widget.order.dropoffLatitude,
       widget.order.dropoffLongitude,
     );
-    final points = <LatLng>[
-      if (_driverLocation != null) _driverLocation!,
-      if (pickup != null) pickup,
-      if (dropoff != null) dropoff,
-    ];
+    final points = <LatLng>[?_driverLocation, ?pickup, ?dropoff];
 
     if (points.isEmpty) {
       return const _MapUnavailableCard();
@@ -175,9 +172,12 @@ class _DeliveryOrderMapState extends State<DeliveryOrderMap> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    widget.order.status == 'picked_up'
-                        ? 'الطريق إلى موقع العميل'
-                        : 'الطريق إلى نقطة الاستلام',
+                    switch (widget.order.status) {
+                      'picked_up' => 'الطريق إلى موقع العميل',
+                      'returning_to_merchant' => 'طريق إعادة الطلب إلى المتجر',
+                      'returned_to_merchant' => 'تمت إعادة الطلب إلى المتجر',
+                      _ => 'الطريق إلى نقطة الاستلام',
+                    },
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -206,7 +206,8 @@ class _DeliveryOrderMapState extends State<DeliveryOrderMap> {
                       initialCenter: center,
                       initialZoom: 13.5,
                       interactionOptions: const InteractionOptions(
-                        flags: InteractiveFlag.pinchZoom |
+                        flags:
+                            InteractiveFlag.pinchZoom |
                             InteractiveFlag.drag |
                             InteractiveFlag.doubleTapZoom,
                       ),

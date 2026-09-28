@@ -53,11 +53,20 @@ void main() {
 
     test('requires arrival at dropoff before delivery confirmation', () {
       expect(orderFor('picked_up').apiAction, 'arrived_dropoff');
+      expect(orderFor('picked_up').canReportDeliveryFailure, isTrue);
 
       final arrived = orderFor('picked_up', action: 'ARRIVED_DROPOFF');
 
       expect(arrived.hasArrivedDropoff, isTrue);
       expect(arrived.apiAction, 'deliver');
+    });
+
+    test('requires merchant return confirmation after delivery failure', () {
+      final returning = orderFor('returning_to_merchant');
+
+      expect(returning.apiAction, 'returned_to_merchant');
+      expect(returning.nextActionLabel, 'تأكيد إعادة الطلب للمتجر');
+      expect(returning.canReportDeliveryFailure, isFalse);
     });
   });
 }

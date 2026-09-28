@@ -20,6 +20,14 @@ abstract class DeliveryRepositories {
 
   DataResponse<DeliveryOrderModel> arrivedDropoff(int orderId);
 
+  DataResponse<DeliveryOrderModel> reportDeliveryFailure(
+    int orderId,
+    String reasonCode,
+    String? reason,
+  );
+
+  DataResponse<DeliveryOrderModel> returnedToMerchant(int orderId);
+
   DataResponse<DeliveryOrderModel> deliverOrder(int orderId);
 
   DataResponse<DeliveryDisputesResponse> getDisputes(QueryParams params);

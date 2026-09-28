@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../common/design/src/theme/const.dart';
-import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../data/models/delivery_order_model.dart';
 
@@ -26,7 +25,7 @@ class DeliveryCard extends StatelessWidget {
     return Material(
       color: color ?? Colors.white,
       borderRadius: BorderRadius.circular(24),
-      shadowColor: Colors.black.withOpacity(.08),
+      shadowColor: Colors.black.withValues(alpha: .08),
       elevation: 4,
       child: InkWell(
         onTap: onTap,
@@ -115,26 +114,25 @@ class DeliveryStatusBadge extends StatelessWidget {
       'available' ||
       'completed' ||
       'delivered' ||
-      'COMPLETED' =>
-        const Color(0xFF15803D),
+      'returned_to_merchant' ||
+      'COMPLETED' => const Color(0xFF15803D),
       'busy' ||
       'offered' ||
       'open' ||
       'accepted' ||
       'in_progress' ||
       'picked_up' ||
+      'returning_to_merchant' ||
       'waiting_merchant_ready' ||
       'searching_for_driver' ||
       'dispatching' ||
       'WAITING_ACCEPTANCE' ||
-      'ACTIVE' =>
-        const Color(0xFFD97706),
+      'ACTIVE' => const Color(0xFFD97706),
       'offline' ||
       'cancelled' ||
       'rejected' ||
       'expired' ||
-      'REJECTED' =>
-        const Color(0xFFB91C1C),
+      'REJECTED' => const Color(0xFFB91C1C),
       _ => AppColors.primary,
     };
 
@@ -466,10 +464,7 @@ class DeliveryRoutePoint extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF6B7280),
-                ),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
               ),
               Space.vS2,
               Text(
@@ -486,7 +481,7 @@ class DeliveryRoutePoint extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null) trailing!,
+        ?trailing,
       ],
     );
   }
@@ -510,7 +505,7 @@ class DeliveryLoadingOverlay extends StatelessWidget {
         if (isLoading)
           Positioned.fill(
             child: ColoredBox(
-              color: Colors.black.withOpacity(.08),
+              color: Colors.black.withValues(alpha: .08),
               child: const Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
@@ -575,6 +570,10 @@ String deliveryStatusLabel(String status) {
       return 'قيد التنفيذ';
     case 'picked_up':
       return 'تم الاستلام';
+    case 'returning_to_merchant':
+      return 'قيد الإرجاع إلى المتجر';
+    case 'returned_to_merchant':
+      return 'تمت الإعادة إلى المتجر';
     case 'delivered':
       return 'تم التسليم';
     case 'completed':

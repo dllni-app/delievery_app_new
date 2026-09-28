@@ -64,6 +64,28 @@ class DeliveryRemoteData with HandlingApiManager {
         jsonConvert: deliveryOrderModelFromJson,
       );
 
+  Future<DeliveryOrderModel> reportDeliveryFailure(
+    int orderId,
+    String reasonCode,
+    String? reason,
+  ) async => wrapHandlingApi(
+    tryCall: () => _apiClient.post(
+      ApiVariables.reportDeliveryFailure(orderId),
+      data: <String, dynamic>{
+        'reasonCode': reasonCode,
+        if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+      },
+    ),
+    jsonConvert: deliveryOrderModelFromJson,
+  );
+
+  Future<DeliveryOrderModel> returnedToMerchant(int orderId) async =>
+      wrapHandlingApi(
+        tryCall: () =>
+            _apiClient.post(ApiVariables.returnedToMerchant(orderId)),
+        jsonConvert: deliveryOrderModelFromJson,
+      );
+
   Future<DeliveryOrderModel> deliverOrder(int orderId) async => wrapHandlingApi(
     tryCall: () => _apiClient.post(ApiVariables.deliverDeliveryOrder(orderId)),
     jsonConvert: deliveryOrderModelFromJson,
