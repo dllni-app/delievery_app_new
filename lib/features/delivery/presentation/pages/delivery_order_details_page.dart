@@ -62,7 +62,8 @@ class _DeliveryOrderDetailsPageState extends State<DeliveryOrderDetailsPage> {
       },
       builder: (context, state) {
         final currentOrder = state.currentOrder;
-        final order = currentOrder != null && currentOrder.id == _displayedOrder.id
+        final order =
+            currentOrder != null && currentOrder.id == _displayedOrder.id
             ? currentOrder
             : _displayedOrder;
 
@@ -130,9 +131,7 @@ class _DeliveryOrderDetailsPageState extends State<DeliveryOrderDetailsPage> {
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text('تأكيد'),
             ),
           ],
@@ -148,7 +147,9 @@ class _DeliveryOrderDetailsPageState extends State<DeliveryOrderDetailsPage> {
   String _actionConfirmationMessage(DeliveryOrderModel order) {
     return switch (order.apiAction) {
       'start' => 'سيتم تحديث حالة الطلب بأنك بدأت التوجه إلى نقطة الاستلام.',
+      'arrived_pickup' => 'أكد أنك وصلت فعلياً إلى نقطة الاستلام.',
       'pickup' => 'أكد أنك استلمت الطلب من المتجر وأصبح معك الآن.',
+      'arrived_dropoff' => 'أكد أنك وصلت فعلياً إلى موقع العميل.',
       'deliver' => 'أكد أنك سلّمت الطلب إلى العميل في موقع التسليم.',
       _ => 'هل تريد تحديث حالة الطلب؟',
     };
@@ -273,13 +274,19 @@ class _OrderStatusCard extends StatelessWidget {
 
   static String _statusHint(DeliveryOrderModel order) {
     if (order.isPickupBlocked) {
-      return 'يمكنك التوجه إلى المتجر، لكن تأكيد الاستلام يبقى مقفلاً حتى يعلن المتجر أن الطلب جاهز.';
+      return 'وصلت إلى المتجر. تأكيد الاستلام مقفل حتى يعلن المتجر أن الطلب جاهز.';
     }
 
     return switch (order.status) {
       'accepted' => 'ابدأ الرحلة إلى نقطة الاستلام ثم حدّث الحالة عند التحرك.',
-      'in_progress' => 'أنت في الطريق إلى نقطة الاستلام. أكد الاستلام بعد استلام الطلب من المتجر.',
-      'picked_up' => 'الطلب معك الآن. اتبع الطريق إلى موقع العميل ثم أكد التسليم.',
+      'in_progress' =>
+        order.hasArrivedPickup
+            ? 'أنت عند نقطة الاستلام. أكد استلام الطلب عندما يصبح جاهزاً.'
+            : 'أنت في الطريق إلى نقطة الاستلام. سجّل وصولك عند الوصول إلى المتجر.',
+      'picked_up' =>
+        order.hasArrivedDropoff
+            ? 'أنت عند موقع العميل. أكد التسليم بعد تسليم الطلب.'
+            : 'الطلب معك الآن. اتبع الطريق إلى موقع العميل وسجّل وصولك عند الوصول.',
       'delivered' => 'تم تسجيل تسليم الطلب إلى العميل.',
       'completed' => 'اكتملت دورة التوصيل لهذا الطلب.',
       'cancelled' => 'تم إلغاء الطلب ولا توجد إجراءات متاحة.',
@@ -399,9 +406,9 @@ class _RouteCard extends StatelessWidget {
               onPressed: order.pickupLatitude == 0 && order.pickupLongitude == 0
                   ? null
                   : () => launchDeliveryMap(
-                        order.pickupLatitude,
-                        order.pickupLongitude,
-                      ),
+                      order.pickupLatitude,
+                      order.pickupLongitude,
+                    ),
               icon: const Icon(Icons.map_outlined),
             ),
           ),
@@ -418,12 +425,13 @@ class _RouteCard extends StatelessWidget {
             value: order.dropoffAddress,
             trailing: IconButton(
               tooltip: 'فتح موقع العميل في الخرائط',
-              onPressed: order.dropoffLatitude == 0 && order.dropoffLongitude == 0
+              onPressed:
+                  order.dropoffLatitude == 0 && order.dropoffLongitude == 0
                   ? null
                   : () => launchDeliveryMap(
-                        order.dropoffLatitude,
-                        order.dropoffLongitude,
-                      ),
+                      order.dropoffLatitude,
+                      order.dropoffLongitude,
+                    ),
               icon: const Icon(Icons.map_outlined),
             ),
           ),
@@ -489,10 +497,7 @@ class _SummaryRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(color: Color(0xFF6B7280)),
-          ),
+          child: Text(label, style: const TextStyle(color: Color(0xFF6B7280))),
         ),
         const SizedBox(width: 12),
         Flexible(
@@ -653,7 +658,7 @@ class _OrderActionBar extends StatelessWidget {
           child: DeliveryPrimaryButton(
             label: isBlocked
                 ? order.merchantPreparation?.displayLabel ??
-                    'بانتظار جاهزية المتجر'
+                      'بانتظار جاهزية المتجر'
                 : order.nextActionLabel,
             icon: isBlocked ? Icons.lock_clock_outlined : _actionIcon(order),
             onPressed: isBlocked || isLoading ? null : onPressed,
@@ -667,7 +672,9 @@ class _OrderActionBar extends StatelessWidget {
   IconData _actionIcon(DeliveryOrderModel order) {
     return switch (order.apiAction) {
       'start' => Icons.navigation_rounded,
+      'arrived_pickup' => Icons.store_mall_directory_rounded,
       'pickup' => Icons.inventory_2_rounded,
+      'arrived_dropoff' => Icons.location_on_rounded,
       'deliver' => Icons.task_alt_rounded,
       _ => Icons.arrow_forward_rounded,
     };

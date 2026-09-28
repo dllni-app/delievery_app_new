@@ -45,10 +45,24 @@ class DeliveryRemoteData with HandlingApiManager {
     jsonConvert: deliveryOrderModelFromJson,
   );
 
+  Future<DeliveryOrderModel> arrivedPickup(int orderId) async =>
+      wrapHandlingApi(
+        tryCall: () =>
+            _apiClient.post(ApiVariables.arrivedPickupDeliveryOrder(orderId)),
+        jsonConvert: deliveryOrderModelFromJson,
+      );
+
   Future<DeliveryOrderModel> pickupOrder(int orderId) async => wrapHandlingApi(
     tryCall: () => _apiClient.post(ApiVariables.pickupDeliveryOrder(orderId)),
     jsonConvert: deliveryOrderModelFromJson,
   );
+
+  Future<DeliveryOrderModel> arrivedDropoff(int orderId) async =>
+      wrapHandlingApi(
+        tryCall: () =>
+            _apiClient.post(ApiVariables.arrivedDropoffDeliveryOrder(orderId)),
+        jsonConvert: deliveryOrderModelFromJson,
+      );
 
   Future<DeliveryOrderModel> deliverOrder(int orderId) async => wrapHandlingApi(
     tryCall: () => _apiClient.post(ApiVariables.deliverDeliveryOrder(orderId)),

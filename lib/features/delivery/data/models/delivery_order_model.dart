@@ -133,28 +133,32 @@ class MerchantPreparationModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        isReady,
-        estimatedPreparationMinutes,
-        estimatedReadyAt,
-        readyAt,
-        hasEstimate,
-        isEstimateOverdue,
-      ];
+    status,
+    isReady,
+    estimatedPreparationMinutes,
+    estimatedReadyAt,
+    readyAt,
+    hasEstimate,
+    isEstimateOverdue,
+  ];
 }
 
 class DeliveryOrderEventModel extends Equatable {
   const DeliveryOrderEventModel({
     required this.id,
     required this.status,
+    this.action,
     this.createdAt,
   });
 
   final int id;
   final String status;
+  final String? action;
   final DateTime? createdAt;
 
   factory DeliveryOrderEventModel.fromJson(Map<String, dynamic> json) {
+    final payload = _asMap(json['payload']);
+
     return DeliveryOrderEventModel(
       id: _asInt(json['id']),
       status: _asString(
@@ -163,14 +167,15 @@ class DeliveryOrderEventModel extends Equatable {
             json['status'] ??
             json['event'] ??
             json['type'] ??
-            json['payload']?['action'],
+            payload['action'],
       ),
+      action: _nullableString(json['action'] ?? payload['action']),
       createdAt: _asDate(json['createdAt'] ?? json['created_at']),
     );
   }
 
   @override
-  List<Object?> get props => [id, status, createdAt];
+  List<Object?> get props => [id, status, action, createdAt];
 }
 
 class DeliveryOrderModel extends Equatable {
@@ -238,14 +243,16 @@ class DeliveryOrderModel extends Equatable {
     final merchantPreparation = merchantPreparationJson.isEmpty
         ? null
         : MerchantPreparationModel.fromJson(merchantPreparationJson);
-    final normalStatusUi = _nullableString(
+    final normalStatusUi =
+        _nullableString(
           json['statusUi'] ??
               json['status_ui'] ??
               json['statusLabelAr'] ??
               json['status_label_ar'],
         ) ??
         _deliveryStatusUi(rawStatus);
-    final readinessStatusUi = merchantPreparation != null &&
+    final readinessStatusUi =
+        merchantPreparation != null &&
             (rawStatus == 'accepted' || rawStatus == 'in_progress')
         ? merchantPreparation.displayLabel
         : normalStatusUi;
@@ -301,7 +308,9 @@ class DeliveryOrderModel extends Equatable {
         json['startedAt'] ?? json['started_at'] ?? timestamps['started_at'],
       ),
       pickedUpAt: _asDate(
-        json['pickedUpAt'] ?? json['picked_up_at'] ?? timestamps['picked_up_at'],
+        json['pickedUpAt'] ??
+            json['picked_up_at'] ??
+            timestamps['picked_up_at'],
       ),
       deliveredAt: _asDate(
         json['deliveredAt'] ??
@@ -315,15 +324,22 @@ class DeliveryOrderModel extends Equatable {
       ),
       events: eventsJson is List
           ? eventsJson
-              .whereType<Map<String, dynamic>>()
-              .map(DeliveryOrderEventModel.fromJson)
-              .toList()
+                .whereType<Map<String, dynamic>>()
+                .map(DeliveryOrderEventModel.fromJson)
+                .toList()
           : const [],
     );
   }
 
+  bool get hasArrivedPickup =>
+      events.any((event) => event.action == 'ARRIVED_PICKUP');
+
+  bool get hasArrivedDropoff =>
+      events.any((event) => event.action == 'ARRIVED_DROPOFF');
+
   bool get isPickupBlocked =>
       status == 'in_progress' &&
+      hasArrivedPickup &&
       merchantPreparation != null &&
       !merchantPreparation!.isReady;
 
@@ -337,9 +353,10 @@ class DeliveryOrderModel extends Equatable {
       case 'accepted':
         return 'start';
       case 'in_progress':
+        if (!hasArrivedPickup) return 'arrived_pickup';
         return isPickupBlocked ? null : 'pickup';
       case 'picked_up':
-        return 'deliver';
+        return hasArrivedDropoff ? 'deliver' : 'arrived_dropoff';
       default:
         return null;
     }
@@ -350,8 +367,12 @@ class DeliveryOrderModel extends Equatable {
     switch (apiAction) {
       case 'start':
         return 'بدء التوجه إلى المتجر';
+      case 'arrived_pickup':
+        return 'وصلت إلى نقطة الاستلام';
       case 'pickup':
-        return 'تم الاستلام';
+        return 'تأكيد استلام الطلب';
+      case 'arrived_dropoff':
+        return 'وصلت إلى موقع العميل';
       case 'deliver':
         return 'تأكيد التسليم';
       default:
@@ -363,31 +384,31 @@ class DeliveryOrderModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        orderNumber,
-        companyId,
-        driverId,
-        status,
-        customerName,
-        customerPhone,
-        pickupAddress,
-        pickupLatitude,
-        pickupLongitude,
-        dropoffAddress,
-        dropoffLatitude,
-        dropoffLongitude,
-        distanceKm,
-        deliveryFee,
-        currency,
-        events,
-        merchantPreparation,
-        statusUi,
-        acceptedAt,
-        startedAt,
-        pickedUpAt,
-        deliveredAt,
-        completedAt,
-      ];
+    id,
+    orderNumber,
+    companyId,
+    driverId,
+    status,
+    customerName,
+    customerPhone,
+    pickupAddress,
+    pickupLatitude,
+    pickupLongitude,
+    dropoffAddress,
+    dropoffLatitude,
+    dropoffLongitude,
+    distanceKm,
+    deliveryFee,
+    currency,
+    events,
+    merchantPreparation,
+    statusUi,
+    acceptedAt,
+    startedAt,
+    pickedUpAt,
+    deliveredAt,
+    completedAt,
+  ];
 }
 
 DeliveryOrderModel? deliveryOrderModelFromNullableJson(dynamic json) {

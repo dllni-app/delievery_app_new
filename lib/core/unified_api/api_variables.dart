@@ -33,13 +33,13 @@ class ApiVariables {
 
   static Uri logOut() => _auth(path: "logout");
 
-
   ////product
   static Uri searchProduct() => _mainUri(path: "tracking/lookup");
-  static Uri getProductDetails(String id) => _mainUri(path: "tracked-shipments/$id");
-  static Uri getAllProduct(QueryParams params) => _mainUri(path: "tracked-shipments", queryParameters: params);
+  static Uri getProductDetails(String id) =>
+      _mainUri(path: "tracked-shipments/$id");
+  static Uri getAllProduct(QueryParams params) =>
+      _mainUri(path: "tracked-shipments", queryParameters: params);
   static Uri trackShipment() => _mainUri(path: "tracked-shipments");
-
 
   static Uri _user({required String path, QueryParams? queryParameters}) =>
       _mainUri(path: 'user/$path', queryParameters: queryParameters);
@@ -217,10 +217,17 @@ class ApiVariables {
 
   static Uri getCurrentDeliveryOrder() => _orders(path: '/current');
 
-  static Uri startDeliveryOrder(int orderId) => _orders(path: '/$orderId/start');
+  static Uri startDeliveryOrder(int orderId) =>
+      _orders(path: '/$orderId/start');
+
+  static Uri arrivedPickupDeliveryOrder(int orderId) =>
+      _orders(path: '/$orderId/arrived-pickup');
 
   static Uri pickupDeliveryOrder(int orderId) =>
       _orders(path: '/$orderId/pickup');
+
+  static Uri arrivedDropoffDeliveryOrder(int orderId) =>
+      _orders(path: '/$orderId/arrived-dropoff');
 
   static Uri deliverDeliveryOrder(int orderId) =>
       _orders(path: '/$orderId/deliver');

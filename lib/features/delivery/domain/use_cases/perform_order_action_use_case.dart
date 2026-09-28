@@ -10,7 +10,7 @@ import '../repositories/delivery_repositories.dart';
 class PerformOrderActionUseCase
     implements UseCase<DeliveryOrderModel, PerformOrderActionParams> {
   PerformOrderActionUseCase({required DeliveryRepositories repositories})
-      : _repositories = repositories;
+    : _repositories = repositories;
 
   final DeliveryRepositories _repositories;
 
@@ -18,7 +18,9 @@ class PerformOrderActionUseCase
   DataResponse<DeliveryOrderModel> call(PerformOrderActionParams params) async {
     return switch (params.order.apiAction) {
       'start' => _repositories.startOrder(params.order.id),
+      'arrived_pickup' => _repositories.arrivedPickup(params.order.id),
       'pickup' => _repositories.pickupOrder(params.order.id),
+      'arrived_dropoff' => _repositories.arrivedDropoff(params.order.id),
       'deliver' => _repositories.deliverOrder(params.order.id),
       _ => Future.value(Right(params.order)),
     };

@@ -40,8 +40,16 @@ class DeliveryRepositoriesImp
       wrapHandlingException(tryCall: () => _remoteData.startOrder(orderId));
 
   @override
+  DataResponse<DeliveryOrderModel> arrivedPickup(int orderId) async =>
+      wrapHandlingException(tryCall: () => _remoteData.arrivedPickup(orderId));
+
+  @override
   DataResponse<DeliveryOrderModel> pickupOrder(int orderId) async =>
       wrapHandlingException(tryCall: () => _remoteData.pickupOrder(orderId));
+
+  @override
+  DataResponse<DeliveryOrderModel> arrivedDropoff(int orderId) async =>
+      wrapHandlingException(tryCall: () => _remoteData.arrivedDropoff(orderId));
 
   @override
   DataResponse<DeliveryOrderModel> deliverOrder(int orderId) async =>

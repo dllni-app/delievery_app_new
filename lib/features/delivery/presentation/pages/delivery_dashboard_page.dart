@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/location.dart' as loc;
 
 import '../../../../common/design/src/theme/const.dart';
-import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../financial/presentation/cubit/financial_cubit.dart';
@@ -146,9 +145,9 @@ void _showRejectSheet(
               onPressed: () {
                 Navigator.pop(sheetContext);
                 context.read<DeliveryCubit>().rejectOffer(
-                      offer,
-                      controller.text,
-                    );
+                  offer,
+                  controller.text,
+                );
               },
             ),
           ],
@@ -317,11 +316,7 @@ class _AvailabilityCard extends StatelessWidget {
                     value: 'available',
                     current: status,
                   ),
-                  _StatusChoice(
-                    label: 'مشغول',
-                    value: 'busy',
-                    current: status,
-                  ),
+                  _StatusChoice(label: 'مشغول', value: 'busy', current: status),
                   _StatusChoice(
                     label: 'غير متصل',
                     value: 'offline',
@@ -358,10 +353,10 @@ class _StatusChoice extends StatelessWidget {
       selectedColor: Colors.grey.shade300,
       onSelected: (_) {
         context.read<UserBloc>().add(
-              UpdateAvailabilityEvent(
-                params: UpdateAvailabilityParams(availabilityStatus: value),
-              ),
-            );
+          UpdateAvailabilityEvent(
+            params: UpdateAvailabilityParams(availabilityStatus: value),
+          ),
+        );
       },
     );
   }
@@ -378,11 +373,17 @@ class _GpsCard extends StatelessWidget {
           Icon(Icons.my_location, color: Colors.green),
           Space.hM1,
           Expanded(
-            child: Text('تحديث موقعك الحالي', style: TextStyle(fontSize: 14)),
+            child: Text(
+              'يتم تحديث موقعك تلقائياً أثناء العمل',
+              style: TextStyle(fontSize: 14),
+            ),
           ),
           TextButton(
             onPressed: () => postCurrentLocation(context),
-            child: Text('تحديث', style: TextStyle(color: AppColors.primary)),
+            child: Text(
+              'تحديث الآن',
+              style: TextStyle(color: AppColors.primary),
+            ),
           ),
         ],
       ),

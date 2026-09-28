@@ -14,7 +14,11 @@ abstract class DeliveryRepositories {
 
   DataResponse<DeliveryOrderModel> startOrder(int orderId);
 
+  DataResponse<DeliveryOrderModel> arrivedPickup(int orderId);
+
   DataResponse<DeliveryOrderModel> pickupOrder(int orderId);
+
+  DataResponse<DeliveryOrderModel> arrivedDropoff(int orderId);
 
   DataResponse<DeliveryOrderModel> deliverOrder(int orderId);
 

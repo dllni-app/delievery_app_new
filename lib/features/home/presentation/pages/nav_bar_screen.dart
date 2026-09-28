@@ -1,16 +1,19 @@
+import 'dart:async';
+
 import 'package:dllne_deliver_app/features/home/presentation/widgets/shell_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as d;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:location/location.dart' as loc;
 
 import '../../../../common/design/src/theme/theme/theme_collection.dart';
-import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../delivery/presentation/pages/delivery_orders_page.dart';
 import '../../../financial/presentation/pages/driver_financial_page.dart';
+import '../../../user/domain/use_cases/post_location_use_cases.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
 import '../../../notification/presentation/pages/notification_screen.dart';
 import '../../../user/presentation/bloc/user_bloc.dart';
@@ -119,9 +122,14 @@ class _DriverTopAppBar extends StatelessWidget {
 // I make it global for new_more_screen.dart
 late final HomeCubit homeCubit;
 
-class _NavBarScreenState extends State<NavBarScreen> {
+class _NavBarScreenState extends State<NavBarScreen>
+    with WidgetsBindingObserver {
   late final PageController pageController;
   late final UserBloc userBloc;
+  final loc.Location _location = loc.Location();
+  StreamSubscription<loc.LocationData>? _locationSubscription;
+  DateTime? _lastLocationSentAt;
+  static const _locationThrottle = Duration(seconds: 20);
 
   String _titleForIndex(int index, String driverName) {
     return switch (index) {
@@ -131,6 +139,73 @@ class _NavBarScreenState extends State<NavBarScreen> {
       4 => 'المزيد',
       _ => driverName,
     };
+  }
+
+  Future<void> _startLocationTracking() async {
+    try {
+      var serviceEnabled = await _location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await _location.requestService();
+      }
+      if (!serviceEnabled) return;
+
+      var permission = await _location.hasPermission();
+      if (permission == loc.PermissionStatus.denied) {
+        permission = await _location.requestPermission();
+      }
+      if (permission != loc.PermissionStatus.granted) return;
+
+      await _location.changeSettings(
+        accuracy: loc.LocationAccuracy.high,
+        interval: 30000,
+        distanceFilter: 20,
+      );
+
+      try {
+        await _location.enableBackgroundMode(enable: true);
+      } catch (_) {
+        // Foreground tracking remains active when background mode is unavailable.
+      }
+
+      final initial = await _location.getLocation();
+      await _pushLocation(initial, force: true);
+
+      await _locationSubscription?.cancel();
+      _locationSubscription = _location.onLocationChanged.listen((data) {
+        _pushLocation(data);
+      });
+    } catch (_) {
+      // Location failures must not block the driver from using the app.
+    }
+  }
+
+  Future<void> _pushLocation(
+    loc.LocationData data, {
+    bool force = false,
+  }) async {
+    if (data.latitude == null || data.longitude == null) return;
+
+    final availability =
+        userBloc.state.driverGetMeData.data?.data?.availabilityStatus;
+    if (availability == 'offline') return;
+
+    final now = DateTime.now();
+    if (!force &&
+        _lastLocationSentAt != null &&
+        now.difference(_lastLocationSentAt!) < _locationThrottle) {
+      return;
+    }
+    _lastLocationSentAt = now;
+
+    await getIt<PostLocationUseCases>()(
+      PostLocationParams(
+        latitude: data.latitude!,
+        longitude: data.longitude!,
+        accuracy: data.accuracy,
+        speed: data.speed,
+        heading: data.heading,
+      ),
+    );
   }
 
   @override
@@ -241,12 +316,24 @@ class _NavBarScreenState extends State<NavBarScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_locationSubscription?.cancel() ?? Future<void>.value());
+    unawaited(_location.enableBackgroundMode(enable: false));
     pageController.dispose();
     super.dispose();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_startLocationTracking());
+    }
+  }
+
+  @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: ThemeCollection.lightTheme.scaffoldBackgroundColor,
@@ -259,12 +346,12 @@ class _NavBarScreenState extends State<NavBarScreen> {
     homeCubit = getIt<HomeCubit>();
     userBloc = getIt<UserBloc>();
     userBloc.add(DriverGetMeEvent());
+    unawaited(_startLocationTracking());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (homeCubit.state.pendingNotificationData != null) {
         homeCubit.processPendingNotification();
       }
     });
-    super.initState();
   }
 }

@@ -28,6 +28,12 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>نستخدم موقعك لعرض الطريق من موقع المندوب إلى نقطة الاستلام أو موقع العميل.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>نستخدم موقع المندوب أثناء العمل لتحديث موقعه لشركة التوصيل ومتابعة الطلب النشط حتى عند انتقال التطبيق للخلفية.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
