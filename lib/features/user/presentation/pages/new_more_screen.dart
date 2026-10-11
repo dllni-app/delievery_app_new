@@ -279,7 +279,7 @@ String _vehicleName(String value) {
     'bicycle' || 'bike' => 'دراجة هوائية',
     'scooter' => 'سكوتر',
     'van' => 'شاحنة صغيرة',
-    _ => value,
+    _ => 'مركبة أخرى',
   };
 }
 
