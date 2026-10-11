@@ -242,68 +242,6 @@ class _FinancialWarningBox extends StatelessWidget {
   }
 }
 
-class _PayoutInfoCard extends StatelessWidget {
-  const _PayoutInfoCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        border: Border.all(color: const Color(0xFFC6C5D3).withValues(alpha: .55)),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: const BoxDecoration(
-              color: Color(0xFFEDEEEF),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.info_outline, color: Color(0xFF454651)),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'استلام الأرباح',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF191C1D),
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'لا يوجد محفظة إلكترونية مرتبطة بحسابك حالياً. يرجى مراجعة الإدارة لإضافة طرق سحب الأرباح الخاصة بك.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.55,
-                    color: Color(0xFF454651),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _TransactionsSection extends StatelessWidget {
   const _TransactionsSection({required this.transactions});
 
