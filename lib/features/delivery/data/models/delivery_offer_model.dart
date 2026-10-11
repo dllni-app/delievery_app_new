@@ -3,9 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'delivery_order_model.dart';
 
 String _offerStatusLabel(String status, DateTime? expiresAt) {
-  if (expiresAt == null && status == 'open') {
-    return 'العرض متاح حتى يتم قبوله أو إلغاؤه';
-  }
+  // Keep the canonical status for status badges and state handling.
+  // The localized availability explanation belongs in availabilityLabel.
   return status;
 }
 
