@@ -23,6 +23,10 @@ void main() {
       endsWith('/orders/42/returned-to-merchant'),
     );
 
+    expect(
+      ApiVariables.getDeliveryOrderById(42).path,
+      endsWith('/orders/42'),
+    );
     expect(DeliveryRemoteData, isNotNull);
     expect(DeliveryRepositoriesImp, isNotNull);
     expect(PerformOrderActionUseCase, isNotNull);
