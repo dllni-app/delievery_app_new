@@ -52,8 +52,7 @@ class _DriverFinancialPageState extends State<DriverFinancialPage> {
                   const SizedBox(height: 12),
                 ],
                 _FinancialSummaryCard(summary: state.summary),
-                const SizedBox(height: 16),
-                const _PayoutInfoCard(),
+
                 const SizedBox(height: 24),
                 _TransactionsSection(transactions: state.transactions),
               ],
@@ -181,29 +180,7 @@ class _FinancialSummaryCard extends StatelessWidget {
             const SizedBox(height: 24),
             _FinancialWarningBox(isDanger: isDanger),
           ],
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: null,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(56),
-              disabledBackgroundColor: AppColors.primary.withValues(alpha: .96),
-              disabledForegroundColor: const Color(0xFFBCC3FF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            icon: const Icon(Icons.payments_outlined),
-            label: const Text(
-              'تسديد الرصيد',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'التسديد يتم حالياً عن طريق الإدارة فقط.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: Color(0xFF767682)),
-          ),
+
         ],
       ),
     );
@@ -352,7 +329,7 @@ class _TransactionsSection extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: transactions.length <= 4
+              onPressed: transactions.isEmpty
                   ? null
                   : () => _showAllTransactions(context, transactions),
               icon: const Icon(Icons.chevron_left, size: 18),
