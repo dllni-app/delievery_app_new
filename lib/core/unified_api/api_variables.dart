@@ -217,6 +217,8 @@ class ApiVariables {
 
   static Uri getCurrentDeliveryOrder() => _orders(path: '/current');
 
+  static Uri getDeliveryOrderById(int orderId) => _orders(path: '/$orderId');
+
   static Uri startDeliveryOrder(int orderId) =>
       _orders(path: '/$orderId/start');
 
