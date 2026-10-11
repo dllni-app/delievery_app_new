@@ -35,6 +35,12 @@ class DeliveryRemoteData with HandlingApiManager {
         jsonConvert: (_) {},
       );
 
+  Future<DeliveryOrderModel> getOrderById(int orderId) async =>
+      wrapHandlingApi(
+        tryCall: () => _apiClient.get(ApiVariables.getDeliveryOrderById(orderId)),
+        jsonConvert: deliveryOrderModelFromJson,
+      );
+
   Future<DeliveryOrderModel?> getCurrentOrder() async => wrapHandlingApi(
     tryCall: () => _apiClient.get(ApiVariables.getCurrentDeliveryOrder()),
     jsonConvert: deliveryOrderModelFromNullableJson,
