@@ -10,6 +10,7 @@ import '../../../../core/utils/app_colors.dart';
 import '../../domain/use_cases/mark_notification_read_use_case.dart';
 import '../bloc/notification_bloc.dart';
 import '../widgets/notification_widget.dart';
+import '../../../delivery/presentation/pages/delivery_notification_order_page.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -133,6 +134,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   notificationBloc.add(
                                     MarkNotificationReadEvent(
                                       params: MarkNotificationReadParams(id: id),
+                                    ),
+                                  );
+                                }
+                                final orderId = notification.data?.orderId;
+                                if (orderId != null && orderId > 0) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => DeliveryNotificationOrderPage(
+                                        orderId: orderId,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('لا يوجد رابط لطلب محدد ضمن هذا الإشعار.'),
                                     ),
                                   );
                                 }
