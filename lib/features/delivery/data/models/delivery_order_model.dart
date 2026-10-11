@@ -60,6 +60,9 @@ DateTime? _asDate(Object? value) =>
 String _deliveryStatusUi(String status) {
   return switch (status) {
     'new' => 'تم إنشاء الطلب',
+    'open' => 'عرض توصيل متاح',
+    'arrived_pickup' => 'وصل المندوب إلى المتجر',
+    'arrived_dropoff' => 'وصل المندوب إلى العميل',
     'waiting_merchant_ready' => 'بانتظار جاهزية المتجر',
     'searching_for_driver' => 'جاري البحث عن مندوب',
     'dispatching' => 'جاري البحث عن مندوب',
@@ -74,7 +77,7 @@ String _deliveryStatusUi(String status) {
     'rejected' => 'مرفوض',
     'stopped' => 'متوقف',
     'cancelled' => 'ملغي',
-    _ => status,
+    _ => 'حالة غير معروفة',
   };
 }
 
@@ -251,14 +254,17 @@ class DeliveryOrderModel extends Equatable {
     final merchantPreparation = merchantPreparationJson.isEmpty
         ? null
         : MerchantPreparationModel.fromJson(merchantPreparationJson);
+    final statusUiFromApi = _nullableString(
+      json['statusUi'] ??
+          json['status_ui'] ??
+          json['statusLabelAr'] ??
+          json['status_label_ar'],
+    );
     final normalStatusUi =
-        _nullableString(
-          json['statusUi'] ??
-              json['status_ui'] ??
-              json['statusLabelAr'] ??
-              json['status_label_ar'],
-        ) ??
-        _deliveryStatusUi(rawStatus);
+        statusUiFromApi != null &&
+            RegExp(r'[\u0600-\u06FF]').hasMatch(statusUiFromApi)
+        ? statusUiFromApi
+        : _deliveryStatusUi(rawStatus);
     final readinessStatusUi =
         merchantPreparation != null &&
             (rawStatus == 'accepted' || rawStatus == 'in_progress')
