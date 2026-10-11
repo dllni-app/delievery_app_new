@@ -29,6 +29,38 @@ DeliveryOrderModel orderFor(
 }
 
 void main() {
+  group('Arabic delivery presentation', () {
+    test('does not display backend English status codes', () {
+      final order = DeliveryOrderModel.fromJson({
+        'id': 7,
+        'order_id': 'DEL-7',
+        'status': 'returning_to_merchant',
+        'status_ui': 'ACTIVE',
+      });
+      expect(order.statusUi, 'تعذر التسليم — إعادة الطلب إلى المتجر');
+    });
+
+    test('preserves an Arabic status label from the server', () {
+      final order = DeliveryOrderModel.fromJson({
+        'id': 8,
+        'orderNumber': 'DEL-8',
+        'status': 'accepted',
+        'statusUi': 'مقبول من المندوب',
+      });
+      expect(order.statusUi, 'مقبول من المندوب');
+    });
+
+    test('replaces unknown API statuses with an Arabic fallback', () {
+      final order = DeliveryOrderModel.fromJson({
+        'id': 9,
+        'orderNumber': 'DEL-9',
+        'status': 'future_status',
+        'statusUi': 'UNKNOWN',
+      });
+      expect(order.statusUi, 'حالة غير معروفة');
+    });
+  });
+
   group('delivery arrival lifecycle', () {
     test('requires arrival at pickup before pickup confirmation', () {
       expect(orderFor('in_progress').apiAction, 'arrived_pickup');
