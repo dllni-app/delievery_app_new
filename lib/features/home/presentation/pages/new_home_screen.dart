@@ -15,7 +15,10 @@ import '../../../user/domain/use_cases/update_availability_use_cases.dart';
 import '../../../user/presentation/bloc/user_bloc.dart';
 
 class NewHomeScreen extends StatefulWidget {
-  const NewHomeScreen({super.key});
+  const NewHomeScreen({super.key, this.sharedUserBloc});
+
+  // Share the same availability state with location tracking in NavBarScreen.
+  final UserBloc? sharedUserBloc;
 
   @override
   State<NewHomeScreen> createState() => _NewHomeScreenState();
@@ -290,7 +293,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
   @override
   void initState() {
-    userBloc = getIt<UserBloc>()..add(DriverGetMeEvent());
+    userBloc = widget.sharedUserBloc ?? (getIt<UserBloc>()..add(DriverGetMeEvent()));
     getIt<DeliveryCubit>().loadDashboard();
     getIt<DeliveryCubit>().loadDisputes(perPage: 100);
     getIt<FinancialCubit>().loadSummary();

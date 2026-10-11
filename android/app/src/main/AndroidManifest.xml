@@ -10,6 +10,11 @@
         android:label="توصيل عالندهة"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+        <!-- Required for continuous driver location after the UI loses focus. -->
+        <service
+            android:name="com.lyokone.location.FlutterLocationService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
