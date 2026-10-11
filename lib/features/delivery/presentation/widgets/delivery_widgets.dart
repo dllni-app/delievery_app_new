@@ -314,6 +314,19 @@ class DeliveryOrderCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 3),
+                      if (order.customerName.trim().isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'العميل: ${order.customerName}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF374151),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                       Text(
                         order.statusUi?.isNotEmpty == true
                             ? order.statusUi!
@@ -469,7 +482,7 @@ class DeliveryRoutePoint extends StatelessWidget {
               Space.vS2,
               Text(
                 value.isEmpty ? 'غير محدد' : value,
-                maxLines: 2,
+                maxLines: 4,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 15,
