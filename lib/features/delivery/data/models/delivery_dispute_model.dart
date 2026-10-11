@@ -159,7 +159,9 @@ String _asString(Object? value, {String fallback = ''}) =>
 
 String _labelOrFallback(Object? value, String fallback) {
   final label = _asString(value, fallback: fallback).trim();
-  if (label.isEmpty || label.startsWith('cleaning_admin.')) {
+  if (label.isEmpty ||
+      label.startsWith('cleaning_admin.') ||
+      !RegExp(r'[\u0600-\u06FF]').hasMatch(label)) {
     return fallback;
   }
   return label;
@@ -185,7 +187,7 @@ String _statusLabel(String status) {
     case 'rejected':
       return 'مرفوض';
     default:
-      return status.isEmpty ? 'غير محدد' : status;
+      return 'غير محدد';
   }
 }
 
@@ -208,6 +210,6 @@ String _categoryLabel(String category) {
     case 'other':
       return 'بلاغ عام';
     default:
-      return category.isEmpty ? 'بلاغ' : category;
+      return 'بلاغ';
   }
 }
