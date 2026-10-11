@@ -14,19 +14,20 @@ class NotificationWidget extends StatelessWidget {
     required this.onTap,
   });
 
-  bool get _isRead => notification.readAt != null;
+  bool get _isRead =>
+      notification.readAt != null || notification.datumReadAt != null;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: _isRead ? Colors.white : const Color(0xFFF6F7FF),
+        borderRadius: BorderRadius.circular(20),
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.06),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(
@@ -55,21 +56,34 @@ class NotificationWidget extends StatelessWidget {
                     LocaleKeys.nullText.tr(),
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.black,
+                  color: Color(0xFF4B5563),
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            trailing: notification.createdAt == null
-                ? null
-                : Text(
-                    formatNotificationDate(notification.createdAt),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.black,
-                    ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  formatNotificationDate(
+                    notification.createdAt ?? notification.datumCreatedAt,
                   ),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Icon(
+                  Icons.chevron_left_rounded,
+                  size: 21,
+                  color: AppColors.primary,
+                ),
+              ],
+            ),
             isThreeLine: true,
           ),
         ),
