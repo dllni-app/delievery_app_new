@@ -5,6 +5,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/snck_bars.dart';
 import '../../../delivery/data/models/delivery_offer_model.dart';
+import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
+import '../../../delivery/presentation/pages/delivery_order_details_page.dart';
 import '../../../delivery/presentation/cubit/delivery_cubit.dart';
 import '../../../delivery/presentation/pages/delivery_dashboard_page.dart';
 import '../../../delivery/presentation/widgets/delivery_widgets.dart';
@@ -290,6 +292,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   void initState() {
     userBloc = getIt<UserBloc>()..add(DriverGetMeEvent());
     getIt<DeliveryCubit>().loadDashboard();
+    getIt<DeliveryCubit>().loadDisputes(perPage: 100);
     getIt<FinancialCubit>().loadSummary();
     super.initState();
   }
@@ -511,7 +514,7 @@ class _NewOfferPreview extends StatelessWidget {
           DeliveryMetricCard(
             icon: Icons.route,
             value: offer.distanceToPickupLabel,
-            label: 'كم للاستلام',
+            label: 'المسافة إلى الاستلام',
           ),
           DeliveryMetricCard(
             icon: Icons.payments,
@@ -541,7 +544,10 @@ class _NewOfferPreview extends StatelessWidget {
           ),
         ];
 
-        return Padding(
+        return InkWell(
+          onTap: () => _openOfferDetails(context),
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -565,6 +571,43 @@ class _NewOfferPreview extends StatelessWidget {
                   ),
                 ],
               ),
+              if (order != null) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    'رقم الطلب: ${order.orderNumber}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                    textDirection: TextDirection.ltr,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                DeliveryRoutePoint(
+                  icon: Icons.storefront_rounded,
+                  label: 'الاستلام من',
+                  value: order.pickupAddress,
+                ),
+                const SizedBox(height: 10),
+                DeliveryRoutePoint(
+                  icon: Icons.location_on_outlined,
+                  label: 'التسليم إلى',
+                  value: order.dropoffAddress,
+                ),
+                if (order.customerName.trim().isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_outline,
+                        size: 18, color: AppColors.primary),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text('العميل: ${order.customerName}')),
+                    ],
+                  ),
+                ],
+              ],
               const SizedBox(height: 12),
               if (stackMetrics) ...[
                 SizedBox(width: double.infinity, child: metrics[0]),
@@ -577,6 +620,16 @@ class _NewOfferPreview extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(child: metrics[1]),
                   ],
+                ),
+              const SizedBox(height: 8),
+              if (order != null)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: () => _openOfferDetails(context),
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 15),
+                    label: const Text('عرض تفاصيل الطلب والمسار'),
+                  ),
                 ),
               const SizedBox(height: 12),
               if (stackActions) ...[
@@ -593,43 +646,125 @@ class _NewOfferPreview extends StatelessWidget {
                 ),
             ],
           ),
+          ),
         );
       },
     );
   }
 
+  void _openOfferDetails(BuildContext context) {
+    final order = offer.order;
+    if (order == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تفاصيل هذا العرض غير متوفرة حالياً. يرجى التحديث.')),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DeliveryOrderDetailsPage(initialOrder: order),
+      ),
+    );
+  }
+
   void _showAcceptSheet(BuildContext context) {
+    final order = offer.order;
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => Directionality(
+      builder: (sheetContext) => Directionality(
         textDirection: TextDirection.rtl,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'قبول طلب التوصيل؟',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primary,
+        child: SafeArea(
+          top: false,
+          child: FractionallySizedBox(
+            heightFactor: .84,
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text('مراجعة تفاصيل الطلب قبل القبول',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Text('سيتم تعيين الطلب لك وتبدأ رحلة التوصيل.'),
-              const SizedBox(height: 16),
-              DeliveryPrimaryButton(
-                label: 'تأكيد القبول',
-                icon: Icons.check,
-                onPressed: () {
-                  Navigator.pop(context);
-                  getIt<DeliveryCubit>().acceptOffer(offer);
-                },
-              ),
-            ],
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    children: [
+                      if (order != null) ...[
+                        Text('رقم الطلب: ${order.orderNumber}',
+                          style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                          )),
+                        const SizedBox(height: 12),
+                        DeliveryStatusBadge(status: order.status),
+                        const SizedBox(height: 14),
+                        DeliveryRoutePoint(
+                          icon: Icons.storefront_rounded,
+                          label: 'عنوان الاستلام',
+                          value: order.pickupAddress,
+                        ),
+                        const SizedBox(height: 14),
+                        DeliveryRoutePoint(
+                          icon: Icons.location_on_outlined,
+                          label: 'عنوان التسليم',
+                          value: order.dropoffAddress,
+                        ),
+                        const Divider(height: 32),
+                        _OfferInfoRow(label: 'اسم العميل',
+                          value: order.customerName),
+                        _OfferInfoRow(label: 'هاتف العميل',
+                          value: order.customerPhone),
+                        _OfferInfoRow(label: 'المسافة الإجمالية',
+                          value: order.distanceKm > 0
+                            ? '${order.distanceKm} كم' : 'غير متوفرة'),
+                        _OfferInfoRow(label: 'أجرة التوصيل',
+                          value: formatDeliveryMoney(
+                            order.deliveryFee, order.currency)),
+                        if (order.merchantPreparation != null)
+                          _OfferInfoRow(label: 'جاهزية المتجر',
+                            value: order.merchantPreparation!.displayLabel),
+                      ],
+                      _OfferInfoRow(
+                        label: 'المسافة إلى المتجر',
+                        value: offer.distanceToPickupLabel,
+                      ),
+                      _OfferInfoRow(
+                        label: 'صلاحية العرض',
+                        value: offer.availabilityLabel,
+                      ),
+                      if (offer.expiresAt != null)
+                        _OfferInfoRow(label: 'موعد انتهاء العرض',
+                          value: formatDeliveryDate(offer.expiresAt)),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'سيتم تعيين الطلب لك بعد القبول. قد يمنع النظام استلام الطلب إلى أن يؤكد المتجر جاهزيته.',
+                        style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: DeliveryPrimaryButton(
+                    label: 'تأكيد القبول',
+                    icon: Icons.check,
+                    onPressed: offer.isExpired ? null : () {
+                      Navigator.pop(sheetContext);
+                      getIt<DeliveryCubit>().acceptOffer(offer);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -691,6 +826,33 @@ class _NewOfferPreview extends StatelessWidget {
         ),
       ),
     ).whenComplete(controller.dispose);
+  }
+}
+
+class _OfferInfoRow extends StatelessWidget {
+  const _OfferInfoRow({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 118,
+            child: Text(label,
+              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+          ),
+          Expanded(
+            child: Text(value.trim().isEmpty ? 'غير متوفر' : value,
+              style: const TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -817,13 +979,20 @@ class _ReportsWideCard extends StatelessWidget {
     return BlocBuilder<DeliveryCubit, DeliveryState>(
       bloc: getIt<DeliveryCubit>(),
       builder: (context, deliveryState) {
-        final count = deliveryState.disputes.length.toString();
+        final count = deliveryState.disputesSummary.openCount.toString();
 
-        return Container(
+        return InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const DeliveryDisputesPage(initialFilter: 'open'),
+            ),
+          ),
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: .06),
