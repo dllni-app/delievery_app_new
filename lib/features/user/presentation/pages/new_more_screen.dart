@@ -191,7 +191,7 @@ class ProfileCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: const [
             BoxShadow(
               color: Color(0x33000000),
@@ -203,52 +203,17 @@ class ProfileCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: primary.withValues(alpha: 0.25),
-                      width: 2,
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 32,
-                    backgroundColor: AppColors.primary,
-                    child: Text(
-                      userName.isEmpty ? '-' : userName[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
+            CircleAvatar(
+              radius: 36,
+              backgroundColor: primary.withValues(alpha: 0.12),
+              child: Text(
+                userName.trim().isEmpty ? 'م' : userName.trim()[0],
+                style: TextStyle(
+                  color: primary,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w800,
                 ),
-                Positioned(
-                  bottom: -20,
-                  left: -10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: primary.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      vechial,
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -284,29 +249,70 @@ class ProfileCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      userRole,
-                      style: TextStyle(
-                        color: primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _ProfileTag(label: userRole, color: primary),
+                      if (vechial.trim().isNotEmpty && vechial != '-')
+                        _ProfileTag(
+                          label: _vehicleName(vechial),
+                          color: primary,
+                          icon: Icons.two_wheeler_outlined,
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+String _vehicleName(String value) {
+  return switch (value.trim().toLowerCase()) {
+    'motorbike' || 'motorcycle' => 'دراجة نارية',
+    'car' => 'سيارة',
+    'bicycle' || 'bike' => 'دراجة هوائية',
+    'scooter' => 'سكوتر',
+    'van' => 'شاحنة صغيرة',
+    _ => value,
+  };
+}
+
+class _ProfileTag extends StatelessWidget {
+  const _ProfileTag({required this.label, required this.color, this.icon});
+  final String label;
+  final Color color;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 15, color: color),
+            const SizedBox(width: 5),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -326,7 +332,7 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primary = Color(0xFF021064);
+    const Color primary = AppColors.primary;
 
     return BlocProvider.value(
       value: userBloc,
