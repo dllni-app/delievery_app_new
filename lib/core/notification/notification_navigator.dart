@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../common/helper/src/app_varibles.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
+import '../../features/delivery/presentation/pages/delivery_notification_order_page.dart';
 import '../../router/app_router.dart';
 import '../di/injection.dart';
 
@@ -30,6 +31,18 @@ class NotificationNavigator {
         payload.containsKey('orderId');
 
     if (isDeliveryPayload) {
+      final id = int.tryParse(
+        '${payload['orderId'] ?? payload['order_id'] ?? ''}',
+      );
+      final navigator = AppVariables.navigatorKey.currentState;
+      if (id != null && id > 0 && navigator != null) {
+        navigator.push(
+          MaterialPageRoute(
+            builder: (_) => DeliveryNotificationOrderPage(orderId: id),
+          ),
+        );
+        return;
+      }
       _goToNotification();
       return;
     }
@@ -57,18 +70,18 @@ class NotificationNavigator {
     if (args is String && args.trim().isNotEmpty) {
       try {
         final decoded = json.decode(args);
-        if (decoded is Map<String, dynamic>) return decoded;
+        if (decoded is Map<String, dynamic>) return {...data, ...decoded};
         if (decoded is Map) {
-          return decoded.map((key, value) => MapEntry(key.toString(), value));
+          return {...data, ...decoded.map((key, value) => MapEntry(key.toString(), value))};
         }
       } catch (_) {
         return data.map((key, value) => MapEntry(key.toString(), value));
       }
     }
 
-    if (args is Map<String, dynamic>) return args;
+    if (args is Map<String, dynamic>) return {...data, ...args};
     if (args is Map) {
-      return args.map((key, value) => MapEntry(key.toString(), value));
+      return {...data, ...args.map((key, value) => MapEntry(key.toString(), value))};
     }
     if (data.isEmpty) return null;
     return data.map((key, value) => MapEntry(key.toString(), value));
