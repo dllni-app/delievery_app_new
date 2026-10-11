@@ -190,6 +190,14 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
                             icon: Icons.report_gmailerrorred_outlined,
                             onRetry: _loadData,
                           )
+                        else if (state.disputes.where((report) =>
+                            _filter == 'all' ||
+                            (_filter == 'resolved'
+                                ? report.isResolved : !report.isResolved)).isEmpty)
+                          const DeliveryEmptyState(
+                            title: 'لا توجد بلاغات ضمن هذا القسم',
+                            message: 'يمكنك اختيار عرض الكل لرؤية البلاغات الأخرى.',
+                          )
                         else
                           ...state.disputes.where((report) =>
                               _filter == 'all' ||
