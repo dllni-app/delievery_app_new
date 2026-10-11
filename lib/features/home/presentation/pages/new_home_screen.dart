@@ -1027,6 +1027,7 @@ class _ReportsWideCard extends StatelessWidget {
               ),
             ],
           ),
+          ),
         );
       },
     );
