@@ -146,8 +146,8 @@ class Data {
       );
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    orderId: json["orderId"],
-    orderNumber: json["orderNumber"],
+    orderId: int.tryParse('${json["orderId"] ?? json["order_id"] ?? ""}'),
+    orderNumber: (json["orderNumber"] ?? json["order_number"])?.toString(),
     deepLinkTarget: json["deepLinkTarget"],
     dataDeepLinkTarget: json["deep_link_target"],
     args: json["args"],
