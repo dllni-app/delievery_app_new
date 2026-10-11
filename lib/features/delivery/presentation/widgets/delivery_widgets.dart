@@ -25,8 +25,8 @@ class DeliveryCard extends StatelessWidget {
     return Material(
       color: color ?? Colors.white,
       borderRadius: BorderRadius.circular(24),
-      shadowColor: Colors.black.withValues(alpha: .08),
-      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: .04),
+      elevation: 2,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(24),
@@ -551,6 +551,18 @@ class _SmallInfo extends StatelessWidget {
 
 String deliveryStatusLabel(String status) {
   switch (status) {
+    case 'new':
+      return 'طلب جديد';
+    case 'arrived_at_pickup':
+      return 'وصل المندوب إلى المتجر';
+    case 'arrived_at_dropoff':
+      return 'وصل المندوب إلى العميل';
+    case 'handover_to_driver':
+      return 'تم تسليم الطلب للمندوب';
+    case 'delivery_failed':
+      return 'تعذر التسليم';
+    case 'no_driver_found':
+      return 'تعذر العثور على مندوب';
     case 'available':
       return 'متاح';
     case 'busy':
@@ -599,7 +611,7 @@ String deliveryStatusLabel(String status) {
     case 'REJECTED':
       return 'مرفوض';
     default:
-      return status.isEmpty ? 'غير محدد' : status;
+      return 'حالة غير معروفة';
   }
 }
 
