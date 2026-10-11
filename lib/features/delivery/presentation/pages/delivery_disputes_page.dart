@@ -12,7 +12,9 @@ import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
 
 class DeliveryDisputesPage extends StatefulWidget {
-  const DeliveryDisputesPage({super.key});
+  const DeliveryDisputesPage({super.key, this.initialFilter = 'all'});
+
+  final String initialFilter;
 
   @override
   State<DeliveryDisputesPage> createState() => _DeliveryDisputesPageState();
@@ -21,10 +23,12 @@ class DeliveryDisputesPage extends StatefulWidget {
 class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
   late final DeliveryCubit deliveryCubit;
   late final UserBloc userBloc;
+  late String _filter;
 
   @override
   void initState() {
     super.initState();
+    _filter = widget.initialFilter;
     deliveryCubit = getIt<DeliveryCubit>();
     userBloc = getIt<UserBloc>();
     _loadData();
@@ -33,6 +37,55 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
   Future<void> _loadData() async {
     userBloc.add(DriverGetMeEvent());
     await deliveryCubit.loadDisputes(perPage: 100);
+  }
+
+  void _setFilter(String value) => setState(() => _filter = value);
+
+  void _showReport(DeliveryDisputeModel report) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(report.categoryLabel,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 22,
+                    )),
+                const SizedBox(height: 12),
+                Text('رقم الطلب: ${report.orderNumber}'),
+                if (report.ticketNumber.isNotEmpty)
+                  Text('رقم البلاغ: ${report.ticketNumber}'),
+                const SizedBox(height: 10),
+                Text('الحالة: ${report.statusLabel}'),
+                const SizedBox(height: 16),
+                Text(report.description.isEmpty
+                    ? 'لا توجد تفاصيل إضافية لهذا البلاغ.'
+                    : report.description),
+                if (report.resolutionLabel != null &&
+                    report.resolutionLabel!.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text('النتيجة: ${report.resolutionLabel!}'),
+                ],
+                const SizedBox(height: 12),
+                Text('تأثير الثقة: ${report.trustImpactPoints} نقطة'),
+                if (report.createdAt != null)
+                  Text(_formatDisputeDate(report.createdAt)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _openNotifications() {
@@ -50,7 +103,8 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: Directionality(
+      body: SafeArea(
+        child: Directionality(
         textDirection: TextDirection.rtl,
         child: MultiBlocListener(
           listeners: [
@@ -95,15 +149,29 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
                           trustScore: profile?.trustScore ?? 0,
                           openCount: state.disputesSummary.openCount,
                           resolvedCount: state.disputesSummary.resolvedCount,
+                          onOpenPressed: () => _setFilter('open'),
+                          onResolvedPressed: () => _setFilter('resolved'),
                         ),
                         const SizedBox(height: 28),
-                        const Text(
-                          'سجل البلاغات',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF191C1D),
-                          ),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'سجل البلاغات',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF191C1D),
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => _setFilter('all'),
+                              child: Text(
+                                _filter == 'all' ? 'جميع البلاغات' : 'عرض الكل',
+                              ),
+                            ),
+                          ],
                         ),
                         if (state.errorMessage != null) ...[
                           const SizedBox(height: 12),
@@ -123,10 +191,15 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
                             onRetry: _loadData,
                           )
                         else
-                          ...state.disputes.map(
+                          ...state.disputes.where((report) =>
+                              _filter == 'all' ||
+                              (_filter == 'resolved' ? report.isResolved : !report.isResolved)).map(
                             (dispute) => Padding(
                               padding: const EdgeInsets.only(bottom: 16),
-                              child: _DisputeHistoryCard(dispute: dispute),
+                              child: _DisputeHistoryCard(
+                                dispute: dispute,
+                                onTap: () => _showReport(dispute),
+                              ),
                             ),
                           ),
                       ],
@@ -137,6 +210,7 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
@@ -246,11 +320,15 @@ class _ReportsSummarySection extends StatelessWidget {
     required this.trustScore,
     required this.openCount,
     required this.resolvedCount,
+    required this.onOpenPressed,
+    required this.onResolvedPressed,
   });
 
   final num trustScore;
   final int openCount;
   final int resolvedCount;
+  final VoidCallback onOpenPressed;
+  final VoidCallback onResolvedPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +345,7 @@ class _ReportsSummarySection extends StatelessWidget {
                 iconBackground: const Color(0xFFE5E0FF),
                 value: resolvedCount.toString(),
                 label: 'بلاغات محلولة',
+                onTap: onResolvedPressed,
               ),
             ),
             const SizedBox(width: 16),
@@ -277,6 +356,7 @@ class _ReportsSummarySection extends StatelessWidget {
                 iconBackground: const Color(0xFFFFE0DB),
                 value: openCount.toString(),
                 label: 'بلاغات مفتوحة',
+                onTap: onOpenPressed,
               ),
             ),
           ],
@@ -363,8 +443,10 @@ class _SummaryMetricCard extends StatelessWidget {
     required this.iconBackground,
     required this.value,
     required this.label,
+    required this.onTap,
   });
 
+  final VoidCallback onTap;
   final IconData icon;
   final Color iconColor;
   final Color iconBackground;
@@ -373,7 +455,10 @@ class _SummaryMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
       padding: const EdgeInsets.all(18),
       decoration: _surfaceDecoration(borderRadius: 20),
       child: Column(
@@ -408,14 +493,16 @@ class _SummaryMetricCard extends StatelessWidget {
           ),
         ],
       ),
+      ),
     );
   }
 }
 
 class _DisputeHistoryCard extends StatelessWidget {
-  const _DisputeHistoryCard({required this.dispute});
+  const _DisputeHistoryCard({required this.dispute, required this.onTap});
 
   final DeliveryDisputeModel dispute;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -425,7 +512,10 @@ class _DisputeHistoryCard extends StatelessWidget {
       dispute.trustImpactPoints,
     );
 
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
       decoration: _surfaceDecoration(
         borderRadius: 18,
       ).copyWith(border: Border.all(color: const Color(0xFFE1E3E4))),
@@ -588,6 +678,7 @@ class _DisputeHistoryCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
