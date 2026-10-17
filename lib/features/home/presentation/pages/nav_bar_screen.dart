@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:dllne_deliver_app/features/home/presentation/widgets/shell_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/exit_confirmation_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as d;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/location.dart' as loc;
 
 import '../../../../common/design/src/theme/theme/theme_collection.dart';
-import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../delivery/presentation/pages/delivery_orders_page.dart';
@@ -130,6 +130,7 @@ class _NavBarScreenState extends State<NavBarScreen>
   StreamSubscription<loc.LocationData>? _locationSubscription;
   DateTime? _lastLocationSentAt;
   static const _locationThrottle = Duration(seconds: 20);
+  bool _isExitDialogVisible = false;
 
   String _titleForIndex(int index, String driverName) {
     return switch (index) {
@@ -208,66 +209,30 @@ class _NavBarScreenState extends State<NavBarScreen>
     );
   }
 
+  Future<void> _handleBackPressed() async {
+    if (homeCubit.state.selectedIndex != 0) {
+      homeCubit.changeIndex(0);
+      return;
+    }
+
+    if (_isExitDialogVisible) return;
+    _isExitDialogVisible = true;
+    try {
+      final shouldExit = await showExitConfirmationDialog(context);
+      if (shouldExit && mounted) {
+        await SystemNavigator.pop();
+      }
+    } finally {
+      _isExitDialogVisible = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (homeCubit.state.selectedIndex != 0) {
-          homeCubit.changeIndex(0);
-          return false;
-        }
-
-        final shouldExit = await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-              contentPadding: const EdgeInsets.all(24),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    LocaleKeys.exitConfirmationTitle.tr(),
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 16),
-                    child: Text(
-                      LocaleKeys.exitConfirmationMessage.tr(),
-                      style: TextStyle(fontSize: 14, color: Colors.black),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(LocaleKeys.ratingNo.tr()),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: Text(
-                            LocaleKeys.ratingYes.tr(),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-
-        return shouldExit ?? false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _handleBackPressed();
       },
       child: BlocConsumer<HomeCubit, HomeState>(
         bloc: homeCubit,
