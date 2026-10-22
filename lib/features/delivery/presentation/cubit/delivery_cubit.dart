@@ -33,6 +33,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
   final GetDisputesUseCase _getDisputesUseCase;
 
   Timer? _readinessTimer;
+  Timer? _offerExpiryTimer;
   bool _dashboardRequestInFlight = false;
 
   Future<void> loadDashboard() async {
@@ -52,13 +53,19 @@ class DeliveryCubit extends Cubit<DeliveryState> {
         emit(
           state.copyWith(
             isLoading: false,
-            currentOffer: snapshot.currentOffer,
-            clearOffer: snapshot.currentOffer == null,
+            // Do not keep a stale expired offer when the dashboard responds.
+            currentOffer: snapshot.currentOffer != null &&
+                    !snapshot.currentOffer!.isExpired
+                ? snapshot.currentOffer
+                : null,
+            clearOffer: snapshot.currentOffer == null ||
+                snapshot.currentOffer!.isExpired,
             currentOrder: snapshot.currentOrder,
             clearOrder: snapshot.currentOrder == null,
           ),
         );
         _syncReadinessPolling(snapshot.currentOrder);
+        _syncOfferExpiry(snapshot.currentOffer);
       },
     );
   }
@@ -216,6 +223,21 @@ class DeliveryCubit extends Cubit<DeliveryState> {
     );
   }
 
+  void _syncOfferExpiry(DeliveryAssignmentAttemptModel? offer) {
+    _offerExpiryTimer?.cancel();
+    _offerExpiryTimer = null;
+    if (offer == null || offer.expiresAt == null || isClosed) return;
+    if (offer.isExpired) return;
+
+    final delay = offer.expiresAt!.difference(DateTime.now());
+    _offerExpiryTimer = Timer(delay + const Duration(milliseconds: 50), () {
+      if (isClosed || state.currentOffer?.id != offer.id) return;
+      // Remove it from the UI immediately, then sync from the backend.
+      emit(state.copyWith(clearOffer: true));
+      loadDashboard();
+    });
+  }
+
   void _syncReadinessPolling(DeliveryOrderModel? order) {
     _readinessTimer?.cancel();
     _readinessTimer = null;
@@ -233,6 +255,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
   @override
   Future<void> close() {
     _readinessTimer?.cancel();
+    _offerExpiryTimer?.cancel();
     return super.close();
   }
 }
