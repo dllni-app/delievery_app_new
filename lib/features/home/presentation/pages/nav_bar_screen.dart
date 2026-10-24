@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:dllne_deliver_app/features/home/presentation/widgets/shell_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/exit_confirmation_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as d;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/location.dart' as loc;
 
 import '../../../../common/design/src/theme/theme/theme_collection.dart';
-import '../../../../common/helper/src/locale_keys.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../delivery/presentation/pages/delivery_orders_page.dart';
@@ -128,8 +128,21 @@ class _NavBarScreenState extends State<NavBarScreen>
   late final UserBloc userBloc;
   final loc.Location _location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
+  StreamSubscription<UserState>? _availabilitySubscription;
   DateTime? _lastLocationSentAt;
+  bool _isStartingLocationTracking = false;
+  bool _backgroundLocationEnabled = false;
+  bool _backgroundLocationWarningShown = false;
   static const _locationThrottle = Duration(seconds: 20);
+  bool _isExitDialogVisible = false;
+
+  // Use the same driver profile as the availability controls on the home page.
+  // In particular, do not activate GPS for an offline driver.
+  bool get _shouldTrackLocation {
+    final status =
+        userBloc.state.driverGetMeData.data?.data?.availabilityStatus;
+    return status == 'available' || status == 'busy';
+  }
 
   String _titleForIndex(int index, String driverName) {
     return switch (index) {
@@ -141,7 +154,46 @@ class _NavBarScreenState extends State<NavBarScreen>
     };
   }
 
+  void _warnBackgroundLocationUnavailable() {
+    if (_backgroundLocationWarningShown) return;
+    _backgroundLocationWarningShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'تعذر تفعيل تتبع الموقع في الخلفية. تحقق من أذونات الموقع وإعدادات البطارية.',
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<void> _enableBackgroundLocation() async {
+    if (_backgroundLocationEnabled) return;
+    try {
+      // Android uses a location foreground service (with a persistent
+      // notification) to keep collecting fixes after the app loses focus.
+      _backgroundLocationEnabled =
+          await _location.enableBackgroundMode(enable: true);
+      if (!_backgroundLocationEnabled) {
+        _warnBackgroundLocationUnavailable();
+      }
+    } catch (error) {
+      debugPrint('Cannot enable background driver location: $error');
+      _warnBackgroundLocationUnavailable();
+    }
+  }
+
   Future<void> _startLocationTracking() async {
+    if (!mounted ||
+        !_shouldTrackLocation ||
+        _isStartingLocationTracking ||
+        _locationSubscription != null) {
+      return;
+    }
+
+    _isStartingLocationTracking = true;
     try {
       var serviceEnabled = await _location.serviceEnabled();
       if (!serviceEnabled) {
@@ -161,21 +213,62 @@ class _NavBarScreenState extends State<NavBarScreen>
         distanceFilter: 20,
       );
 
-      try {
-        await _location.enableBackgroundMode(enable: true);
-      } catch (_) {
-        // Foreground tracking remains active when background mode is unavailable.
+      // Do not silently swallow failure: a foreground-only stream would stop
+      // delivering reliable updates once the app is backgrounded.
+      await _enableBackgroundLocation();
+      if (!mounted || !_shouldTrackLocation) {
+        await _stopLocationTracking();
+        return;
       }
+
+      _locationSubscription = _location.onLocationChanged.listen(
+        (data) => unawaited(_pushLocation(data)),
+        onError: (Object error) =>
+            debugPrint('Driver location stream error: $error'),
+      );
 
       final initial = await _location.getLocation();
       await _pushLocation(initial, force: true);
+    } catch (error) {
+      debugPrint('Unable to start driver location tracking: $error');
+      if (_locationSubscription == null) {
+        await _stopLocationTracking();
+      }
+    } finally {
+      _isStartingLocationTracking = false;
+    }
+  }
 
-      await _locationSubscription?.cancel();
-      _locationSubscription = _location.onLocationChanged.listen((data) {
-        _pushLocation(data);
-      });
-    } catch (_) {
-      // Location failures must not block the driver from using the app.
+  Future<void> _stopLocationTracking() async {
+    final subscription = _locationSubscription;
+    _locationSubscription = null;
+    await subscription?.cancel();
+    _lastLocationSentAt = null;
+    if (_backgroundLocationEnabled) {
+      _backgroundLocationEnabled = false;
+      try {
+        await _location.enableBackgroundMode(enable: false);
+      } catch (error) {
+        debugPrint('Unable to stop background driver location: $error');
+      }
+    }
+  }
+
+  Future<void> _refreshLocationOnResume() async {
+    if (!_shouldTrackLocation) return;
+    if (_locationSubscription == null) {
+      await _startLocationTracking();
+      return;
+    }
+
+    // Retry if the user has since enabled the necessary OS permissions.
+    if (!_backgroundLocationEnabled) {
+      await _enableBackgroundLocation();
+    }
+    try {
+      await _pushLocation(await _location.getLocation(), force: true);
+    } catch (error) {
+      debugPrint('Unable to refresh driver location: $error');
     }
   }
 
@@ -183,11 +276,12 @@ class _NavBarScreenState extends State<NavBarScreen>
     loc.LocationData data, {
     bool force = false,
   }) async {
-    if (data.latitude == null || data.longitude == null) return;
-
-    final availability =
-        userBloc.state.driverGetMeData.data?.data?.availabilityStatus;
-    if (availability == 'offline') return;
+    if (!mounted ||
+        !_shouldTrackLocation ||
+        data.latitude == null ||
+        data.longitude == null) {
+      return;
+    }
 
     final now = DateTime.now();
     if (!force &&
@@ -195,9 +289,9 @@ class _NavBarScreenState extends State<NavBarScreen>
         now.difference(_lastLocationSentAt!) < _locationThrottle) {
       return;
     }
-    _lastLocationSentAt = now;
 
-    await getIt<PostLocationUseCases>()(
+    // A failed transmission should not suppress the following GPS fix.
+    final result = await getIt<PostLocationUseCases>()(
       PostLocationParams(
         latitude: data.latitude!,
         longitude: data.longitude!,
@@ -206,68 +300,36 @@ class _NavBarScreenState extends State<NavBarScreen>
         heading: data.heading,
       ),
     );
+    result.fold(
+      (failure) => debugPrint('Driver location upload failed: ${failure.message}'),
+      (_) => _lastLocationSentAt = now,
+    );
+  }
+
+  Future<void> _handleBackPressed() async {
+    if (homeCubit.state.selectedIndex != 0) {
+      homeCubit.changeIndex(0);
+      return;
+    }
+
+    if (_isExitDialogVisible) return;
+    _isExitDialogVisible = true;
+    try {
+      final shouldExit = await showExitConfirmationDialog(context);
+      if (shouldExit && mounted) {
+        await SystemNavigator.pop();
+      }
+    } finally {
+      _isExitDialogVisible = false;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (homeCubit.state.selectedIndex != 0) {
-          homeCubit.changeIndex(0);
-          return false;
-        }
-
-        final shouldExit = await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-              contentPadding: const EdgeInsets.all(24),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    LocaleKeys.exitConfirmationTitle.tr(),
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 16),
-                    child: Text(
-                      LocaleKeys.exitConfirmationMessage.tr(),
-                      style: TextStyle(fontSize: 14, color: Colors.black),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(LocaleKeys.ratingNo.tr()),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: Text(
-                            LocaleKeys.ratingYes.tr(),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-
-        return shouldExit ?? false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _handleBackPressed();
       },
       child: BlocConsumer<HomeCubit, HomeState>(
         bloc: homeCubit,
@@ -296,12 +358,12 @@ class _NavBarScreenState extends State<NavBarScreen>
             body: PageView(
               controller: pageController,
               physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                NewHomeScreen(),
-                DeliveryOrdersPage(),
-                DriverFinancialPage(),
-                NotificationScreen(),
-                NewMoreScreen(),
+              children: [
+                NewHomeScreen(sharedUserBloc: userBloc),
+                const DeliveryOrdersPage(),
+                const DriverFinancialPage(),
+                const NotificationScreen(),
+                const NewMoreScreen(),
               ],
             ),
             bottomNavigationBar: ShellBottomNavBar(
@@ -317,8 +379,8 @@ class _NavBarScreenState extends State<NavBarScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(_locationSubscription?.cancel() ?? Future<void>.value());
-    unawaited(_location.enableBackgroundMode(enable: false));
+    unawaited(_availabilitySubscription?.cancel() ?? Future<void>.value());
+    unawaited(_stopLocationTracking());
     pageController.dispose();
     super.dispose();
   }
@@ -326,7 +388,7 @@ class _NavBarScreenState extends State<NavBarScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      unawaited(_startLocationTracking());
+      unawaited(_refreshLocationOnResume());
     }
   }
 
@@ -345,8 +407,14 @@ class _NavBarScreenState extends State<NavBarScreen>
     pageController = PageController();
     homeCubit = getIt<HomeCubit>();
     userBloc = getIt<UserBloc>();
+    _availabilitySubscription = userBloc.stream.listen((_) {
+      if (_shouldTrackLocation) {
+        unawaited(_startLocationTracking());
+      } else {
+        unawaited(_stopLocationTracking());
+      }
+    });
     userBloc.add(DriverGetMeEvent());
-    unawaited(_startLocationTracking());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (homeCubit.state.pendingNotificationData != null) {
