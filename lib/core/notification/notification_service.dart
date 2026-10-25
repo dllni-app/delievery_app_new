@@ -15,7 +15,6 @@ import '../di/injection.dart';
 import 'notification_navigator.dart';
 
 const String _notificationIcon = 'resource://drawable/notification_icon';
-const String _notificationLargeIcon = 'resource://mipmap/launcher_icon';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -129,7 +128,6 @@ class NotificationUtils {
         body: message.notification?.body ?? message.data['body'] ?? '',
         payload: payload,
         badge: _unreadCount,
-        largeIcon: _notificationLargeIcon,
       ),
     );
   }
