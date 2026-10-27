@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../common/helper/src/locale_keys.dart';
@@ -79,7 +80,7 @@ class NotificationWidget extends StatelessWidget {
                 const SizedBox(height: 6),
                 const Icon(
                   Icons.chevron_left_rounded,
-                  textDirection: TextDirection.ltr,
+                  textDirection: ui.TextDirection.ltr,
                   size: 21,
                   color: AppColors.primary,
                 ),
