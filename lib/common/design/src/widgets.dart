@@ -3,6 +3,7 @@ export 'widgets/app_error_widget.dart';
 export 'widgets/app_text_field.dart';
 export 'widgets/cach_network_image.dart';
 export 'widgets/custom_button.dart';
+export 'widgets/directional_navigation_icon.dart';
 export 'widgets/custom_drop_down_with_search/custom_drop_down_with_search.dart';
 export 'widgets/custom_error_widget.dart';
 export 'widgets/date_picker_bottom_sheet.dart';

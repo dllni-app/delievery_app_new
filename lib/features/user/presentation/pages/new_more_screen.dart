@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../common/design/src/widgets/directional_navigation_icon.dart';
 import '../../../auth/presentation/pages/login_screen.dart';
 import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
 import '../bloc/user_bloc.dart';
@@ -146,12 +147,10 @@ class MenuItem extends StatelessWidget {
             ),
             if (showChevron) ...[
               const SizedBox(width: 8),
-              Transform.flip(
-                flipX: true,
-                child: const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.black54,
-                ),
+              const DirectionalNavigationIcon(
+                purpose: NavigationArrowPurpose.forward,
+                childPointsRight: true,
+                child: Icon(Icons.chevron_right_rounded, color: Colors.black54),
               ),
             ],
           ],

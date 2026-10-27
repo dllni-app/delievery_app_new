@@ -1,9 +1,9 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../extensions/src/context_extensions.dart';
 import '../../theme/assets.gen.dart';
 import '../svg_asset.dart';
+import '../directional_navigation_icon.dart';
 
 class CustomButtonIcon extends StatelessWidget {
   final String svg;
@@ -19,7 +19,6 @@ class CustomButtonIcon extends StatelessWidget {
     this.padding = 10,
     this.width = 24,
     this.height = 24,
-
   });
 
   @override
@@ -35,9 +34,7 @@ class CustomButtonIcon extends StatelessWidget {
             border: Border.all(color: context.textFieldBorderColor),
             shape: BoxShape.circle,
           ),
-          child: SvgAsset(  svg, width: width,
-            height: height,
-            ),
+          child: SvgAsset(svg, width: width, height: height),
         ),
       ),
     );
@@ -47,12 +44,10 @@ class CustomButtonIcon extends StatelessWidget {
 class BackWidget extends StatelessWidget {
   final PageController? pageController;
 
-  BackWidget({super.key, this.pageController});
+  const BackWidget({super.key, this.pageController});
 
   @override
   Widget build(BuildContext context) {
-    final bool isArabic = context.locale.languageCode == 'ar';
-
     return Align(
       alignment: AlignmentDirectional.topStart,
       child: GestureDetector(
@@ -64,11 +59,10 @@ class BackWidget extends StatelessWidget {
             border: Border.all(color: context.textFieldBorderColor),
             shape: BoxShape.circle,
             color: Colors.white,
-
           ),
-          child: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(isArabic ? -1.0 : 1.0, 1.0),
+          child: DirectionalNavigationIcon(
+            purpose: NavigationArrowPurpose.back,
+            childPointsRight: false,
             child: SvgAsset(
               Assets.images.svg.nextArrowIcon,
 
@@ -97,18 +91,18 @@ class BackWidget extends StatelessWidget {
     );
   }
 }
+
 class CarsSearchBackWidget extends StatelessWidget {
- final GestureTapCallback onTab;
+  final GestureTapCallback onTab;
 
   const CarsSearchBackWidget({super.key, required this.onTab});
 
   @override
   Widget build(BuildContext context) {
-    final bool isArabic = context.locale.languageCode == 'ar';
-
     return Align(
       alignment: AlignmentDirectional.topStart,
       child: GestureDetector(
+        onTap: onTab,
         child: Container(
           padding: EdgeInsets.all(10),
           margin: EdgeInsetsDirectional.only(end: 8),
@@ -117,11 +111,10 @@ class CarsSearchBackWidget extends StatelessWidget {
             border: Border.all(color: context.textFieldBorderColor),
             shape: BoxShape.circle,
             color: Colors.white,
-
           ),
-          child: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(isArabic ? -1.0 : 1.0, 1.0),
+          child: DirectionalNavigationIcon(
+            purpose: NavigationArrowPurpose.back,
+            childPointsRight: false,
             child: SvgAsset(
               Assets.images.svg.nextArrowIcon,
 
@@ -129,7 +122,6 @@ class CarsSearchBackWidget extends StatelessWidget {
             ),
           ),
         ),
-        onTap: onTab,
       ),
     );
   }
@@ -160,8 +152,6 @@ class CustomEditButtonIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isArabic = context.locale.languageCode == 'ar';
-
     return Align(
       alignment: AlignmentDirectional.topStart,
       child: GestureDetector(
@@ -184,11 +174,7 @@ class CustomEditButtonIcon extends StatelessWidget {
                   ]
                 : [],
           ),
-          child: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(isArabic ? 1.0 : 1.0, 1.0),
-            child: SvgAsset( svg, height:height, width: width, color: svgColor),
-          ),
+          child: SvgAsset(svg, height: height, width: width, color: svgColor),
         ),
       ),
     );
@@ -202,8 +188,6 @@ class CustomBackButtonIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isArabic = context.locale.languageCode == 'ar';
-
     return Align(
       alignment: AlignmentDirectional.topStart,
       child: GestureDetector(
@@ -228,9 +212,9 @@ class CustomBackButtonIcon extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(isArabic ? -1.0 : 1.0, 1.0),
+          child: DirectionalNavigationIcon(
+            purpose: NavigationArrowPurpose.back,
+            childPointsRight: false,
             child: SvgAsset(
               Assets.images.svg.nextArrowIcon,
               color: Color.fromRGBO(35, 31, 32, 1),
@@ -243,15 +227,12 @@ class CustomBackButtonIcon extends StatelessWidget {
 }
 
 class BackWithOnTapWidget extends StatelessWidget {
-
   final GestureTapCallback? onTap;
 
   const BackWithOnTapWidget({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final bool isArabic = context.locale.languageCode == 'ar';
-
     return Align(
       alignment: AlignmentDirectional.topStart,
       child: GestureDetector(
@@ -263,17 +244,12 @@ class BackWithOnTapWidget extends StatelessWidget {
             border: Border.all(color: context.textFieldBorderColor),
             shape: BoxShape.circle,
           ),
-          child: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(isArabic ? -1.0 : 1.0, 1.0),
+          child: DirectionalNavigationIcon(
+            purpose: NavigationArrowPurpose.back,
+            childPointsRight: false,
             child: SvgAsset(
-
               Assets.images.svg.nextArrowIcon,
               color: context.textColor,
-
-
-
-
             ),
           ),
         ),

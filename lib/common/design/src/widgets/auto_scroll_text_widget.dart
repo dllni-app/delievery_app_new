@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 
+TextStyle _resolveCairoStyle(BuildContext context, TextStyle? style) =>
+    DefaultTextStyle.of(
+      context,
+    ).style.merge(style).copyWith(fontFamily: 'Cairo');
+
 class AutoScrollTextWidget extends StatelessWidget {
   final String text;
   final TextStyle? style;
@@ -23,41 +28,45 @@ class AutoScrollTextWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedStyle = _resolveCairoStyle(context, style);
     final textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
+      text: TextSpan(text: text, style: resolvedStyle),
       maxLines: 1,
       textDirection: TextDirection.rtl,
+      textScaler: MediaQuery.textScalerOf(context),
     )..layout();
 
-    bool needsScroll = textPainter.width > width;
+    final needsScroll = width.isFinite && textPainter.width > width;
+    final textHeight = textPainter.height;
+    textPainter.dispose();
 
     return SizedBox(
       width: width,
-      height: style!.fontSize != null ? style!.fontSize! + 8 : 24,
+      height: textHeight,
       child: needsScroll
           ? Marquee(
-        text: text,
-        style: style,
-        scrollAxis: Axis.horizontal,
-        blankSpace: blankSpace,
-        velocity: velocity,
-        pauseAfterRound: pauseAfterRound,
-        startPadding: startPadding,
-        accelerationDuration: const Duration(seconds: 1),
-        accelerationCurve: Curves.linear,
-        decelerationDuration: const Duration(milliseconds: 500),
-        decelerationCurve: Curves.easeOut,
-      )
+              text: text,
+              style: resolvedStyle,
+              textDirection: TextDirection.rtl,
+              scrollAxis: Axis.horizontal,
+              blankSpace: blankSpace,
+              velocity: velocity,
+              pauseAfterRound: pauseAfterRound,
+              startPadding: startPadding,
+              accelerationDuration: const Duration(seconds: 1),
+              accelerationCurve: Curves.linear,
+              decelerationDuration: const Duration(milliseconds: 500),
+              decelerationCurve: Curves.easeOut,
+            )
           : Text(
-        text,
-        style: style,
-        overflow: TextOverflow.ellipsis,
-      ),
+              text,
+              style: resolvedStyle,
+              textDirection: TextDirection.rtl,
+              overflow: TextOverflow.ellipsis,
+            ),
     );
   }
 }
-
-
 
 class FlexibleAutoScrollText extends StatelessWidget {
   final String text;
@@ -81,41 +90,47 @@ class FlexibleAutoScrollText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedStyle = _resolveCairoStyle(context, style);
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
 
         final textPainter = TextPainter(
-          text: TextSpan(text: text, style: style),
+          text: TextSpan(text: text, style: resolvedStyle),
           maxLines: 1,
           textDirection: textDirection,
+          textScaler: MediaQuery.textScalerOf(context),
         )..layout();
 
         final textWidth = textPainter.width;
-        final needsScroll = textWidth > maxWidth;
+        final needsScroll = maxWidth.isFinite && textWidth > maxWidth;
+        final textHeight = textPainter.height;
+        textPainter.dispose();
 
         return SizedBox(
-          height: textPainter.height,
+          height: textHeight,
           child: needsScroll
               ? Marquee(
-            text: text,
-            style: style,
-            scrollAxis: Axis.horizontal,
-            blankSpace: blankSpace,
-            velocity: velocity,
-            pauseAfterRound: pauseAfterRound,
-            startPadding: startPadding,
-            accelerationDuration: const Duration(seconds: 1),
-            accelerationCurve: Curves.linear,
-            decelerationDuration: const Duration(milliseconds: 500),
-            decelerationCurve: Curves.easeOut,
-          )
+                  text: text,
+                  style: resolvedStyle,
+                  textDirection: textDirection,
+                  scrollAxis: Axis.horizontal,
+                  blankSpace: blankSpace,
+                  velocity: velocity,
+                  pauseAfterRound: pauseAfterRound,
+                  startPadding: startPadding,
+                  accelerationDuration: const Duration(seconds: 1),
+                  accelerationCurve: Curves.linear,
+                  decelerationDuration: const Duration(milliseconds: 500),
+                  decelerationCurve: Curves.easeOut,
+                )
               : Text(
-            text,
-            style: style,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+                  text,
+                  style: resolvedStyle,
+                  textDirection: textDirection,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
         );
       },
     );

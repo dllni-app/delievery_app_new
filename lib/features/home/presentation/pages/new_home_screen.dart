@@ -630,7 +630,7 @@ class _NewOfferPreview extends StatelessWidget {
                   alignment: AlignmentDirectional.centerStart,
                   child: TextButton.icon(
                     onPressed: () => _openOfferDetails(context),
-                    icon: const Icon(Icons.arrow_back_ios_new, size: 15),
+                    icon: const Icon(Icons.arrow_forward_ios, size: 15),
                     label: const Text('عرض تفاصيل الطلب والمسار'),
                   ),
                 ),

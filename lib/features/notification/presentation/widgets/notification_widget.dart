@@ -78,7 +78,7 @@ class NotificationWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 const Icon(
-                  Icons.chevron_left_rounded,
+                  Icons.chevron_right_rounded,
                   size: 21,
                   color: AppColors.primary,
                 ),

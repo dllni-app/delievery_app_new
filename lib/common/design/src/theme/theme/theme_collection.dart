@@ -51,6 +51,7 @@ class ThemeCollection {
         centerTitle: true,
         foregroundColor: palette.onPrimary,
         titleTextStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: palette.onPrimary,
           fontWeight: FontWeight.bold,
           fontSize: 16,
@@ -117,6 +118,7 @@ class ThemeCollection {
             borderRadius: BorderRadius.circular(12),
           ),
           textStyle: TextStyle(
+            fontFamily: 'Cairo',
             color: palette.primary,
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -138,21 +140,23 @@ class ThemeCollection {
           side: BorderSide(color: palette.primary.withOpacity(0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
-        labelStyle: TextStyle(color: palette.textColor),
-        secondaryLabelStyle: TextStyle(color: palette.onSurfaceVariant),
+        labelStyle: TextStyle(fontFamily: 'Cairo', color: palette.textColor),
+        secondaryLabelStyle: TextStyle(fontFamily: 'Cairo', color: palette.onSurfaceVariant),
         brightness: palette.brightness,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       ),
       dividerTheme: DividerThemeData(color: palette.divider),
       inputDecorationTheme: InputDecorationTheme(
         isDense: true,
-        hintStyle: TextStyle(color: palette.textFieldHintColor),
+        hintStyle: TextStyle(fontFamily: 'Cairo', color: palette.textFieldHintColor),
         labelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: palette.fieldLabelColor,
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
         floatingLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: palette.primarySwatch,
           fontSize: 14,
           fontWeight: FontWeight.w400,
@@ -190,7 +194,7 @@ class ThemeCollection {
       // ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: palette.surfaceVariant,
-        contentTextStyle: TextStyle(color: palette.onSurfaceVariant),
+        contentTextStyle: TextStyle(fontFamily: 'Cairo', color: palette.onSurfaceVariant),
         behavior: SnackBarBehavior.floating,
       ),
       extensions: [themeExt],

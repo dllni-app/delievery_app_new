@@ -406,7 +406,7 @@ class DeliveryOrderCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: DeliveryPrimaryButton(
                 label: order.nextActionLabel,
-                icon: Icons.arrow_back,
+                icon: Icons.arrow_forward,
                 onPressed: onAction,
                 isLoading: isActionLoading,
               ),
@@ -433,7 +433,7 @@ class DeliveryOrderCard extends StatelessWidget {
                   ),
                   SizedBox(width: 6),
                   Icon(
-                    Icons.arrow_back_ios_new_rounded,
+                    Icons.arrow_forward_ios_rounded,
                     size: 15,
                     color: AppColors.primary,
                   ),

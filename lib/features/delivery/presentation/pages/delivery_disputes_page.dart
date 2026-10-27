@@ -305,7 +305,7 @@ class _ReportsTitleRow extends StatelessWidget {
             backgroundColor: Colors.white,
             minimumSize: const Size(44, 44),
           ),
-          icon: const Icon(Icons.arrow_forward, color: Color(0xFF191C1D)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF191C1D)),
         ),
         const SizedBox(width: 8),
         const Expanded(
