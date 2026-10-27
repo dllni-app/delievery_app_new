@@ -6,14 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../auth/presentation/pages/login_screen.dart';
-import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
 import '../bloc/user_bloc.dart';
 
 class MenuCard extends StatelessWidget {
   final VoidCallback onUpdateStatus;
   final VoidCallback onWallet;
-  final VoidCallback onReports;
-  final VoidCallback onNotifications;
   final VoidCallback onLogout;
   final Color primary;
 
@@ -22,8 +19,6 @@ class MenuCard extends StatelessWidget {
     required this.primary,
     required this.onUpdateStatus,
     required this.onWallet,
-    required this.onReports,
-    required this.onNotifications,
     required this.onLogout,
   });
 
@@ -57,24 +52,6 @@ class MenuCard extends StatelessWidget {
             icon: Icons.account_balance_wallet_outlined,
             label: 'المستحقات',
             onTap: onWallet,
-            iconBackground: Colors.grey.shade100,
-            iconColor: primary,
-            showChevron: true,
-          ),
-          const _Divider(),
-          MenuItem(
-            icon: Icons.report_problem_outlined,
-            label: 'البلاغات',
-            onTap: onReports,
-            iconBackground: Colors.grey.shade100,
-            iconColor: primary,
-            showChevron: true,
-          ),
-          const _Divider(),
-          MenuItem(
-            icon: Icons.notifications_none_rounded,
-            label: 'الإشعارات',
-            onTap: onNotifications,
             iconBackground: Colors.grey.shade100,
             iconColor: primary,
             showChevron: true,
@@ -146,12 +123,10 @@ class MenuItem extends StatelessWidget {
             ),
             if (showChevron) ...[
               const SizedBox(width: 8),
-              Transform.flip(
-                flipX: true,
-                child: const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.black54,
-                ),
+              const Icon(
+                Icons.chevron_left_rounded,
+                textDirection: TextDirection.ltr,
+                color: Colors.black54,
               ),
             ],
           ],
@@ -380,16 +355,6 @@ class _NewMoreScreenState extends State<NewMoreScreen> {
                       },
                       onWallet: () {
                         homeCubit.changeIndex(2);
-                      },
-                      onReports: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const DeliveryDisputesPage(),
-                          ),
-                        );
-                      },
-                      onNotifications: () {
-                        homeCubit.changeIndex(3);
                       },
                       onLogout: () {
                         SharedPreferences.getInstance().then((value) {

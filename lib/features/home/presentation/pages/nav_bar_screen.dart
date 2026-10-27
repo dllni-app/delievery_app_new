@@ -13,6 +13,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../delivery/presentation/pages/delivery_orders_page.dart';
 import '../../../financial/presentation/pages/driver_financial_page.dart';
+import '../../../financial/presentation/cubit/financial_cubit.dart';
 import '../../../user/domain/use_cases/post_location_use_cases.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
 import '../../../notification/presentation/pages/notification_screen.dart';
@@ -336,6 +337,9 @@ class _NavBarScreenState extends State<NavBarScreen>
         listenWhen: (pre, next) => pre.selectedIndex != next.selectedIndex,
         listener: (context, state) {
           pageController.jumpToPage(state.selectedIndex);
+          if (state.selectedIndex == 2) {
+            unawaited(getIt<FinancialCubit>().loadWalletPage(refreshing: true));
+          }
         },
         builder: (context, state) {
           return Scaffold(

@@ -34,6 +34,7 @@ class FinancialCubit extends Cubit<FinancialState> {
   }
 
   Future<void> loadWalletPage({bool refreshing = false}) async {
+    if (state.isLoading || state.isRefreshing) return;
     emit(
       state.copyWith(
         isLoading: !refreshing,

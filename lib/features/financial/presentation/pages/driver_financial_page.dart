@@ -109,7 +109,7 @@ class _FinancialSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'الرصيد المستحق (لك)',
+                      'الرصيد المالي المستحق عليك',
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFF454651),
@@ -126,6 +126,11 @@ class _FinancialSummaryCard extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                       ),
                       textDirection: TextDirection.rtl,
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'رصيد التسويات، وليس مجموع أجور الطلبات المنجزة.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
                     ),
                   ],
                 ),
