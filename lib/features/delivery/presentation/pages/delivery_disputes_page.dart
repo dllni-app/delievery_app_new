@@ -4,8 +4,6 @@ import 'package:intl/intl.dart' as intl;
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../notification/presentation/pages/notification_screen.dart';
-import '../../../user/data/models/driver_profile_model.dart';
 import '../../../user/presentation/bloc/user_bloc.dart';
 import '../../data/models/delivery_dispute_model.dart';
 import '../cubit/delivery_cubit.dart';
@@ -88,17 +86,6 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
     );
   }
 
-  void _openNotifications() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const Scaffold(
-          backgroundColor: Color(0xFFF8F9FA),
-          body: SafeArea(child: NotificationScreen()),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,11 +123,6 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                       children: [
-                        _ReportsTopBar(
-                          profile: profile,
-                          onNotificationPressed: _openNotifications,
-                        ),
-                        const SizedBox(height: 20),
                         _ReportsTitleRow(
                           onBackPressed: () => Navigator.of(context).maybePop(),
                         ),
@@ -224,72 +206,6 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
   }
 }
 
-class _ReportsTopBar extends StatelessWidget {
-  const _ReportsTopBar({
-    required this.profile,
-    required this.onNotificationPressed,
-  });
-
-  final DriverProfileModel? profile;
-  final VoidCallback onNotificationPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final displayName = _driverDisplayName(profile);
-
-    return SafeArea(
-      bottom: false,
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: onNotificationPressed,
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white,
-              minimumSize: const Size(44, 44),
-            ),
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: Color(0xFF454651),
-            ),
-          ),
-          const Spacer(),
-          Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    displayName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: AppColors.primary.withValues(alpha: .12),
-                  child: Text(
-                    _initials(displayName),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ReportsTitleRow extends StatelessWidget {
   const _ReportsTitleRow({required this.onBackPressed});
 
@@ -305,7 +221,15 @@ class _ReportsTitleRow extends StatelessWidget {
             backgroundColor: Colors.white,
             minimumSize: const Size(44, 44),
           ),
+<<<<<<< HEAD
           icon: const Icon(Icons.arrow_back, color: Color(0xFF191C1D)),
+=======
+          icon: const Icon(
+            Icons.arrow_back,
+            textDirection: TextDirection.ltr,
+            color: Color(0xFF191C1D),
+          ),
+>>>>>>> bc61447a5e36324b934662cab3e9256f43648b13
         ),
         const SizedBox(width: 8),
         const Expanded(
@@ -768,25 +692,6 @@ BoxDecoration _surfaceDecoration({double borderRadius = 24}) {
       ),
     ],
   );
-}
-
-String _driverDisplayName(DriverProfileModel? profile) {
-  if (profile == null) return 'حساب المندوب';
-  final displayName = profile.displayName.trim();
-  if (displayName.isNotEmpty) return displayName;
-  if (profile.firstName.trim().isNotEmpty) return profile.firstName.trim();
-  return 'حساب المندوب';
-}
-
-String _initials(String name) {
-  final words = name
-      .trim()
-      .split(RegExp(r'\s+'))
-      .where((word) => word.isNotEmpty)
-      .toList();
-  if (words.isEmpty) return 'م';
-  if (words.length == 1) return words.first.substring(0, 1);
-  return '${words.first.substring(0, 1)}${words.last.substring(0, 1)}';
 }
 
 String _trustLabel(int trustScore) {
