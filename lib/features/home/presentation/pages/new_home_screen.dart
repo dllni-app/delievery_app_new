@@ -355,9 +355,17 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           builder: (context, state) {
             return DeliveryLoadingOverlay(
               isLoading: state.isActionLoading,
-              child: ListView(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await getIt<DeliveryCubit>().loadDashboard();
+                  userBloc.add(DriverGetMeEvent());
+                  await getIt<FinancialCubit>().loadSummary();
+                },
+                child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
                 children: const [
+                  _ActiveOrderShortcut(),
                   _NewAvailabilityCard(),
                   SizedBox(height: 8),
                   _NewGpsStatusCard(),
@@ -366,11 +374,69 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   SizedBox(height: 16),
                   _NewSummarySection(),
                 ],
+                ),
               ),
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class _ActiveOrderShortcut extends StatelessWidget {
+  const _ActiveOrderShortcut();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DeliveryCubit, DeliveryState>(
+      bloc: getIt<DeliveryCubit>(),
+      builder: (context, state) {
+        final order = state.currentOrder;
+        if (order == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Material(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(18),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DeliveryOrderDetailsPage(initialOrder: order),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.delivery_dining, color: Colors.white, size: 32),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('لديك طلب جارٍ',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
+                          const SizedBox(height: 4),
+                          Text('الطلب: ${order.orderNumber}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white70)),
+                          const SizedBox(height: 4),
+                          const Text('اضغط لمتابعة الطلب والخطوة التالية',
+                            style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_left, textDirection: TextDirection.ltr, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -869,10 +935,6 @@ class _NewSummarySection extends StatelessWidget {
       builder: (context, deliveryState) {
         final order = deliveryState.currentOrder;
         final activeValue = order == null ? '0' : '1';
-        final completedValue =
-            (order?.status == 'completed' || order?.completedAt != null)
-            ? '1'
-            : '0';
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -890,11 +952,11 @@ class _NewSummarySection extends StatelessWidget {
               mainAxisSpacing: 8,
               childAspectRatio: .95,
               children: [
-                _StatSquareCard(
-                  icon: Icons.task_alt,
+                const _StatSquareCard(
+                  icon: Icons.info_outline,
                   iconColor: AppColors.primary,
-                  value: completedValue,
-                  label: 'الطلبات المكتملة',
+                  value: '—',
+                  label: 'الطلبات المكتملة: من سجل الطلبات',
                 ),
                 _StatSquareCard(
                   icon: Icons.pending_actions,
@@ -960,7 +1022,7 @@ class _BalanceWideCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               const Text(
-                'الرصيد المستحق',
+                'رصيد التسويات المالية (ليس أرباح المندوب)',
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xFFD9DBFF),
