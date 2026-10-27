@@ -157,7 +157,7 @@ class _NewAvailabilityCard extends StatelessWidget {
                     icon: Icons.directions_car,
                     selectedColor: AppColors.primary,
                     label: 'متاح لاستقبال الطلبات',
-                    subtitle: 'أنت متصل بالشبكة',
+                    subtitle: 'يمكنك استقبال عروض توصيل جديدة',
                     isUpdating: isUpdating,
                   ),
                   const SizedBox(height: 10),
@@ -167,7 +167,7 @@ class _NewAvailabilityCard extends StatelessWidget {
                     icon: Icons.local_activity,
                     selectedColor: AppColors.secondary,
                     label: 'مشغول',
-                    subtitle: 'أنت مشغول حالياً',
+                    subtitle: 'لن تستقبل عروضاً جديدة أثناء انشغالك',
                     isUpdating: isUpdating,
                   ),
                   const SizedBox(height: 10),
@@ -177,7 +177,7 @@ class _NewAvailabilityCard extends StatelessWidget {
                     icon: Icons.wifi_off_outlined,
                     selectedColor: Colors.redAccent,
                     label: 'غير متصل',
-                    subtitle: 'أنت غير متصل بالشبكة',
+                    subtitle: 'استقبال العروض متوقف حتى تغيير الحالة',
                     isUpdating: isUpdating,
                   ),
                 ],
@@ -355,17 +355,26 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           builder: (context, state) {
             return DeliveryLoadingOverlay(
               isLoading: state.isActionLoading,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-                children: const [
-                  _NewAvailabilityCard(),
-                  SizedBox(height: 8),
-                  _NewGpsStatusCard(),
-                  SizedBox(height: 16),
-                  _NewNearbyOrdersSection(),
-                  SizedBox(height: 16),
-                  _NewSummarySection(),
-                ],
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await getIt<DeliveryCubit>().loadDashboard();
+                  await getIt<FinancialCubit>().loadSummary();
+                  userBloc.add(DriverGetMeEvent());
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                  children: const [
+                    _NewAvailabilityCard(),
+                    SizedBox(height: 8),
+                    _NewGpsStatusCard(),
+                    SizedBox(height: 16),
+                    _NewNearbyOrdersSection(),
+                    SizedBox(height: 16),
+                    _NewSummarySection(),
+                  ],
+                ),
               ),
             );
           },
@@ -482,7 +491,7 @@ class _NearbyOrdersEmptyState extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 28),
           child: Text(
-            'نحن نبحث عن طلبات جديدة بالقرب منك، يرجى الانتظار.',
+            'اسحب الشاشة للأسفل لتحديث العروض، وتأكد من تفعيل حالة «متاح» وموقعك.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
