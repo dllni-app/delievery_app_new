@@ -5,6 +5,7 @@ import '../../../../core/unified_api/error/error_handeler.dart';
 import '../../domain/repositories/delivery_repositories.dart';
 import '../data_sources/delivery_remote_data.dart';
 import '../models/delivery_dispute_model.dart';
+import '../models/driver_order_status_counts.dart';
 import '../models/delivery_offer_model.dart';
 import '../models/delivery_order_model.dart';
 
@@ -34,6 +35,10 @@ class DeliveryRepositoriesImp
   @override
   DataResponse<DeliveryOrderModel?> getCurrentOrder() async =>
       wrapHandlingException(tryCall: () => _remoteData.getCurrentOrder());
+
+  @override
+  DataResponse<DriverOrderStatusCounts> getOrderStatusCounts() async =>
+      wrapHandlingException(tryCall: () => _remoteData.getOrderStatusCounts());
 
   @override
   DataResponse<DeliveryOrderModel> startOrder(int orderId) async =>

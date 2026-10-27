@@ -1,5 +1,6 @@
 import '../../../../common/helper/src/typedef.dart';
 import '../../data/models/delivery_dispute_model.dart';
+import '../../data/models/driver_order_status_counts.dart';
 import '../../data/models/delivery_offer_model.dart';
 import '../../data/models/delivery_order_model.dart';
 
@@ -11,6 +12,8 @@ abstract class DeliveryRepositories {
   DataResponse<void> rejectOffer(int attemptId, String reason);
 
   DataResponse<DeliveryOrderModel?> getCurrentOrder();
+
+  DataResponse<DriverOrderStatusCounts> getOrderStatusCounts();
 
   DataResponse<DeliveryOrderModel> startOrder(int orderId);
 

@@ -5,6 +5,7 @@ import '../../../../core/unified_api/api_variables.dart';
 import '../../../../core/unified_api/dio/api_client.dart';
 import '../../../../core/unified_api/error/api_handeler_manager.dart';
 import '../models/delivery_dispute_model.dart';
+import '../models/driver_order_status_counts.dart';
 import '../models/delivery_offer_model.dart';
 import '../models/delivery_order_model.dart';
 
@@ -39,6 +40,12 @@ class DeliveryRemoteData with HandlingApiManager {
       wrapHandlingApi(
         tryCall: () => _apiClient.get(ApiVariables.getDeliveryOrderById(orderId)),
         jsonConvert: deliveryOrderModelFromJson,
+      );
+
+  Future<DriverOrderStatusCounts> getOrderStatusCounts() async =>
+      wrapHandlingApi(
+        tryCall: () => _apiClient.get(ApiVariables.getDeliveryOrderStatusCounts()),
+        jsonConvert: DriverOrderStatusCounts.fromJson,
       );
 
   Future<DeliveryOrderModel?> getCurrentOrder() async => wrapHandlingApi(

@@ -5,6 +5,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/snck_bars.dart';
 import '../../../delivery/data/models/delivery_offer_model.dart';
+import '../../../delivery/data/models/delivery_order_model.dart';
 import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
 import '../../../delivery/presentation/pages/delivery_order_details_page.dart';
 import '../../../delivery/presentation/cubit/delivery_cubit.dart';
@@ -300,6 +301,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     super.initState();
   }
 
+  Future<void> _refreshHome() async {
+    userBloc.add(DriverGetMeEvent());
+    await Future.wait([
+      getIt<DeliveryCubit>().loadDashboard(),
+      getIt<FinancialCubit>().loadSummary(),
+      getIt<DeliveryCubit>().loadDisputes(perPage: 100),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -355,22 +365,135 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           builder: (context, state) {
             return DeliveryLoadingOverlay(
               isLoading: state.isActionLoading,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-                children: const [
-                  _NewAvailabilityCard(),
-                  SizedBox(height: 8),
-                  _NewGpsStatusCard(),
-                  SizedBox(height: 16),
-                  _NewNearbyOrdersSection(),
-                  SizedBox(height: 16),
-                  _NewSummarySection(),
-                ],
+              child: RefreshIndicator(
+                onRefresh: _refreshHome,
+                color: AppColors.primary,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                  children: const [
+                    _NewAvailabilityCard(),
+                    SizedBox(height: 12),
+                    _CurrentOrderHeroSection(),
+                    SizedBox(height: 12),
+                    _NewNearbyOrdersSection(),
+                    SizedBox(height: 12),
+                    _NewGpsStatusCard(),
+                    SizedBox(height: 16),
+                    _NewSummarySection(),
+                  ],
+                ),
               ),
             );
           },
         ),
       ),
+    );
+  }
+}
+
+/// The live assignment is more important than new offers or statistics.
+class _CurrentOrderHeroSection extends StatelessWidget {
+  const _CurrentOrderHeroSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DeliveryCubit, DeliveryState>(
+      bloc: getIt<DeliveryCubit>(),
+      builder: (context, state) {
+        final order = state.currentOrder;
+        if (order == null || order.isTerminal) {
+          return const SizedBox.shrink();
+        }
+
+        Future<void> openCurrentOrder() async {
+          await Navigator.of(context).push<void>(
+            MaterialPageRoute(
+              builder: (_) => DeliveryOrderDetailsPage(initialOrder: order),
+            ),
+          );
+          await getIt<DeliveryCubit>().loadDashboard();
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF4F5FF),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.primary.withValues(alpha: .18)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'الطلب الجاري الآن',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  DeliveryStatusBadge(status: order.status),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                order.orderNumber,
+                style: const TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 12,
+                ),
+                textDirection: TextDirection.ltr,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                order.statusUi?.isNotEmpty == true
+                    ? order.statusUi!
+                    : deliveryStatusLabel(order.status),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              DeliveryRoutePoint(
+                icon: Icons.storefront_outlined,
+                label: 'الاستلام',
+                value: order.pickupAddress,
+              ),
+              const SizedBox(height: 8),
+              DeliveryRoutePoint(
+                icon: Icons.location_on_outlined,
+                label: 'التسليم',
+                value: order.dropoffAddress,
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: state.isActionLoading ? null : openCurrentOrder,
+                  icon: const Icon(Icons.navigation_rounded),
+                  label: Text(
+                    order.hasLifecycleAction
+                        ? order.nextActionLabel
+                        : 'فتح الطلب ومتابعة المسار',
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    minimumSize: const Size(0, 52),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -457,7 +580,11 @@ class _NearbyOrdersEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, userState) {
+        final status = userState.driverGetMeData.data?.data?.availabilityStatus;
+        final offline = status == 'offline';
+        return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CircleAvatar(
@@ -471,7 +598,7 @@ class _NearbyOrdersEmptyState extends StatelessWidget {
         ),
         SizedBox(height: 12),
         Text(
-          'لا يوجد طلبات حالياً',
+          'لا توجد عروض حالياً',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -482,15 +609,19 @@ class _NearbyOrdersEmptyState extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 28),
           child: Text(
-            'نحن نبحث عن طلبات جديدة بالقرب منك، يرجى الانتظار.',
+            offline
+                ? 'أنت غير متصل. فعّل استقبال الطلبات لتظهر لك عروض قريبة.'
+                : 'ستظهر عروض التوصيل القريبة هنا عند توفرها. اسحب للأسفل للتحديث.',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: Color(0xFF454651),
             ),
           ),
         ),
       ],
+    );
+      },
     );
   }
 }
@@ -867,18 +998,16 @@ class _NewSummarySection extends StatelessWidget {
     return BlocBuilder<DeliveryCubit, DeliveryState>(
       bloc: getIt<DeliveryCubit>(),
       builder: (context, deliveryState) {
-        final order = deliveryState.currentOrder;
-        final activeValue = order == null ? '0' : '1';
-        final completedValue =
-            (order?.status == 'completed' || order?.completedAt != null)
-            ? '1'
-            : '0';
+        final counts = deliveryState.counts;
+        final activeValue = counts?.active.toString() ??
+            (deliveryState.currentOrder == null ? '0' : '1');
+        final completedValue = counts?.completed.toString() ?? '—';
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'ملخص اليوم',
+              'ملخص الطلبات',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
@@ -894,13 +1023,13 @@ class _NewSummarySection extends StatelessWidget {
                   icon: Icons.task_alt,
                   iconColor: AppColors.primary,
                   value: completedValue,
-                  label: 'الطلبات المكتملة',
+                  label: 'إجمالي الطلبات المكتملة',
                 ),
                 _StatSquareCard(
                   icon: Icons.pending_actions,
                   iconColor: AppColors.accent,
                   value: activeValue,
-                  label: 'الطلبات النشطة',
+                  label: 'الطلبات النشطة الآن',
                 ),
               ],
             ),
@@ -960,11 +1089,16 @@ class _BalanceWideCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               const Text(
-                'الرصيد المستحق',
+                'رصيد التسويات المالية',
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xFFD9DBFF),
                 ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'هذا ليس مجموع أجور الطلبات المنجزة',
+                style: TextStyle(fontSize: 12, color: Color(0xFFD9DBFF)),
               ),
             ],
           ),

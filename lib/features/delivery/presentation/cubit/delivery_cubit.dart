@@ -8,6 +8,7 @@ import '../../../../core/use_case/use_case.dart';
 import '../../data/models/delivery_dispute_model.dart';
 import '../../data/models/delivery_offer_model.dart';
 import '../../data/models/delivery_order_model.dart';
+import '../../data/models/driver_order_status_counts.dart';
 import '../../domain/use_cases/accept_offer_use_case.dart';
 import '../../domain/use_cases/get_disputes_use_case.dart';
 import '../../domain/use_cases/load_delivery_dashboard_use_case.dart';
@@ -62,6 +63,7 @@ class DeliveryCubit extends Cubit<DeliveryState> {
                 snapshot.currentOffer!.isExpired,
             currentOrder: snapshot.currentOrder,
             clearOrder: snapshot.currentOrder == null,
+            counts: snapshot.counts,
           ),
         );
         _syncReadinessPolling(snapshot.currentOrder);

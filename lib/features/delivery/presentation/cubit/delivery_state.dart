@@ -7,6 +7,7 @@ class DeliveryState extends Equatable {
     this.errorMessage,
     this.currentOffer,
     this.currentOrder,
+    this.counts,
     this.disputes = const [],
     this.disputesSummary = const DeliveryDisputesSummary(),
   });
@@ -16,6 +17,7 @@ class DeliveryState extends Equatable {
   final String? errorMessage;
   final DeliveryAssignmentAttemptModel? currentOffer;
   final DeliveryOrderModel? currentOrder;
+  final DriverOrderStatusCounts? counts;
   final List<DeliveryDisputeModel> disputes;
   final DeliveryDisputesSummary disputesSummary;
 
@@ -28,6 +30,7 @@ class DeliveryState extends Equatable {
     bool clearOffer = false,
     DeliveryOrderModel? currentOrder,
     bool clearOrder = false,
+    DriverOrderStatusCounts? counts,
     List<DeliveryDisputeModel>? disputes,
     DeliveryDisputesSummary? disputesSummary,
   }) {
@@ -37,6 +40,7 @@ class DeliveryState extends Equatable {
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       currentOffer: clearOffer ? null : currentOffer ?? this.currentOffer,
       currentOrder: clearOrder ? null : currentOrder ?? this.currentOrder,
+      counts: counts ?? this.counts,
       disputes: disputes ?? this.disputes,
       disputesSummary: disputesSummary ?? this.disputesSummary,
     );
@@ -49,6 +53,7 @@ class DeliveryState extends Equatable {
     errorMessage,
     currentOffer,
     currentOrder,
+    counts,
     disputes,
     disputesSummary,
   ];
