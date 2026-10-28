@@ -53,12 +53,14 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(report.categoryLabel,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 22,
-                    )),
+                Text(
+                  report.categoryLabel,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 22,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Text('رقم الطلب: ${report.orderNumber}'),
                 if (report.ticketNumber.isNotEmpty)
@@ -66,9 +68,11 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
                 const SizedBox(height: 10),
                 Text('الحالة: ${report.statusLabel}'),
                 const SizedBox(height: 16),
-                Text(report.description.isEmpty
-                    ? 'لا توجد تفاصيل إضافية لهذا البلاغ.'
-                    : report.description),
+                Text(
+                  report.description.isEmpty
+                      ? 'لا توجد تفاصيل إضافية لهذا البلاغ.'
+                      : report.description,
+                ),
                 if (report.resolutionLabel != null &&
                     report.resolutionLabel!.isNotEmpty) ...[
                   const SizedBox(height: 12),
@@ -92,115 +96,130 @@ class _DeliveryDisputesPageState extends State<DeliveryDisputesPage> {
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<DeliveryCubit, DeliveryState>(
-              bloc: deliveryCubit,
-              listenWhen: (previous, current) =>
-                  previous.errorMessage != current.errorMessage &&
-                  current.errorMessage != null &&
-                  current.disputes.isNotEmpty,
-              listener: (context, state) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-              },
-            ),
-          ],
-          child: RefreshIndicator(
-            color: AppColors.primary,
-            onRefresh: _loadData,
-            child: BlocBuilder<UserBloc, UserState>(
-              bloc: userBloc,
-              builder: (context, userState) {
-                final profile = userState.driverGetMeData.data?.data;
+          textDirection: TextDirection.rtl,
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<DeliveryCubit, DeliveryState>(
+                bloc: deliveryCubit,
+                listenWhen: (previous, current) =>
+                    previous.errorMessage != current.errorMessage &&
+                    current.errorMessage != null &&
+                    current.disputes.isNotEmpty,
+                listener: (context, state) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+                },
+              ),
+            ],
+            child: RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: _loadData,
+              child: BlocBuilder<UserBloc, UserState>(
+                bloc: userBloc,
+                builder: (context, userState) {
+                  final profile = userState.driverGetMeData.data?.data;
 
-                return BlocBuilder<DeliveryCubit, DeliveryState>(
-                  bloc: deliveryCubit,
-                  builder: (context, state) {
-                    return ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                      children: [
-                        _ReportsTitleRow(
-                          onBackPressed: () => Navigator.of(context).maybePop(),
-                        ),
-                        const SizedBox(height: 24),
-                        _ReportsSummarySection(
-                          trustScore: profile?.trustScore ?? 0,
-                          openCount: state.disputesSummary.openCount,
-                          resolvedCount: state.disputesSummary.resolvedCount,
-                          onOpenPressed: () => _setFilter('open'),
-                          onResolvedPressed: () => _setFilter('resolved'),
-                        ),
-                        const SizedBox(height: 28),
-                        Row(
-                          children: [
-                            const Expanded(
-                              child: Text(
-                                'سجل البلاغات',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF191C1D),
+                  return BlocBuilder<DeliveryCubit, DeliveryState>(
+                    bloc: deliveryCubit,
+                    builder: (context, state) {
+                      return ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                        children: [
+                          _ReportsTitleRow(
+                            onBackPressed: () =>
+                                Navigator.of(context).maybePop(),
+                          ),
+                          const SizedBox(height: 24),
+                          _ReportsSummarySection(
+                            trustScore: profile?.trustScore ?? 0,
+                            openCount: state.disputesSummary.openCount,
+                            resolvedCount: state.disputesSummary.resolvedCount,
+                            onOpenPressed: () => _setFilter('open'),
+                            onResolvedPressed: () => _setFilter('resolved'),
+                          ),
+                          const SizedBox(height: 28),
+                          Row(
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'سجل البلاغات',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF191C1D),
+                                  ),
                                 ),
                               ),
-                            ),
-                            TextButton(
-                              onPressed: () => _setFilter('all'),
-                              child: Text(
-                                _filter == 'all' ? 'جميع البلاغات' : 'عرض الكل',
+                              TextButton(
+                                onPressed: () => _setFilter('all'),
+                                child: Text(
+                                  _filter == 'all'
+                                      ? 'جميع البلاغات'
+                                      : 'عرض الكل',
+                                ),
                               ),
+                            ],
+                          ),
+                          if (state.errorMessage != null) ...[
+                            const SizedBox(height: 12),
+                            _ReportsErrorBanner(
+                              message: state.errorMessage!,
+                              onRetry: _loadData,
                             ),
                           ],
-                        ),
-                        if (state.errorMessage != null) ...[
                           const SizedBox(height: 12),
-                          _ReportsErrorBanner(
-                            message: state.errorMessage!,
-                            onRetry: _loadData,
-                          ),
+                          if (state.isLoading && state.disputes.isEmpty)
+                            const _ReportsLoadingState()
+                          else if (state.disputes.isEmpty)
+                            DeliveryEmptyState(
+                              title: 'لا توجد بلاغات',
+                              message: 'أي بلاغات مرتبطة بالطلبات ستظهر هنا.',
+                              icon: Icons.report_gmailerrorred_outlined,
+                              onRetry: _loadData,
+                            )
+                          else if (state.disputes
+                              .where(
+                                (report) =>
+                                    _filter == 'all' ||
+                                    (_filter == 'resolved'
+                                        ? report.isResolved
+                                        : !report.isResolved),
+                              )
+                              .isEmpty)
+                            const DeliveryEmptyState(
+                              title: 'لا توجد بلاغات ضمن هذا القسم',
+                              message:
+                                  'يمكنك اختيار عرض الكل لرؤية البلاغات الأخرى.',
+                            )
+                          else
+                            ...state.disputes
+                                .where(
+                                  (report) =>
+                                      _filter == 'all' ||
+                                      (_filter == 'resolved'
+                                          ? report.isResolved
+                                          : !report.isResolved),
+                                )
+                                .map(
+                                  (dispute) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: _DisputeHistoryCard(
+                                      dispute: dispute,
+                                      onTap: () => _showReport(dispute),
+                                    ),
+                                  ),
+                                ),
                         ],
-                        const SizedBox(height: 12),
-                        if (state.isLoading && state.disputes.isEmpty)
-                          const _ReportsLoadingState()
-                        else if (state.disputes.isEmpty)
-                          DeliveryEmptyState(
-                            title: 'لا توجد بلاغات',
-                            message: 'أي بلاغات مرتبطة بالطلبات ستظهر هنا.',
-                            icon: Icons.report_gmailerrorred_outlined,
-                            onRetry: _loadData,
-                          )
-                        else if (state.disputes.where((report) =>
-                            _filter == 'all' ||
-                            (_filter == 'resolved'
-                                ? report.isResolved : !report.isResolved)).isEmpty)
-                          const DeliveryEmptyState(
-                            title: 'لا توجد بلاغات ضمن هذا القسم',
-                            message: 'يمكنك اختيار عرض الكل لرؤية البلاغات الأخرى.',
-                          )
-                        else
-                          ...state.disputes.where((report) =>
-                              _filter == 'all' ||
-                              (_filter == 'resolved' ? report.isResolved : !report.isResolved)).map(
-                            (dispute) => Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _DisputeHistoryCard(
-                                dispute: dispute,
-                                onTap: () => _showReport(dispute),
-                              ),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -221,15 +240,11 @@ class _ReportsTitleRow extends StatelessWidget {
             backgroundColor: Colors.white,
             minimumSize: const Size(44, 44),
           ),
-<<<<<<< HEAD
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF191C1D)),
-=======
           icon: const Icon(
             Icons.arrow_back,
             textDirection: TextDirection.ltr,
             color: Color(0xFF191C1D),
           ),
->>>>>>> bc61447a5e36324b934662cab3e9256f43648b13
         ),
         const SizedBox(width: 8),
         const Expanded(
@@ -391,40 +406,40 @@ class _SummaryMetricCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-      padding: const EdgeInsets.all(18),
-      decoration: _surfaceDecoration(borderRadius: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: iconBackground,
-              shape: BoxShape.circle,
+        padding: const EdgeInsets.all(18),
+        decoration: _surfaceDecoration(borderRadius: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: iconBackground,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor),
             ),
-            child: Icon(icon, color: iconColor),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              color: Color(0xFF191C1D),
-              fontWeight: FontWeight.w900,
+            const SizedBox(height: 28),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24,
+                color: Color(0xFF191C1D),
+                fontWeight: FontWeight.w900,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Color(0xFF454651),
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Color(0xFF454651),
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -448,169 +463,169 @@ class _DisputeHistoryCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
-      decoration: _surfaceDecoration(
-        borderRadius: 18,
-      ).copyWith(border: Border.all(color: const Color(0xFFE1E3E4))),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F5),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(
-                            _categoryIcon(dispute),
-                            color: const Color(0xFF454651),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                dispute.categoryLabel,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  height: 1.25,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF191C1D),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _orderNumberLabel(dispute.orderNumber),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Color(0xFF6B7280),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: statusStyle.background,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            dispute.statusLabel,
-                            style: TextStyle(
-                              color: statusStyle.foreground,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
+        decoration: _surfaceDecoration(
+          borderRadius: 18,
+        ).copyWith(border: Border.all(color: const Color(0xFFE1E3E4))),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F5),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(
+                              _categoryIcon(dispute),
+                              color: const Color(0xFF454651),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      dispute.description.isEmpty
-                          ? 'لا توجد تفاصيل إضافية لهذا البلاغ.'
-                          : dispute.description,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.6,
-                        color: Color(0xFF454651),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  dispute.categoryLabel,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    height: 1.25,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF191C1D),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _orderNumberLabel(dispute.orderNumber),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF6B7280),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusStyle.background,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              dispute.statusLabel,
+                              style: TextStyle(
+                                color: statusStyle.foreground,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 14),
-                    const Divider(height: 1, color: Color(0xFFE5E7EB)),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Row(
+                      const SizedBox(height: 12),
+                      Text(
+                        dispute.description.isEmpty
+                            ? 'لا توجد تفاصيل إضافية لهذا البلاغ.'
+                            : dispute.description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.6,
+                          color: Color(0xFF454651),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Color(0xFF454651),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    _formatDisputeDate(dispute.createdAt),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF454651),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Row(
                             children: [
-                              const Icon(
-                                Icons.delete_outline_rounded,
-                                color: Color(0xFF454651),
-                                size: 20,
+                              const Text(
+                                'تأثير الثقة:',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF454651),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               const SizedBox(width: 6),
-                              Flexible(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: trustImpactBackground,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
                                 child: Text(
-                                  _formatDisputeDate(dispute.createdAt),
-                                  style: const TextStyle(
+                                  _trustImpactLabel(dispute.trustImpactPoints),
+                                  style: TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF454651),
-                                    fontWeight: FontWeight.w500,
+                                    color: trustImpactColor,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Row(
-                          children: [
-                            const Text(
-                              'تأثير الثقة:',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF454651),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: trustImpactBackground,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                _trustImpactLabel(dispute.trustImpactPoints),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: trustImpactColor,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Container(
-              width: 4,
-              decoration: BoxDecoration(
-                color: statusStyle.strip,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(18),
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: statusStyle.strip,
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(18),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

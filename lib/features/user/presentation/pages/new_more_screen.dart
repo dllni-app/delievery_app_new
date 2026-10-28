@@ -124,17 +124,10 @@ class MenuItem extends StatelessWidget {
             ),
             if (showChevron) ...[
               const SizedBox(width: 8),
-<<<<<<< HEAD
-              const DirectionalNavigationIcon(
-                purpose: NavigationArrowPurpose.forward,
-                childPointsRight: true,
-                child: Icon(Icons.chevron_right_rounded, color: Colors.black54),
-=======
               const Icon(
                 Icons.chevron_left_rounded,
                 textDirection: TextDirection.ltr,
                 color: Colors.black54,
->>>>>>> bc61447a5e36324b934662cab3e9256f43648b13
               ),
             ],
           ],
