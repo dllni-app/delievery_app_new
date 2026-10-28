@@ -53,6 +53,7 @@ class _DeliveryOrdersPageState extends State<DeliveryOrdersPage>
           color: AppColors.primary,
           onRefresh: deliveryCubit.loadDashboard,
           child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: PEdgeInsets.all,
             children: [
               if (order == null)
