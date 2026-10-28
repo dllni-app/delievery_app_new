@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../common/design/src/widgets/directional_navigation_icon.dart';
 import '../../../auth/presentation/pages/login_screen.dart';
 import '../bloc/user_bloc.dart';
 
@@ -123,10 +124,17 @@ class MenuItem extends StatelessWidget {
             ),
             if (showChevron) ...[
               const SizedBox(width: 8),
+<<<<<<< HEAD
+              const DirectionalNavigationIcon(
+                purpose: NavigationArrowPurpose.forward,
+                childPointsRight: true,
+                child: Icon(Icons.chevron_right_rounded, color: Colors.black54),
+=======
               const Icon(
                 Icons.chevron_left_rounded,
                 textDirection: TextDirection.ltr,
                 color: Colors.black54,
+>>>>>>> bc61447a5e36324b934662cab3e9256f43648b13
               ),
             ],
           ],

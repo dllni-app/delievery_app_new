@@ -38,6 +38,7 @@ class PinWidget extends StatelessWidget {
             fillColor: Colors.white,
             cursorColor: AppColors.primary,
             textStyle: TextStyle(
+              fontFamily: 'Cairo',
               color: AppColors.primary,
               fontSize: 14,
             ),

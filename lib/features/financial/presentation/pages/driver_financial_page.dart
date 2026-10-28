@@ -275,7 +275,7 @@ class _TransactionsSection extends StatelessWidget {
               onPressed: transactions.isEmpty
                   ? null
                   : () => _showAllTransactions(context, transactions),
-              icon: const Icon(Icons.chevron_left, size: 18),
+              icon: const Icon(Icons.chevron_right, size: 18),
               label: const Text('عرض الكل'),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),

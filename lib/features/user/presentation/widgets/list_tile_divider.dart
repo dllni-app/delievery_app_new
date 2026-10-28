@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../common/design/src/theme/assets.gen.dart';
+import '../../../../common/design/src/widgets/directional_navigation_icon.dart';
 import '../../../../common/design/src/widgets/my_custom_widget/rotating_widget.dart';
 import '../../../../common/design/src/widgets/svg_asset.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
@@ -37,10 +38,7 @@ class ListTileDivider extends StatelessWidget {
       child: Column(
         children: [
           ListTile(
-            title: Text(
-              title,
-              style: TextStyle(fontSize: 16),
-            )
+            title: Text(title, style: TextStyle(fontSize: 16))
                 .animate()
                 .fadeIn(delay: 200.ms, duration: 600.ms)
                 .scale(
@@ -138,8 +136,6 @@ class _ListTileLogOutWidgetState extends State<ListTileLogOutWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isArabic = context.locale.languageCode == 'ar';
-
     return BlocListener<AuthBloc, AuthState>(
       bloc: authBloc,
       listener: (context, state) {
@@ -163,9 +159,7 @@ class _ListTileLogOutWidgetState extends State<ListTileLogOutWidget> {
                       const SizedBox(height: 12),
                       Text(
                         LocaleKeys.profileConfirmLogOut.tr(),
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
+                        style: TextStyle(fontSize: 20),
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -214,10 +208,7 @@ class _ListTileLogOutWidgetState extends State<ListTileLogOutWidget> {
         child: ListTile(
           title: Text(
             LocaleKeys.drawerLogOut.tr(),
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.red,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.red),
           ),
           leading: Padding(
             padding: const EdgeInsets.all(10),
@@ -228,13 +219,10 @@ class _ListTileLogOutWidgetState extends State<ListTileLogOutWidget> {
               height: 25,
             ),
           ),
-          trailing: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(isArabic ? 1.0 : -1.0, -1.0),
-            child: SvgAsset(
-              Assets.images.svg.nextArrowIcon,
-              color: Colors.red,
-            ),
+          trailing: DirectionalNavigationIcon(
+            purpose: NavigationArrowPurpose.forward,
+            childPointsRight: false,
+            child: SvgAsset(Assets.images.svg.nextArrowIcon, color: Colors.red),
           ),
         ),
       ),

@@ -221,11 +221,15 @@ class _ReportsTitleRow extends StatelessWidget {
             backgroundColor: Colors.white,
             minimumSize: const Size(44, 44),
           ),
+<<<<<<< HEAD
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF191C1D)),
+=======
           icon: const Icon(
             Icons.arrow_back,
             textDirection: TextDirection.ltr,
             color: Color(0xFF191C1D),
           ),
+>>>>>>> bc61447a5e36324b934662cab3e9256f43648b13
         ),
         const SizedBox(width: 8),
         const Expanded(
