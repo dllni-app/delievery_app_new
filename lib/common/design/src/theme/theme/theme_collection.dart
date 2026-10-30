@@ -14,7 +14,7 @@ class ThemeCollection {
       scaffoldBackgroundColor: palette.scaffoldBackground,
       useMaterial3: true,
       brightness: palette.brightness,
-      textTheme: getTextTheme(themeExt),
+      textTheme: getTextTheme(themeExt).apply(fontFamily: 'Cairo'),
       colorScheme: ColorScheme(
         brightness: palette.brightness,
         primary: palette.primary,

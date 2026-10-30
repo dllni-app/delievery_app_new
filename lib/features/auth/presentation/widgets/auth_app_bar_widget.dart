@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/design/src/theme/const.dart';
+import '../../../../common/design/src/widgets/directional_navigation_icon.dart';
 import '../../../../common/extensions/src/context_extensions.dart';
 import '../../../../core/utils/app_colors.dart';
 
@@ -28,10 +29,14 @@ class AuthAppBarWidget extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                icon: Icon(
-                  Icons.arrow_back_sharp,
-                  color: AppColors.primary,
-                  size: 30,
+                icon: DirectionalNavigationIcon(
+                  purpose: NavigationArrowPurpose.back,
+                  childPointsRight: false,
+                  child: Icon(
+                    Icons.arrow_back_sharp,
+                    color: AppColors.primary,
+                    size: 30,
+                  ),
                 ),
                 onPressed: () => context.pop(),
               ),

@@ -8,6 +8,7 @@ import '../../../user/presentation/bloc/user_bloc.dart';
 import '../../data/models/delivery_dispute_model.dart';
 import '../cubit/delivery_cubit.dart';
 import '../widgets/delivery_widgets.dart';
+import '../../../../common/design/src/widgets/directional_navigation_icon.dart';
 
 class DeliveryDisputesPage extends StatefulWidget {
   const DeliveryDisputesPage({super.key, this.initialFilter = 'all'});
@@ -240,10 +241,10 @@ class _ReportsTitleRow extends StatelessWidget {
             backgroundColor: Colors.white,
             minimumSize: const Size(44, 44),
           ),
-          icon: const Icon(
-            Icons.arrow_back,
-            textDirection: TextDirection.ltr,
-            color: Color(0xFF191C1D),
+          icon: const DirectionalNavigationIcon(
+            purpose: NavigationArrowPurpose.back,
+            childPointsRight: false,
+            child: Icon(Icons.arrow_back, color: Color(0xFF191C1D)),
           ),
         ),
         const SizedBox(width: 8),

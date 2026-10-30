@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../extensions/extensions.dart';
+import 'directional_navigation_icon.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
@@ -20,7 +21,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () {
           context.pop();
         },
-        icon: const Icon(Icons.arrow_back_ios_new_outlined),
+        icon: const DirectionalNavigationIcon(
+          purpose: NavigationArrowPurpose.back,
+          childPointsRight: false,
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
       ),
       actions: actions,
     );

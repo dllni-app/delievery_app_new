@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/snck_bars.dart';
+import '../../../../common/design/src/widgets/directional_navigation_icon.dart';
 import '../../../delivery/data/models/delivery_offer_model.dart';
 import '../../../delivery/presentation/pages/delivery_disputes_page.dart';
 import '../../../delivery/presentation/pages/delivery_order_details_page.dart';
@@ -639,7 +640,11 @@ class _NewOfferPreview extends StatelessWidget {
                   alignment: AlignmentDirectional.centerStart,
                   child: TextButton.icon(
                     onPressed: () => _openOfferDetails(context),
-                    icon: const Icon(Icons.arrow_forward_ios, size: 15),
+                    icon: const DirectionalNavigationIcon(
+                      purpose: NavigationArrowPurpose.forward,
+                      childPointsRight: true,
+                      child: Icon(Icons.arrow_forward_ios, size: 15),
+                    ),
                     label: const Text('عرض تفاصيل الطلب والمسار'),
                   ),
                 ),
